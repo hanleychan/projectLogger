@@ -1,13 +1,14 @@
 <?php
+
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
-require_once("../config.php");
-require_once('../vendor/autoload.php');
+require_once '../config.php';
+require_once '../vendor/autoload.php';
 
-$config["displayErrorDetails"] = true;
+$config['displayErrorDetails'] = true;
 
-$app = new \Slim\App(["settings" => $config]);
+$app = new \Slim\App(['settings' => $config]);
 
 // Get container
 $container = $app->getContainer();
@@ -15,7 +16,7 @@ $container = $app->getContainer();
 // Register view component on container
 $container['view'] = function ($c) {
     $view = new \Slim\Views\Twig('../templates', [
-        'cache' => false
+        'cache' => false,
     ]);
     $view->addExtension(new \Slim\Views\TwigExtension(
         $c['router'],
@@ -35,18 +36,19 @@ $container['db'] = function ($c) {
 // Register flash component on container
 $container['flash'] = function ($c) {
     session_start();
+
     return new \Slim\Flash\Messages();
 };
 
 // Add middleware
 $app->add(function (Request $request, Response $response, callable $next) {
     $this->view->offsetSet('flash', $this->flash);
+
     return $next($request, $response);
 });
 
 $app->get('/', function (Request $request, Response $response) {
     return $this->view->render($response, 'index.twig');
-})->setName("home");
+})->setName('home');
 
 $app->run();
-
