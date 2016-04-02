@@ -5,6 +5,9 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 require_once '../config.php';
 require_once '../vendor/autoload.php';
+spl_autoload_register(function($classname) {
+    require_once("../classes/" . $classname . ".php");
+});
 
 $config['displayErrorDetails'] = true;
 
@@ -54,18 +57,27 @@ $app->add(function (Request $request, Response $response, callable $next) {
     return $next($request, $response);
 });
 
+// Home route
 $app->get('/', function (Request $request, Response $response) {
-    return $this->view->render($response, 'index.twig');
+    $router = $this->router;
+
+    // Redirect to main page if logged in. Otherwise go to login page
+    if ($this->session->isLoggedIn()) {
+       // code to direct to main page here 
+    } else {
+        return $response->withRedirect($router->pathFor('login'));
+    }
+    
 })->setName('home');
 
 // Register route
 $app->get('/register', function (Request $request, Response $response) {
     return $this->view->render($response, 'register.twig');
-});
+})->setName('register');
 
 // Login route
 $app->get('/login', function (Request $request, Response $response) {
     return $this->view->render($response, 'login.twig');
-})->setName('home');
+})->setName('login');
 
 $app->run();
