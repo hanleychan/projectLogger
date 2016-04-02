@@ -62,4 +62,10 @@ $app->get('/', function (Request $request, Response $response) {
 $app->get('/register', function (Request $request, Response $response) {
     return $this->view->render($response, 'register.twig');
 });
+
+// Login route
+$app->get('/login', function (Request $request, Response $response) {
+    return $this->view->render($response, 'login.twig');
+})->setName('home');
+
 $app->run();
