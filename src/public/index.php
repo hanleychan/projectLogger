@@ -58,4 +58,9 @@ $app->get('/', function (Request $request, Response $response) {
     return $this->view->render($response, 'index.twig');
 })->setName('home');
 
+// Login route
+$app->get('/login', function (Request $request, Response $response) {
+    return $this->view->render($response, 'login.twig');
+})->setName('home');
+
 $app->run();
