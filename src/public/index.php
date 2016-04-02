@@ -1,13 +1,13 @@
 <?php
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
-use \Slim\App;
 
-require('../vendor/autoload.php');
+require_once("../config.php");
+require_once('../vendor/autoload.php');
 
 $config["displayErrorDetails"] = true;
 
-$app = new App(["settings" => $config]);
+$app = new \Slim\App(["settings" => $config]);
 
 // Get container
 $container = $app->getContainer();
@@ -23,6 +23,13 @@ $container['view'] = function ($c) {
     ));
 
     return $view;
+};
+
+// Register db component on container
+$container['db'] = function ($c) {
+    $db = new MySQLDatabase(DB_HOST, DB_NAME, DB_PORT, DB_USER, DB_PASS);
+
+    return $db;
 };
 
 // Register flash component on container
