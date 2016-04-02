@@ -58,4 +58,8 @@ $app->get('/', function (Request $request, Response $response) {
     return $this->view->render($response, 'index.twig');
 })->setName('home');
 
+// Register route
+$app->get('/register', function (Request $request, Response $response) {
+    return $this->view->render($response, 'register.twig');
+});
 $app->run();
