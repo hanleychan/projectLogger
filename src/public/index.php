@@ -33,6 +33,13 @@ $container['db'] = function ($c) {
     return $db;
 };
 
+// Register session component on container
+$container['session'] = function ($c) {
+    $session = new Session(BASE_URL);
+
+    return $session;
+};
+
 // Register flash component on container
 $container['flash'] = function ($c) {
     session_start();
