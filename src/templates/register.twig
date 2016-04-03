@@ -2,4 +2,16 @@
 
 {% block content %}
     <h2>Register Page</h2>
+    <form action="{{ path_for('processRegister') }}" method="post">
+        <label for="username">Username:</label><br>
+        <input type="text" id="username" name="username"><br>
+
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password"><br>
+
+        <label for="confirmPassword">Confirm Password:</label><br>
+        <input type="password" id="password2" name="password2"><br>
+
+        <input type="submit">
+    </form>
 {% endblock %}

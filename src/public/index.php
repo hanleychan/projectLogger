@@ -73,6 +73,11 @@ $app->get('/register', function ($request, $response) {
     return $this->view->render($response, 'register.twig');
 })->setName('register');
 
+// Process register form
+$app->post('/register', function ($request, $response) {
+    return "PROCESS REGISTER FORM";
+})->setName('processRegister');
+
 // Login route
 $app->get('/login', function ($request, $response) {
     return $this->view->render($response, 'login.twig');
@@ -84,3 +89,4 @@ $app->post('/login', function ($request, $response) {
 })->setName('processLogin');
 
 $app->run();
+
