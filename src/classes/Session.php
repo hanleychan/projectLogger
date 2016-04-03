@@ -3,7 +3,8 @@ class Session
 {
     private $loggedIn = false;
     private $previousPage;
-    public $adminID;
+    public $userID;
+    const PROJECT_TITLE = "time";
 
     /**
      * Sets up session and loads previousPage.
@@ -14,38 +15,38 @@ class Session
             session_start();
         }
 
-        if (!isset($_SESSION['url']['prevPage'])) {
+        if (!isset($_SESSION[self::PROJECT_TITLE]['prevPage'])) {
             $this->previousPage = $baseURL;
         } else {
-            $this->previousPage = $_SESSION['url']['prevPage'];
+            $this->previousPage = $_SESSION[self::PROJECT_TITLE]['prevPage'];
         }
 
         $this->checkLogin();
     }
 
     /**
-     * Login an admin by setting session variable.
+     * Login an user by setting session variable.
      */
-    public function login($admin)
+    public function login($user)
     {
-        if ($admin) {
-            $this->adminID = $_SESSION['url']['adminID'] = $admin->id;
+        if ($user) {
+            $this->userID = $_SESSION[self::PROJECT_TITLE]['userID'] = $user->id;
             $this->loggedIn = true;
         }
     }
 
     /**
-     * Logs out an admin by unsetting session variable.
+     * Logs out an user by unsetting session variable.
      */
     public function logout()
     {
         $this->loggedIn = false;
-        unset($this->adminID);
-        unset($_SESSION['url']['adminID']);
+        unset($this->userID);
+        unset($_SESSION[self::PROJECT_TITLE]['userID']);
     }
 
     /**
-     * Returns whether an admin is logged in.
+     * Returns whether an user is logged in.
      */
     public function isLoggedIn()
     {
@@ -57,12 +58,12 @@ class Session
      */
     private function checkLogin()
     {
-        if (isset($_SESSION['url']['adminID'])) {
+        if (isset($_SESSION[self::PROJECT_TITLE]['userID'])) {
             $this->loggedIn = true;
-            $this->adminID = $_SESSION['url']['adminID'];
+            $this->userID = $_SESSION[self::PROJECT_TITLE]['userID'];
         } else {
             $this->loggedIn = false;
-            unset($this->adminID);
+            unset($this->userID);
         }
     }
 
@@ -71,7 +72,7 @@ class Session
      */
     public function updatePage($page = 'home')
     {
-        $this->previousPage = $_SESSION['url']['prevPage'] = $page;
+        $this->previousPage = $_SESSION[self::PROJECT_TITLE]['prevPage'] = $page;
     }
 
     /**

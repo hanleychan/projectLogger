@@ -80,7 +80,13 @@ $app->post('/register', function ($request, $response) {
     $password2 = $request->getParam("password2");
     $router = $this->router;
 
-    if(User::doesUsernameExist($this->db, $username)) {
+    // redirect to main page if already logged in
+    if($this->session->isLoggedIn()) {
+        $router = $this->router;
+        return $response->withRedirect($router->pathFor('home'));
+    }
+
+    if(User::fetchUser($this->db, $username)) {
         $this->flash->addMessage("fail", "Username {$username} already exists");
         return $response->withRedirect($router->pathFor('register'));
     }
@@ -115,12 +121,33 @@ $app->post('/register', function ($request, $response) {
 
 // Login route
 $app->get('/login', function ($request, $response) {
+    // Redirect to main page if already logged in
+    if($this->session->isLoggedIn()) {
+        $router = $this->router;
+        return $response->withRedirect($router->pathFor('home'));
+    }
+
     return $this->view->render($response, 'login.twig');
 })->setName('login');
 
 // Process login form
 $app->post('/login', function ($request, $response) {
-    return "PROCESS LOGIN FORM";
+    $username = strtolower(trim($request->getParam("username")));
+    $password = $request->getParam("password");
+    $router = $this->router;
+
+    if($user = User::fetchUser($this->db, $username)) {
+        if(password_verify($password, $user->password)) {
+            // login user and redirect to main page
+            $this->session->login($user);
+            $this->flash->addMessage("success", "Login success");
+            return $response->withRedirect($router->pathFor('home'));
+        }
+    }
+
+    $this->flash->addMessage("fail","Username and/or password is incorrect");
+    return $response->withRedirect($router->pathFor('login'));
+
 })->setName('processLogin');
 
 $app->run();

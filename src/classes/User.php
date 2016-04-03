@@ -35,14 +35,14 @@ class User extends DatabaseObject
         }
     }
 
-    public static function doesUsernameExist($db, $username)
+    public static function fetchUser($db, $username)
     {
-        $sql = 'SELECT username FROM '. self::$tableName.' WHERE username = ? LIMIT 1';
+        $sql = 'SELECT * FROM '. self::$tableName.' WHERE username = ? LIMIT 1';
         $paramArray = array($username);
         $result = self::findBySql($db, $sql, $paramArray);
 
         if ($result) {
-            return true;
+            return $result[0];
         } else {
             return false;
         }
