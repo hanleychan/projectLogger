@@ -6,7 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-    <h1>Project Logs</h1>
+    <header>
+        <h1>Project Logs</h1>
+       {% if user %}
+            <p>Hello {{ user.username }}</p>
+            <ul>
+                <li><a href="{{ path_for('logout') }}">Logout</a></li>
+            </ul>
+        {% else %}
+            <ul>
+                <li><a href="{{ path_for("login") }}">Login</a></li>
+                <li><a href="{{ path_for("register") }}">Register</a></li>
+            </ul>
+       {% endif %}
+    </header>
+
    {% block content %}
    {% endblock %}
 

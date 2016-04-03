@@ -1,11 +1,15 @@
 {% extends 'layout.twig' %}
 
 {% block content %}
-    <p>Home Page</p>
+    <h2>Main Page</h2>
     {% for message in flash.message("fail") %}
         <p>{{ message}}</p>
     {% endfor %}
     {% for message in flash.message("success") %}
         <p>{{ message}}</p>
     {% endfor %}
+
+    <section id="activity">
+        <h3>Activity:</h3>
+    </section>
 {% endblock %}

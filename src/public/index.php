@@ -62,16 +62,19 @@ $app->get('/', function ($request, $response) {
 
     // Show main page if logged in. Otherwise redirect to login page
     if ($this->session->isLoggedIn()) {
-        return $this->view->render($response, 'index.twig'); 
+        $user = User::findById($this->db, $this->session->userID);
+        return $this->view->render($response, 'index.twig', compact("user")); 
     } else {
         return $response->withRedirect($router->pathFor('login'));
     }
 })->setName('home');
 
+
 // Register route
 $app->get('/register', function ($request, $response) {
     return $this->view->render($response, 'register.twig');
 })->setName('register');
+
 
 // Process register form
 $app->post('/register', function ($request, $response) {
@@ -119,6 +122,7 @@ $app->post('/register', function ($request, $response) {
 
 })->setName('processRegister');
 
+
 // Login route
 $app->get('/login', function ($request, $response) {
     // Redirect to main page if already logged in
@@ -129,6 +133,7 @@ $app->get('/login', function ($request, $response) {
 
     return $this->view->render($response, 'login.twig');
 })->setName('login');
+
 
 // Process login form
 $app->post('/login', function ($request, $response) {
@@ -150,6 +155,7 @@ $app->post('/login', function ($request, $response) {
 
 })->setName('processLogin');
 
+
 // Logout route
 $app->get('/logout', function ($request, $response) {
     if($this->session->isLoggedIn()) {
@@ -162,7 +168,7 @@ $app->get('/logout', function ($request, $response) {
 
     $router = $this->router;
     return $response->withRedirect($router->pathFor('login')); 
-});
+})->setName('logout');
 
 $app->run();
 
