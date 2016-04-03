@@ -75,7 +75,39 @@ $app->get('/register', function ($request, $response) {
 
 // Process register form
 $app->post('/register', function ($request, $response) {
-    return "PROCESS REGISTER FORM";
+    $username = strtolower(trim($request->getParam("username")));
+    $password = $request->getParam("password");
+    $password2 = $request->getParam("password2");
+
+    if(User::doesUsernameExist($this->db, $username)) {
+        $this->flash->addMessage("fail", "Error: Username {$username} already exists");
+        echo "USERNAME EXISTS";
+        exit;
+    }
+    elseif(!User::isValidFormatUsername($username)) {
+        $this->flash->addMessage("fail", 
+                                 "Error: Username can contain only letters and numbers and be between " . 
+                                 User::USERNAME_MIN_LENGTH . " & " . User::USERNAME_MAX_LENGTH . 
+                                 " characters long");
+        echo "INVALID FORMAT";
+        exit;
+    }
+    elseif(!User::isValidPassword($password)) {
+        echo "PASSWORD BETWEEN " . User::PASSWORD_MIN_LENGTH . "& " . User::PASSWORD_MAX_LENGTH . " characters";
+        exit;
+    }
+    elseif(!User::doPasswordsMatch($password, $password2)) {
+        echo "PASSWORDS NOT MATCHING";
+        exit;
+    }
+    else {
+        $user = new User($this->db);
+        $user->username = $username;
+        $user->password = $password;
+        $user->save();
+        echo "USER CREATED";
+    }
+
 })->setName('processRegister');
 
 // Login route
