@@ -1,7 +1,12 @@
 <?php
 
 require_once '../config.php';
+
+// autoload classes
 require_once '../vendor/autoload.php';
+spl_autoload_register(function($classname) {
+    require_once("../classes/" . $classname . ".php");
+});
 
 $config['displayErrorDetails'] = true;
 
@@ -51,8 +56,16 @@ $app->add(function ($request, $response, $next) {
     return $next($request, $response);
 });
 
+// Home route
 $app->get('/', function ($request, $response) {
-    return $this->view->render($response, 'index.twig');
+    $router = $this->router;
+
+    // Show main page if logged in. Otherwise redirect to login page
+    if ($this->session->isLoggedIn()) {
+        return $this->view->render($response, 'index.twig'); 
+    } else {
+        return $response->withRedirect($router->pathFor('login'));
+    }
 })->setName('home');
 
 // Register route
@@ -64,5 +77,11 @@ $app->get('/register', function ($request, $response) {
 $app->post('/register', function ($request, $response) {
     return "PROCESS REGISTER FORM";
 })->setName('processRegister');
+
+// Login route
+$app->get('/login', function ($request, $response) {
+    return $this->view->render($response, 'login.twig');
+})->setName('login');
+
 $app->run();
 
