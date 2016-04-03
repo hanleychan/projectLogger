@@ -2,6 +2,12 @@
 
 {% block content %}
     <h2>Register Page</h2>
+    {% for message in flash.message("fail") %}
+        <p>{{ message}}</p>
+    {% endfor %}
+    {% for message in flash.message("success") %}
+        <p>{{ message}}</p>
+    {% endfor %}
     <form action="{{ path_for('processRegister') }}" method="post">
         <label for="username">Username:</label><br>
         <input type="text" id="username" name="username"><br>

@@ -1,7 +1,13 @@
 {% extends 'layout.twig' %}
 
 {% block content %}
-    <p>Login Page</p>
+   <p>Login Page</p>
+    {% for message in flash.message("fail") %}
+        <p>{{ message}}</p>
+    {% endfor %}
+    {% for message in flash.message("success") %}
+        <p>{{ message}}</p>
+    {% endfor %}
     <form action="{{ path_for("processLogin") }}" method="post">
         <label for="username"><br>
         <input type="text" id="username" name="username"><br>

@@ -1,5 +1,7 @@
 <?php
 
+session_start();
+
 require_once '../config.php';
 
 // autoload classes
@@ -44,8 +46,6 @@ $container['session'] = function ($c) {
 
 // Register flash component on container
 $container['flash'] = function ($c) {
-    session_start();
-
     return new \Slim\Flash\Messages();
 };
 
@@ -78,34 +78,37 @@ $app->post('/register', function ($request, $response) {
     $username = strtolower(trim($request->getParam("username")));
     $password = $request->getParam("password");
     $password2 = $request->getParam("password2");
+    $router = $this->router;
 
     if(User::doesUsernameExist($this->db, $username)) {
-        $this->flash->addMessage("fail", "Error: Username {$username} already exists");
-        echo "USERNAME EXISTS";
-        exit;
+        $this->flash->addMessage("fail", "Username {$username} already exists");
+        return $response->withRedirect($router->pathFor('register'));
     }
     elseif(!User::isValidFormatUsername($username)) {
         $this->flash->addMessage("fail", 
-                                 "Error: Username can contain only letters and numbers and be between " . 
+                                 "Username can contain only letters and numbers and be between " . 
                                  User::USERNAME_MIN_LENGTH . " & " . User::USERNAME_MAX_LENGTH . 
                                  " characters long");
-        echo "INVALID FORMAT";
-        exit;
+        return $response->withRedirect($router->pathFor('register'));
     }
     elseif(!User::isValidPassword($password)) {
-        echo "PASSWORD BETWEEN " . User::PASSWORD_MIN_LENGTH . "& " . User::PASSWORD_MAX_LENGTH . " characters";
-        exit;
+        $this->flash->addMessage("fail",
+                                 "Passwords must be at least " . USER::PASSWORD_MIN_LENGTH . " characters long");
+        return $response->withRedirect($router->pathFor('register'));
     }
     elseif(!User::doPasswordsMatch($password, $password2)) {
-        echo "PASSWORDS NOT MATCHING";
-        exit;
+        $this->flash->addMessage("fail", "Passwords must match");
+        return $response->withRedirect($router->pathFor('register'));
     }
     else {
         $user = new User($this->db);
         $user->username = $username;
         $user->password = User::encryptPassword($password);
         $user->save();
-        echo "USER CREATED";
+        $this->flash->addMessage("success", "You have successfully registered");
+
+        // redirect to login page
+        return $response->withRedirect($router->pathFor('login'));
     }
 
 })->setName('processRegister');
