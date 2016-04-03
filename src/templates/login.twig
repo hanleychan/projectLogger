@@ -2,4 +2,13 @@
 
 {% block content %}
     <p>Login Page</p>
+    <form action="{{ path_for("processLogin") }}" method="post">
+        <label for="username"><br>
+        <input type="text" id="username" name="username"><br>
+
+        <label for="password"><br>
+        <input type="password" id="password" name="password"><br>
+
+        <input type="submit">
+    </form>
 {% endblock %}

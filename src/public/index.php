@@ -66,7 +66,6 @@ $app->get('/', function ($request, $response) {
     } else {
         return $response->withRedirect($router->pathFor('login'));
     }
-    
 })->setName('home');
 
 // Register route
@@ -78,5 +77,10 @@ $app->get('/register', function ($request, $response) {
 $app->get('/login', function ($request, $response) {
     return $this->view->render($response, 'login.twig');
 })->setName('login');
+
+// Process login form
+$app->post('/login', function ($request, $response) {
+    return "PROCESS LOGIN FORM";
+})->setName('processLogin');
 
 $app->run();
