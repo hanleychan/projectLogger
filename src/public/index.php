@@ -150,5 +150,19 @@ $app->post('/login', function ($request, $response) {
 
 })->setName('processLogin');
 
+// Logout route
+$app->get('/logout', function ($request, $response) {
+    if($this->session->isLoggedIn()) {
+        $this->session->logout();
+        $this->flash->addMessage("success", "Logout success");
+    } 
+    else {
+        $this->flash->addMessage("fail", "You are not logged in");
+    }
+
+    $router = $this->router;
+    return $response->withRedirect($router->pathFor('login')); 
+});
+
 $app->run();
 

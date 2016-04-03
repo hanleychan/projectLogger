@@ -9,12 +9,12 @@
         <p>{{ message}}</p>
     {% endfor %}
     <form action="{{ path_for("processLogin") }}" method="post">
-        <label for="username"><br>
+        <label for="username">Username:</label><br>
         <input type="text" id="username" name="username"><br>
 
-        <label for="password"><br>
+        <label for="password">Passowrd:</label><br>
         <input type="password" id="password" name="password"><br>
 
-        <input type="submit">
+        <input type="submit" value="Login">
     </form>
 {% endblock %}
