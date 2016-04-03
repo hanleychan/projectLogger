@@ -1,8 +1,5 @@
 <?php
 
-use \Psr\Http\Message\ServerRequestInterface as Request;
-use \Psr\Http\Message\ResponseInterface as Response;
-
 require_once '../config.php';
 require_once '../vendor/autoload.php';
 
@@ -48,19 +45,24 @@ $container['flash'] = function ($c) {
 };
 
 // Add middleware
-$app->add(function (Request $request, Response $response, callable $next) {
+$app->add(function ($request, $response, $next) {
     $this->view->offsetSet('flash', $this->flash);
 
     return $next($request, $response);
 });
 
-$app->get('/', function (Request $request, Response $response) {
+$app->get('/', function ($request, $response) {
     return $this->view->render($response, 'index.twig');
 })->setName('home');
 
 // Login route
-$app->get('/login', function (Request $request, Response $response) {
+$app->get('/login', function ($request, $response) {
     return $this->view->render($response, 'login.twig');
 })->setName('home');
+
+// Process login form
+$app->post('/login', function ($request, $response) {
+    return "PROCESS LOGIN FORM";
+})->setName('processLogin');
 
 $app->run();
