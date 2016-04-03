@@ -58,6 +58,11 @@ class User extends DatabaseObject
         }
     }
 
+    public static function encryptPassword($password)
+    {
+        return password_hash($password, PASSWORD_BCRYPT);
+    }
+
     public static function doPasswordsMatch($password1, $password2)
     {
         return $password1 === $password2 ? true : false;

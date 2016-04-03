@@ -103,7 +103,7 @@ $app->post('/register', function ($request, $response) {
     else {
         $user = new User($this->db);
         $user->username = $username;
-        $user->password = $password;
+        $user->password = User::encryptPassword($password);
         $user->save();
         echo "USER CREATED";
     }
