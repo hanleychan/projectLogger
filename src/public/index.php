@@ -72,6 +72,12 @@ $app->get('/', function ($request, $response) {
 
 // Register route
 $app->get('/register', function ($request, $response) {
+    // redirect to main page if already logged in
+    if($this->session->isLoggedIn()) {
+        $router = $this->router;
+        return $response->withRedirect($router->pathFor('home'));
+    }
+
     return $this->view->render($response, 'register.twig');
 })->setName('register');
 
@@ -82,12 +88,6 @@ $app->post('/register', function ($request, $response) {
     $password = $request->getParam("password");
     $password2 = $request->getParam("password2");
     $router = $this->router;
-
-    // redirect to main page if already logged in
-    if($this->session->isLoggedIn()) {
-        $router = $this->router;
-        return $response->withRedirect($router->pathFor('home'));
-    }
 
     if(User::fetchUser($this->db, $username)) {
         $this->flash->addMessage("fail", "Username {$username} already exists");
@@ -169,6 +169,35 @@ $app->get('/logout', function ($request, $response) {
     $router = $this->router;
     return $response->withRedirect($router->pathFor('login')); 
 })->setName('logout');
+
+
+// Projects route
+$app->get('/projects', function ($request, $response) {
+    $router = $this->router;
+
+    // Show main page if logged in. Otherwise redirect to login page
+    if ($this->session->isLoggedIn()) {
+        $user = User::findById($this->db, $this->session->userID);
+        return $this->view->render($response, "projects.twig", compact("user"));
+    } else {
+        return $response->withRedirect($router->pathFor('login'));
+    }
+})->setName('projects');
+
+
+// Account route
+$app->get('/account', function ($request, $response) {
+    $router = $this->router;
+
+    // Show main page if logged in. Otherwise redirect to login page
+    if ($this->session->isLoggedIn()) {
+        $user = User::findById($this->db, $this->session->userID);
+        return $this->view->render($response, "account.twig", compact("user"));
+    } else {
+        return $response->withRedirect($router->pathFor('login'));
+    }
+})->setName('account');
+
 
 $app->run();
 
