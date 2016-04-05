@@ -175,14 +175,60 @@ $app->get('/logout', function ($request, $response) {
 $app->get('/projects', function ($request, $response) {
     $router = $this->router;
 
-    // Show main page if logged in. Otherwise redirect to login page
+    // Show projects page if logged in. Otherwise redirect to login page
     if ($this->session->isLoggedIn()) {
         $user = User::findById($this->db, $this->session->userID);
+
         return $this->view->render($response, "projects.twig", compact("user"));
     } else {
         return $response->withRedirect($router->pathFor('login'));
     }
 })->setName('projects');
+
+
+// Add new project route
+$app->get('/projects/add', function ($request, $response) {
+    // Show add project page if logged in. Otherwise redirect to login page
+    if ($this->session->isLoggedIn()) {
+        $user = User::findById($this->db, $this->session->userID);
+        return $this->view->render($response, "addProject.twig", compact("user"));
+    } else {
+        return $response->withRedirect($router->pathFor('login'));
+    }
+})->setName('addProject');
+
+
+// Process add new project route
+$app->post('/projects/add', function ($request, $response) {
+    // Show add project page if logged in. Otherwise redirect to login page
+    if ($this->session->isLoggedIn()) {
+        $user = User::findById($this->db, $this->session->userID);
+        $projectName = strtolower(trim($request->getParam("projectName")));
+
+        if(Project::doesProjectExist($this->db, $projectName)) {
+            return "ERROR ALREADY EXISTS";
+        }
+
+        if(Project::isValidProjectName($projectName)) {
+            $project = new Project($this->db);
+            $project->projectName = $projectName;
+            $project->ownerID = $user->id;
+            $project->save();
+            
+            $projectMember = new ProjectMember($this->db);
+            $projectMember->userID = $user->id;
+            $projectMember->projectID = $project->id;
+            $projectMember->isAdmin = true;
+            $projectMember->save();
+            return "Project added";
+        }
+        else {
+            return "ERROR";
+        }
+    } else {
+        return $response->withRedirect($router->pathFor('login'));
+    }
+})->setName('processAddProject');
 
 
 // Account route
