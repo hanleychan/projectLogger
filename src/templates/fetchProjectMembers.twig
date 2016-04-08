@@ -1,1 +1,5 @@
 <h3>Members</h3>
+{% for projectMember in projectMembers %}
+    {{ projectMember.username }} <br>
+    {{ projectMember.ownerName }}
+{% endfor %}

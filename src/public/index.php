@@ -327,11 +327,27 @@ $app->post('/project/{name}', function($request, $response, $args) {
 
 
 $app->get('/project/{name}/projectLogs', function($request, $response, $args) {
+    $router = $this->router;
+    // Redirect to login page if not logged in
+    if(!$this->session->isLoggedIn()) {
+        return $response->withRedirect($router->pathFor('login'));
+    }
+
     return $this->view->render($response, "fetchProjectLogs.twig");
 })->setName("fetchProjectLogs");
 
 $app->get('/project/{name}/members', function($request, $response, $args) {
-    return $this->view->render($response, "fetchProjectMembers.twig");
+    $router = $this->router;
+    // Redirect to login page if not logged in
+    if(!$this->session->isLoggedIn()) {
+        return $response->withRedirect($router->pathFor('login'));
+    }
+
+    $page = "members";
+    $name = trim($args["name"]);
+
+    $projectMembers = Project::findProjectMembersByProjectName($this->db, $name); 
+    return $this->view->render($response, "fetchProjectMembers.twig", compact("page", "projectMembers"));
 })->setName("fetchProjectMembers");
 
 $app->get('/project/{name}/newLog', function($request, $response, $args) {

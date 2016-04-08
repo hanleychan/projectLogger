@@ -8,6 +8,7 @@ class Project extends DatabaseObject
     public $ownerName;
     public $userID;
     public $isAdmin;
+    public $username;
 
     const NAME_MAX_LENGTH = 20;
     const NAME_MIN_LENGTH = 1; 
@@ -51,7 +52,7 @@ class Project extends DatabaseObject
         $sql = "SELECT projects.id as id, projectName, ownerID, userID, isAdmin ";
         $sql .= "FROM projects INNER JOIN projectmembers ON projects.id = projectmembers.projectID ";
         $sql .= "WHERE userID = " . (int)$userID;
-        $result = self::findBySql($db, $sql);
+        $result = self::findBySQL($db, $sql);
 
         if($result) {
             return $result;
@@ -87,13 +88,28 @@ class Project extends DatabaseObject
         $sql .= "WHERE projectName = ? AND userID = " . (int)$userID . " LIMIT 1";
 
         $paramArray = array($projectName);
-        $result = self::findBySql($db, $sql, $paramArray);
+        $result = self::findBySQL($db, $sql, $paramArray);
         if($result) {
             return $result[0];
         } else {
             return false;
         }
 
+    }
+
+    public static function findProjectMembersByProjectName($db, $projectName)
+    {
+        $sql = "SELECT username  ";
+        $sql .= "FROM projectmembers INNER JOIN projects ON projects.id = projectID ";
+        $sql .= "INNER JOIN users ON userID = users.id ";
+        $sql .= "WHERE projectName = ?";
+        $paramArray = array($projectName);
+        $results = self::findBySQL($db, $sql, $paramArray);
+        if($results) {
+            return $results;
+        } else {
+            return false;
+        }
     }
 }
 
