@@ -5,8 +5,9 @@ class Project extends DatabaseObject
     public $id;
     public $projectName;
     public $ownerID;
-    protected $userID;
-    protected $isAdmin;
+    public $ownerName;
+    public $userID;
+    public $isAdmin;
 
     const NAME_MAX_LENGTH = 20;
     const NAME_MIN_LENGTH = 1; 
@@ -58,4 +59,41 @@ class Project extends DatabaseObject
             return false;
         }
     }
+
+    /**
+     * Returns a project for a specified project name
+     */
+    public static function findProjectByName($db, $projectName)
+    {
+        $sql = "SELECT projects.id as id, projectName, ownerID, username as ownerName FROM projects INNER JOIN users ON ownerID = users.id WHERE projectName = ? LIMIT 1";
+        $paramArray = array($projectName);
+
+        $result = self::findBySQL($db, $sql, $paramArray);
+        if($result) {
+            return $result[0];
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Returns a project by both project name and userID
+     */
+    public static function findProjectByNameAndUser($db, $projectName, $userID)
+    {
+        $sql = "SELECT projects.id as id, projectName, ownerID, userID, isAdmin, username as ownerName ";
+        $sql .= "FROM projects INNER JOIN projectmembers ON projects.id = projectmembers.projectID ";
+        $sql .= "INNER JOIN users ON projects.ownerID = users.id ";
+        $sql .= "WHERE projectName = ? AND userID = " . (int)$userID . " LIMIT 1";
+
+        $paramArray = array($projectName);
+        $result = self::findBySql($db, $sql, $paramArray);
+        if($result) {
+            return $result[0];
+        } else {
+            return false;
+        }
+
+    }
 }
+

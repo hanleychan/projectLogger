@@ -1,0 +1,11 @@
+<h3>Add New Log</h3>
+
+<form action="{{ path_for("addProjectLog", {'name': projectName})  }}" method="post">
+    date <input type="text" id="datePicker" name="datePicker" placeholder="mm/dd/yyyy"><br>
+    hours <input type="number" id="hours" name="hours" min="0" max="24"><br>
+    minutes <input type="number" id="minutes" name="minutes" min="0" max="59"><br>
+    comment <input type="text" id="comment" name="comment"><br>
+    <input type="hidden" name="projectID" value="{{ projectID }}">
+    <input type="submit" value="Save">
+</form>
+

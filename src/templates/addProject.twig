@@ -2,7 +2,12 @@
 
 {% block content %}
 <h2>Add project</h2>
-
+{% for message in flash.message("fail") %}
+    <p>{{ message}}</p>
+{% endfor %}
+{% for message in flash.message("success") %}
+    <p>{{ message}}</p>
+{% endfor %}
 <form action="{{ path_for('processAddProject') }}" method="post">
     <label for="projectName">Project Name:</label><br>
     <input type="text" id="projectName" name="projectName"><br>

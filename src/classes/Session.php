@@ -4,7 +4,7 @@ class Session
     private $loggedIn = false;
     private $previousPage;
     public $userID;
-    const PROJECT_TITLE = "time";
+    const PROJECT_TITLE = "";
 
     /**
      * Sets up session and loads previousPage.
@@ -15,10 +15,10 @@ class Session
             session_start();
         }
 
-        if (!isset($_SESSION[self::PROJECT_TITLE]['prevPage'])) {
+        if (!isset($_SESSION[static::PROJECT_TITLE]['prevPage'])) {
             $this->previousPage = $baseURL;
         } else {
-            $this->previousPage = $_SESSION[self::PROJECT_TITLE]['prevPage'];
+            $this->previousPage = $_SESSION[static::PROJECT_TITLE]['prevPage'];
         }
 
         $this->checkLogin();
@@ -30,7 +30,7 @@ class Session
     public function login($user)
     {
         if ($user) {
-            $this->userID = $_SESSION[self::PROJECT_TITLE]['userID'] = $user->id;
+            $this->userID = $_SESSION[static::PROJECT_TITLE]['userID'] = $user->id;
             $this->loggedIn = true;
         }
     }
@@ -42,7 +42,7 @@ class Session
     {
         $this->loggedIn = false;
         unset($this->userID);
-        unset($_SESSION[self::PROJECT_TITLE]['userID']);
+        unset($_SESSION[static::PROJECT_TITLE]['userID']);
     }
 
     /**
@@ -58,9 +58,9 @@ class Session
      */
     private function checkLogin()
     {
-        if (isset($_SESSION[self::PROJECT_TITLE]['userID'])) {
+        if (isset($_SESSION[static::PROJECT_TITLE]['userID'])) {
             $this->loggedIn = true;
-            $this->userID = $_SESSION[self::PROJECT_TITLE]['userID'];
+            $this->userID = $_SESSION[static::PROJECT_TITLE]['userID'];
         } else {
             $this->loggedIn = false;
             unset($this->userID);
@@ -68,17 +68,17 @@ class Session
     }
 
     /**
-     * Updates the previous page.
+     * Logs which page you were on 
      */
     public function updatePage($page = 'home')
     {
-        $this->previousPage = $_SESSION[self::PROJECT_TITLE]['prevPage'] = $page;
+        $this->previousPage = $_SESSION[static::PROJECT_TITLE]['prevPage'] = $page;
     }
 
     /**
-     * Fetch the previous page.
+     * Fetch the page you were on 
      */
-    public function getPrevPage()
+    public function getPage()
     {
         return $this->previousPage;
     }

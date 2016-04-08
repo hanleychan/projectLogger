@@ -2,6 +2,21 @@
 
 {% block content %}
 <h2>Projects</h2>
+{% for message in flash.message("fail") %}
+    <p>{{ message}}</p>
+{% endfor %}
+{% for message in flash.message("success") %}
+    <p>{{ message}}</p>
+{% endfor %}
 <p><a href="{{ path_for("addProject") }}">+ Add New Project</a></p>
 <h3>My Projects</h3>
+{% if projects %}
+    <ul>
+    {% for project in projects %}
+        <li><a href="{{ path_for('project', {'name': project.projectName}) }}">{{ project.projectName }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+<p>You are not a member of any project groups</p>
+{% endif %}
 {% endblock %}

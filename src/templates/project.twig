@@ -1,0 +1,89 @@
+{% extends 'layout.twig' %}
+
+{% block head %}
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+{% endblock %}
+
+{% block content %}
+<h2>Project: {{ project.projectName }}</h2>
+{% if not projectMember %}
+    <p>Request to join</p>
+{% endif %}
+{% for message in flash.message("fail") %}
+    <p>{{ message}}</p>
+{% endfor %}
+{% for message in flash.message("success") %}
+    <p>{{ message}}</p>
+{% endfor %}
+
+<ul>
+    <li>Owner: {{ project.ownerName }}</li>
+    <li>Total Hours:</li>
+    <li>Total Hours By Me:</li>
+    
+</ul>
+<ul>
+    <li id="log"><a href="">View Log</a></li>
+    <li id="members"><a href="">View Members</a></li>
+    {% if projectMember %}
+        <li id="newLog"><a href="">Add New</a></li>
+    {% endif %}
+</ul>
+
+<div id="displayContent">
+        {% if page == "viewLogs" or not page %}
+            {% include "fetchProjectLogs.twig" %}
+        {% elseif page == "members" %}
+            {% include "fetchProjectMembers.twig" %}
+        {% elseif page == "addNewLog" %}
+            {% include "fetchAddNewLog.twig" %}
+        {% endif %}
+</div>
+<p><a href="{{ path_for('projects') }}">Return to projects</a></p>
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
+    <script>
+        function loadDatePicker() {
+            $("#datePicker").datepicker();
+        }
+
+        $("li#log a").click(function(event) {
+            event.preventDefault();
+            $.ajax({url: "{{ path_for("fetchProjectLogs", {'name':project.projectName}) }}", type:'get', success:function(result) {
+                $("div#displayContent").html(result);
+            }});
+        });
+        $("li#members a").click(function(event) {
+            event.preventDefault();
+            $.ajax({url: "{{ path_for("fetchProjectMembers", {'name':project.projectName}) }}", type:'get', success:function(result) {
+                $("div#displayContent").html(result);
+            }});
+        });
+        $("li#newLog a").click(function(event) {
+            event.preventDefault();
+            $.ajax({url: "{{ path_for("fetchAddNewLog", {'name':project.projectName}) }}",
+                    type:'get',
+                    data:{
+                        'projectID': '{{ project.id }}',
+                        'projectName': '{{ project.projectName }}'
+                    },
+                    success:function(result) {
+                        $("div#displayContent").html(result);
+                        loadDatePicker();
+                    }
+            });
+        });
+
+        {% if page == "addNewLog" %}
+            $(document).ready(function () {
+                loadDatePicker();
+            });
+        {% endif %}
+    </script>
+<script>
+</script>
+{% endblock %}
