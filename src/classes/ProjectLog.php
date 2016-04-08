@@ -7,9 +7,10 @@ class ProjectLog extends DatabaseObject
     public $userID;
     public $projectID;
     public $comment;
+    public $date;
 
     protected static $tableName = 'projectlogs';
-    protected static $dbFields = array('id', 'projectTime', 'userID', 'projectID', 'comment');
+    protected static $dbFields = array('id', 'projectTime', 'userID', 'projectID', 'comment', 'date');
 
     public static function isValidTime($hours, $minutes)
     {
@@ -24,7 +25,6 @@ class ProjectLog extends DatabaseObject
             return true;
         }
     }
-
 
     
 }

@@ -1,1 +1,21 @@
 <h3>Logs</h3>
+{% if not projectLogs %}
+<p>NO LOGS YET</p>
+{% else %}
+    <table>
+        <tr>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Comment</th>
+            <th>User</th>
+        </tr>
+    {% for projectLog in projectLogs %}
+        <tr>
+            <td>{{ projectLog.date }}</td>
+            <td>{{ projectLog.projectTime|slice(0,5) }}</td>
+            <td>{{ projectLog.comment }}</td>
+            <td>{{ projectLog.username }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+{% endif %}

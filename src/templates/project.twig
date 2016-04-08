@@ -19,7 +19,9 @@
 <ul>
     <li>Owner: {{ project.ownerName }}</li>
     <li>Total Hours:</li>
+    {% if projectMember %}
     <li>Total Hours By Me:</li>
+    {% endif %}
     
 </ul>
 <ul>
@@ -67,10 +69,6 @@
             event.preventDefault();
             $.ajax({url: "{{ path_for("fetchAddNewLog", {'name':project.projectName}) }}",
                     type:'get',
-                    data:{
-                        'projectID': '{{ project.id }}',
-                        'projectName': '{{ project.projectName }}'
-                    },
                     success:function(result) {
                         $("div#displayContent").html(result);
                         loadDatePicker();

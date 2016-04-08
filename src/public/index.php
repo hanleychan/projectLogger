@@ -271,27 +271,7 @@ $app->get('/project/{name}', function ($request, $response, $args) {
     }
 
     $name = $args["name"];
-    $user = User::findById($this->db, $this->session->userID);
-    $project = Project::findProjectByNameAndUser($this->db, $name, $this->session->userID);
-
-    // User is not a member of this project
-    if(!$project) {
-        $project = Project::findProjectByName($this->db, $name);
-        $projectMember = false;
-
-        // Error: Project doesn't exist
-        if(!$project) {
-            echo "NO SUCH PROJECT";
-            exit;
-        }
-    } else {
-        $projectMember = true;
-    }
-
-    $this->session->updatePage();
-
-
-    return $this->view->render($response, 'project.twig', compact("user", "project", "projectMember"));
+    return $response->withRedirect($router->pathFor("fetchProjectLogs", ["name"=>$name]));
 })->setName('project');
 
 
@@ -305,6 +285,7 @@ $app->post('/project/{name}', function($request, $response, $args) {
 
     $hours = (int)trim($request->getParam("hours"));
     $minutes = (int)trim($request->getParam("minutes"));
+    $date = date('Y-m-d', strtotime(trim($request->getParam("datePicker")))); // convert to YYYY-MM-DD
     $projectID = (int)trim($request->getParam("projectID"));
     $comment = trim($request->getParam("comment"));
 
@@ -320,12 +301,14 @@ $app->post('/project/{name}', function($request, $response, $args) {
     $projectLog->userID = $this->session->userID;
     $projectLog->projectID = $projectID;
     $projectLog->comment = $comment;
+    $projectLog->date = $date;
     $projectLog->save();
 
     return "project updated";
 })->setName('addProjectLog');
 
 
+// Route for getting all log entries for a project
 $app->get('/project/{name}/projectLogs', function($request, $response, $args) {
     $router = $this->router;
     // Redirect to login page if not logged in
@@ -333,9 +316,36 @@ $app->get('/project/{name}/projectLogs', function($request, $response, $args) {
         return $response->withRedirect($router->pathFor('login'));
     }
 
-    return $this->view->render($response, "fetchProjectLogs.twig");
+    $page = "viewLogs";
+    $name = trim($args["name"]);
+
+    // Check if project exists
+    if(!Project::doesProjectExist($this->db, $name)) {
+        return "NO SUCH PROJECT";
+        exit;
+    }
+
+    // Check if user is a member of this project
+    if(!$project = Project::findProjectByNameAndUser($this->db, $name, $this->session->userID)) {
+        $project = Project::findProjectByName($this->db, $name);
+        $projectMember = false;
+    } else {
+        $projectMember = true;
+    }
+
+    $projectLogs = Project::findLogsByProjectName($this->db, $name);
+
+    // Check if the request is an AJAX request
+    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        return $this->view->render($response, "fetchProjectLogs.twig", compact("page", "projectLogs"));
+    } else {
+        $user = User::findById($this->db, $this->session->userID);
+        return $this->view->render($response, "project.twig", compact("user", "project", "projectLogs", "page", "projectMember"));
+    }
 })->setName("fetchProjectLogs");
 
+
+// Route for fetching members of a project
 $app->get('/project/{name}/members', function($request, $response, $args) {
     $router = $this->router;
     // Redirect to login page if not logged in
@@ -345,11 +355,35 @@ $app->get('/project/{name}/members', function($request, $response, $args) {
 
     $page = "members";
     $name = trim($args["name"]);
+    
+    // Check if project exists
+    if(!Project::doesProjectExist($this->db, $name)) {
+        return "NO SUCH PROJECT";
+        exit;
+    }
+
+    // Check if user is a member of this project
+    if(!$project = Project::findProjectByNameAndUser($this->db, $name, $this->session->userID)) {
+        $project = Project::findProjectByName($this->db, $name);
+        $projectMember = false;
+    } else {
+        $projectMember = true;
+    }
 
     $projectMembers = Project::findProjectMembersByProjectName($this->db, $name); 
-    return $this->view->render($response, "fetchProjectMembers.twig", compact("page", "projectMembers"));
+
+    // Check if the request is an AJAX request
+    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        return $this->view->render($response, "fetchProjectMembers.twig", compact("page", "projectMembers"));
+    } else {
+        $user = User::findById($this->db, $this->session->userID);
+
+        return $this->view->render($response, "project.twig", compact("user", "project", "projectMembers", "page", "projectMember"));
+    }
 })->setName("fetchProjectMembers");
 
+
+// Route for adding a new project log entry
 $app->get('/project/{name}/newLog', function($request, $response, $args) {
     $router = $this->router;
     // Redirect to login page if not logged in
@@ -358,29 +392,28 @@ $app->get('/project/{name}/newLog', function($request, $response, $args) {
     }
 
     $page = "addNewLog";
+    $name = trim($args["name"]);
+
+    // Check if project exists
+    if(!Project::doesProjectExist($this->db, $name)) {
+        return "NO SUCH PROJECT";
+        exit;
+    }
+
+    if(!$project = Project::findProjectByNameAndUser($this->db, $name, $this->session->userID)) {
+        return "NOT A MEMBER OF PROJECT";
+        exit;
+    }
 
     // Check if the request is an AJAX request
     if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-        // fetch add new log form if AJAX request
-        $projectID = (int)$request->getParam("projectID");
-        $projectName = trim($request->getParam("projectName"));
-        return $this->view->render($response, "fetchAddNewLog.twig", compact("projectID", "projectName", "page"));
-    } else {
-        $name = $args["name"];
+        return $this->view->render($response, "fetchAddNewLog.twig", compact("project"));
+    } else { 
         $user = User::findById($this->db, $this->session->userID);
-        $project = Project::findProjectByNameAndUser($this->db, $name, $this->session->userID);
-
-        // User is not a member of this project
-        if(!$project) {
-            return "NOT A MEMBER OF PROJECT";
-            exit;
-        } 
-
         $projectMember = true;
 
         return $this->view->render($response, "project.twig", compact("user", "project", "projectMember", "page"));
     }
-
 })->setName("fetchAddNewLog");
 
 
