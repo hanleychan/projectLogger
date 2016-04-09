@@ -99,39 +99,5 @@ class Project extends DatabaseObject
             return false;
         }
     }
-
-    /**
-     * Returns all project members for a project from a specified project name
-     */
-    public static function findProjectMembersByProjectName($db, $projectName)
-    {
-        $sql = "SELECT ownerID, userID, username  ";
-        $sql .= "FROM projectmembers INNER JOIN projects ON projects.id = projectID ";
-        $sql .= "INNER JOIN users ON userID = users.id ";
-        $sql .= "WHERE projectName = ?";
-        $paramArray = array($projectName);
-        $results = self::findBySQL($db, $sql, $paramArray);
-        if($results) {
-            return $results;
-        } else {
-            return false;
-        }
-    }
-
-    public static function findLogsByProjectName($db, $projectName)
-    {
-        $sql = "SELECT username, date, comment, projectTime, userID ";
-        $sql .= "FROM projectlogs INNER JOIN users ON userID = users.id ";
-        $sql .= "INNER JOIN projects ON projectID = projects.id ";
-        $sql .= "WHERE projectName = ?";
-        $paramArray = array($projectName);
-
-        $results = self::findBySQL($db, $sql, $paramArray);
-        if($results) {
-            return $results;
-        } else {
-            return false;
-        }
-    }
 }
 

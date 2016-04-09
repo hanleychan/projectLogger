@@ -8,13 +8,24 @@
             <th>Time</th>
             <th>Comment</th>
             <th>User</th>
+            <th></th>
         </tr>
     {% for projectLog in projectLogs %}
         <tr>
             <td>{{ projectLog.date }}</td>
-            <td>{{ projectLog.projectTime|slice(0,5) }}</td>
+            <td>
+                {{ projectLog.projectHours }} {{ projectLog.projectMins }}
+            </td>
             <td>{{ projectLog.comment }}</td>
             <td>{{ projectLog.username }}</td>
+            {% if isAdmin or projectLog.canEdit %}
+            <td>
+                <form action="" method="get">
+                    <input type="hidden" name="projectID" value="{{ projectLog.id }}">
+                    <button type="submit">Edit</button>
+                </form>
+            </td>
+            {% endif %}
         </tr>
     {% endfor %}
     </table>

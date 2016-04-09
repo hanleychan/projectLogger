@@ -207,6 +207,20 @@ $app->get('/projects', function ($request, $response) {
     return $this->view->render($response, "projects.twig", compact("user", "projects"));
 })->setName('projects');
 
+$app->get('/projects/all', function($request, $response) {
+    $router = $this->router;
+
+    // Redirect to login page if not logged in
+    if(!$this->session->isLoggedIn()) {
+        return $response->withRedirect($router->pathFor('login'));
+    }
+
+    $projects = Project::findAll($this->db);
+    $user = User::findById($this->db, $this->session->userID);
+
+    return $this->view->render($response, "allProjects.twig", compact("user", "projects"));
+})->setName('allProjects');
+
 
 // Add new project route
 $app->get('/projects/add', function ($request, $response) {
@@ -285,9 +299,21 @@ $app->post('/project/{name}', function($request, $response, $args) {
 
     $hours = (int)trim($request->getParam("hours"));
     $minutes = (int)trim($request->getParam("minutes"));
-    $date = date('Y-m-d', strtotime(trim($request->getParam("datePicker")))); // convert to YYYY-MM-DD
+    $date = $request->getParam("datePicker"); 
     $projectID = (int)trim($request->getParam("projectID"));
     $comment = trim($request->getParam("comment"));
+
+
+    if(!$date = ProjectLog::formatDate($date)) {
+        echo "INVALID DATE";
+        exit;
+    }
+
+
+    if(!ProjectLog::isValidTime($hours, $minutes)) {
+        echo "INVALID TIME";
+        exit;
+    }
 
     // Check if user is a member of this project before updating log
     if(!ProjectMember::isProjectMember($this->db, $projectID, $this->session->userID)) {
@@ -325,22 +351,40 @@ $app->get('/project/{name}/projectLogs', function($request, $response, $args) {
         exit;
     }
 
-    // Check if user is a member of this project
-    if(!$project = Project::findProjectByNameAndUser($this->db, $name, $this->session->userID)) {
-        $project = Project::findProjectByName($this->db, $name);
-        $projectMember = false;
-    } else {
-        $projectMember = true;
-    }
+    $projectLogs = ProjectLog::findLogsByProjectName($this->db, $name);
+    $isAdmin = ProjectMember::isProjectAdmin($this->db, $name, $this->session->userID);
 
-    $projectLogs = Project::findLogsByProjectName($this->db, $name);
+    if($projectLogs) {
+        foreach($projectLogs as $projectLog) {
+            $hours = (int)substr(trim($projectLog->projectTime), 0, 2);
+            $mins = (int)substr(trim($projectLog->projectTime), 3, 2);
+            
+            $hours .= (($hours > 1) ? " hrs" : " hr");
+            $mins .= (($mins > 1) ? " mins" : " min"); 
+            $projectLog->projectHours = $hours;
+            $projectLog->projectMins = $mins;
+
+            if($projectLog->userID == $this->session->userID) {
+                $projectLog->canEdit = true;
+            }
+        }
+    }
 
     // Check if the request is an AJAX request
     if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-        return $this->view->render($response, "fetchProjectLogs.twig", compact("page", "projectLogs"));
+        return $this->view->render($response, "fetchProjectLogs.twig", compact("page", "projectLogs", "isAdmin"));
     } else {
         $user = User::findById($this->db, $this->session->userID);
-        return $this->view->render($response, "project.twig", compact("user", "project", "projectLogs", "page", "projectMember"));
+
+        // Check if user is a member of this project
+        if(!$project = Project::findProjectByNameAndUser($this->db, $name, $this->session->userID)) {
+            $project = Project::findProjectByName($this->db, $name);
+            $projectMember = false;
+        } else {
+            $projectMember = true;
+        }
+
+        return $this->view->render($response, "project.twig", compact("user", "project", "projectLogs", "page", "projectMember", "isAdmin"));
     }
 })->setName("fetchProjectLogs");
 
@@ -362,21 +406,21 @@ $app->get('/project/{name}/members', function($request, $response, $args) {
         exit;
     }
 
-    // Check if user is a member of this project
-    if(!$project = Project::findProjectByNameAndUser($this->db, $name, $this->session->userID)) {
-        $project = Project::findProjectByName($this->db, $name);
-        $projectMember = false;
-    } else {
-        $projectMember = true;
-    }
-
-    $projectMembers = Project::findProjectMembersByProjectName($this->db, $name); 
+    $projectMembers = ProjectMember::findProjectMembersByProjectName($this->db, $name); 
 
     // Check if the request is an AJAX request
     if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
         return $this->view->render($response, "fetchProjectMembers.twig", compact("page", "projectMembers"));
     } else {
         $user = User::findById($this->db, $this->session->userID);
+
+        // Check if user is a member of this project
+        if(!$project = Project::findProjectByNameAndUser($this->db, $name, $this->session->userID)) {
+            $project = Project::findProjectByName($this->db, $name);
+            $projectMember = false;
+        } else {
+            $projectMember = true;
+        }
 
         return $this->view->render($response, "project.twig", compact("user", "project", "projectMembers", "page", "projectMember"));
     }

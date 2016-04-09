@@ -8,8 +8,9 @@
 {% for message in flash.message("success") %}
     <p>{{ message}}</p>
 {% endfor %}
-<p><a href="{{ path_for("addProject") }}">+ Add New Project</a></p>
+<p><a href="{{ path_for('allProjects') }}">View all projects</a></p>
 <h3>My Projects</h3>
+<p><a href="{{ path_for("addProject") }}">+ Add New Project</a></p>
 {% if projects %}
     <ul>
     {% for project in projects %}

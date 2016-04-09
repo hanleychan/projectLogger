@@ -8,6 +8,7 @@ class ProjectLog extends DatabaseObject
     public $projectID;
     public $comment;
     public $date;
+    public $username;
 
     protected static $tableName = 'projectlogs';
     protected static $dbFields = array('id', 'projectTime', 'userID', 'projectID', 'comment', 'date');
@@ -17,14 +18,52 @@ class ProjectLog extends DatabaseObject
         $hours = (int)$hours;
         $minutes = (int)$minutes;
 
-        if($hours < 0 || $hours > 24) {
+        if ($hours === 24 && $minutes > 0) {
             return false;
-        } elseif ($hours === 24 && $minutes > 0) {
+        } elseif($hours < 0 || $minutes < 0) {
             return false;
         } else {
             return true;
         }
     }
 
+    /**
+     * Formats date from mm/dd/yyyy format to yyyy-mm-dd format
+     */
+    public static function formatDate($date)
+    {
+        $date = trim($date);
+        $month = substr($date, 0, 2);
+        $day = substr($date, 3, 2);
+        $year = substr($date, 6, 4);
+
+        // check if date is valid
+        if(strlen($date) != 10) {
+            return false;
+        } elseif ($date[2] !== '/' || $date[5] !== '/') {
+            return false;
+        } elseif (!checkdate($month, $day, $year)) {
+            return false;
+        } else {
+            $formattedDate = date('Y-m-d', strtotime($date));
+            return $formattedDate;
+        }
+    }
+
     
+    public static function findLogsByProjectName($db, $projectName)
+    {
+        $sql = "SELECT projectlogs.id as id, username, date, comment, projectTime, userID ";
+        $sql .= "FROM projectlogs INNER JOIN users ON userID = users.id ";
+        $sql .= "INNER JOIN projects ON projectID = projects.id ";
+        $sql .= "WHERE projectName = ?";
+        $paramArray = array($projectName);
+
+        $results = self::findBySQL($db, $sql, $paramArray);
+        if($results) {
+            return $results;
+        } else {
+            return false;
+        }
+    }
 }
