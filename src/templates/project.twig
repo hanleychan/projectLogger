@@ -25,10 +25,10 @@
     
 </ul>
 <ul>
-    <li id="log"><a href="">View Log</a></li>
-    <li id="members"><a href="">View Members</a></li>
+    <li id="log"><a href="{{ path_for('fetchProjectLogs', {'name': project.projectName}) }}">View Log</a></li>
+    <li id="members"><a href="{{ path_for('fetchProjectMembers', {'name': project.projectName}) }}">View Members</a></li>
     {% if projectMember %}
-        <li id="newLog"><a href="">Add New</a></li>
+        <li id="newLog"><a href="{{ path_for('fetchAddNewLog', {'name':project.projectName}) }}">Add New</a></li>
     {% endif %}
 </ul>
 
@@ -38,7 +38,9 @@
         {% elseif page == "members" %}
             {% include "fetchProjectMembers.twig" %}
         {% elseif page == "addNewLog" %}
-            {% include "fetchAddNewLog.twig" %}
+            {% include "fetchAddEditLog.twig" %}
+        {% elseif page == "editLog" %}
+            {% include "fetchAddEditLog.twig" %}
         {% endif %}
 </div>
 <p><a href="{{ path_for('projects') }}">Return to projects</a></p>
@@ -49,36 +51,9 @@
     <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 
     <script>
-        function loadDatePicker() {
-            $("#datePicker").datepicker();
-        }
-
-        $("li#log a").click(function(event) {
-            event.preventDefault();
-            $.ajax({url: "{{ path_for("fetchProjectLogs", {'name':project.projectName}) }}", type:'get', success:function(result) {
-                $("div#displayContent").html(result);
-            }});
-        });
-        $("li#members a").click(function(event) {
-            event.preventDefault();
-            $.ajax({url: "{{ path_for("fetchProjectMembers", {'name':project.projectName}) }}", type:'get', success:function(result) {
-                $("div#displayContent").html(result);
-            }});
-        });
-        $("li#newLog a").click(function(event) {
-            event.preventDefault();
-            $.ajax({url: "{{ path_for("fetchAddNewLog", {'name':project.projectName}) }}",
-                    type:'get',
-                    success:function(result) {
-                        $("div#displayContent").html(result);
-                        loadDatePicker();
-                    }
-            });
-        });
-
-        {% if page == "addNewLog" %}
+        {% if page == "addNewLog" or page == "editLog" %}
             $(document).ready(function () {
-                loadDatePicker();
+                $("#datePicker").datepicker();
             });
         {% endif %}
     </script>

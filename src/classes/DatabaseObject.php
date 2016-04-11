@@ -44,7 +44,11 @@ class DatabaseObject
             $sql = 'SELECT * FROM '.static::$tableName." WHERE id={$id} LIMIT 1";
             $results = static::findBySQL($db, $sql);
 
-            return $results[0];
+            if($results) {
+                return $results[0];
+            } else {
+                return false;
+            }
         }
     }
 

@@ -30,7 +30,7 @@ class ProjectLog extends DatabaseObject
     /**
      * Formats date from mm/dd/yyyy format to yyyy-mm-dd format
      */
-    public static function formatDate($date)
+    public static function formatDateToSQL($date)
     {
         $date = trim($date);
         $month = substr($date, 0, 2);
@@ -50,6 +50,28 @@ class ProjectLog extends DatabaseObject
         }
     }
 
+    /**
+     * Formats date from yyyy-mm-dd format to mm/dd/yyyy format
+     */
+    public static function formatDateFromSQL($date)
+    {
+        $date = trim($date);
+        $year = substr($date, 0, 4);
+        $month = substr($date, 5, 2);
+        $day = substr($date, 8, 2);
+
+        // check if date is valid
+        if(strlen($date) != 10) {
+            return false;
+        } elseif ($date[4] !== '-' || $date[7] !== '-') {
+            return false;
+        } elseif (!checkdate($month, $day, $year)) {
+            return false;
+        } else {
+            $formattedDate = date('m/d/Y', strtotime($date));
+            return $formattedDate;
+        }
+    }
     
     public static function findLogsByProjectName($db, $projectName)
     {
