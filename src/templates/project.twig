@@ -28,7 +28,7 @@
     <li id="log"><a href="{{ path_for('fetchProjectLogs', {'name': project.projectName}) }}">View Log</a></li>
     <li id="members"><a href="{{ path_for('fetchProjectMembers', {'name': project.projectName}) }}">View Members</a></li>
     {% if projectMember %}
-        <li id="newLog"><a href="{{ path_for('fetchAddNewLog', {'name':project.projectName}) }}">Add New</a></li>
+        <li id="newLog"><a href="{{ path_for('fetchAddNewLog', {'name':project.projectName}) }}">Add Log Entry</a></li>
     {% endif %}
 </ul>
 
