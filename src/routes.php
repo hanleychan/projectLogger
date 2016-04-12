@@ -371,6 +371,7 @@ $app->get('/project/{name}/members', function($request, $response, $args) {
     $projectMembers = ProjectMember::findProjectMembersByProjectName($this->db, $name); 
     $isAdmin = ProjectMember::isProjectAdmin($this->db, $name, $user->id);
 
+
     // Fetch project join requests
     if($isAdmin) {
         $requests = RequestJoinProject::getRequestsByProjectName($this->db, $name); 

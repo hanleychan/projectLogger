@@ -75,7 +75,8 @@ class ProjectMember extends DatabaseObject
         $sql = "SELECT ownerID, userID, username, isAdmin  ";
         $sql .= "FROM projectmembers INNER JOIN projects ON projects.id = projectID ";
         $sql .= "INNER JOIN users ON userID = users.id ";
-        $sql .= "WHERE projectName = ?";
+        $sql .= "WHERE projectName = ? ";
+        $sql .= "ORDER BY isAdmin DESC, username ASC";
         $paramArray = array($projectName);
         $results = self::findBySQL($db, $sql, $paramArray);
         if($results) {
