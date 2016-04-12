@@ -335,7 +335,9 @@ $app->get('/project/{name}/projectLogs', function($request, $response, $args) {
         }
     }
 
-    return $this->view->render($response, "project.twig", compact("user", "project", "projectLogs", "page", "projectMember", "isAdmin", "name"));
+    return $this->view->render($response, "project.twig", compact("user", "project", "projectLogs",
+                                                                  "page", "projectMember", "isAdmin",
+                                                                  "name"));
 })->setName("fetchProjectLogs");
 
 
@@ -369,9 +371,68 @@ $app->get('/project/{name}/members', function($request, $response, $args) {
     $projectMembers = ProjectMember::findProjectMembersByProjectName($this->db, $name); 
     $isAdmin = ProjectMember::isProjectAdmin($this->db, $name, $user->id);
 
-    return $this->view->render($response, "project.twig", compact("user", "project", "projectMembers", "page", "projectMember", "isAdmin"));
+    // Fetch project join requests
+    if($isAdmin) {
+        $requests = RequestJoinProject::getRequestsByProjectName($this->db, $name); 
+    }
+
+    return $this->view->render($response, "project.twig", compact("user", "project", "projectMembers", 
+                                                                  "page", "projectMember", "isAdmin",
+                                                                  "requests"));
 })->setName("fetchProjectMembers");
 
+
+// Route for accepting and declining project membership
+$app->post('/project/{name}/members/{username}', function($request, $response, $args) {
+    $router = $this->router;
+    // Redirect to login page if not logged in
+    if(!$this->session->isLoggedIn()) {
+        return $response->withRedirect($router->pathFor('login'));
+    }
+
+    $action = trim($request->getParam("action"));
+    $name = trim($args["name"]);
+    $username = trim($args["username"]);
+    $user = User::findById($this->db, $this->session->userID);
+
+    // Fetch project
+    if(!$project =  Project::findProjectByName($this->db, $name)) {
+        $this->flash->addMessage("fail", "Project does not exist");
+        return $response->withRedirect($router->pathFor('projects'));
+    } 
+
+    // Check if user is admin
+    if(!ProjectMember::isProjectAdmin($this->db, $name, $user->id)) {
+        $this->flash->addMessage("fail", "You do not have permission to perform this action");
+        return $response->withRedirect($router->pathFor('fetchProjectMembers', compact("name")));
+    }
+
+    // Fetch request
+    if(!$request = RequestJoinProject::getRequestByProjectNameAndUsername($this->db, $name, $username)) {
+        $this->flash->addMessage("fail", "Could not find request");
+        return $response->withRedirect($router->pathFor('fetchProjectMembers', compact("name")));
+    }
+
+    // Remove request
+    $request->delete();
+
+    if($action === "accept") {
+        // Add user to project member database 
+        $projectMember = new ProjectMember($this->db);
+        $projectMember->userID = $request->userID;
+        $projectMember->projectID = $project->id;
+        $projectMember->isAdmin = false;
+        $projectMember->save();
+
+        $this->flash->addMessage("success", "You have added {$username} to this project");
+    } elseif ($action === "decline") {
+        $this->flash->addMessage("success", "You have declined {$username} from joining this project");
+    } else {
+        $this->flash->addMessage("fail", "There was a problem processing this request");
+    }
+
+    return $response->withRedirect($router->pathFor('fetchProjectMembers', compact("name")));
+})->setName('processMemberRequest');
 
 // Route for adding a new project log entry
 $app->get('/project/{name}/newLog', function($request, $response, $args) {
@@ -529,7 +590,7 @@ $app->post('/project/{name}/request', function($request, $response, $args) {
     }
 
     // Check if user is already a member of this project
-    if(ProjectMember::isProjectMember($this->db, $name, $user->id)) {
+    if(ProjectMember::isProjectMemberByProjectName($this->db, $name, $user->id)) {
         $this->flash->addMessage("fail", "You are already a member of this project");
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
@@ -549,6 +610,7 @@ $app->post('/project/{name}/request', function($request, $response, $args) {
     $this->flash->addMessage("success", "Request to join project sent");
     return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
 })->setName('requestJoin');
+
 
 /**
  * Account Routes

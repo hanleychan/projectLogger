@@ -15,6 +15,20 @@
 {% endif %}
 
 {% if isAdmin %}
-<h4>Members that requested to join this project</h4>
-someuser <button>Accept</button><button>Decline</button>
+    <h4>Users requests to join this project:</h4>
+    {%if requests %}
+        <ul>
+        {% for request in requests %}
+            <li>
+                <form action="{{ path_for('processMemberRequest', {'name':project.projectName, 'username':request.username}) }}" method="post">
+                    {{ request.username }}
+                    <button type="submit" name="action" value="accept">Accept</button>
+                    <button type="submit" name="action" value="decline">Decline</button>
+                </form>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>There are no requests at this time</p>
+    {% endif %}
 {% endif %}
