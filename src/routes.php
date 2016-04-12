@@ -511,9 +511,43 @@ $app->post('/project/{name}/edit/{logID}', function($request, $response, $args) 
     return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
 })->setName('editLog');
 
-// Route for requesting to become a member of a project group
+// Route for requesting to join a project group
 $app->post('/project/{name}/request', function($request, $response, $args) {
-    return "REQUEST TIME";
+    $router = $this->router;
+    // Redirect to login page if not logged in
+    if(!$this->session->isLoggedIn()) {
+        return $response->withRedirect($router->pathFor('login'));
+    }
+
+    $name = trim($args["name"]);
+    $user = User::findById($this->db, $this->session->userID);
+
+    // Check if project exists
+    if(!$project = Project::findProjectByName($this->db, $name)) {
+        $this->flash->addMessage("fail", "Project does not exist");
+        return $response->withRedirect($router->pathFor('projects'));
+    }
+
+    // Check if user is already a member of this project
+    if(ProjectMember::isProjectMember($this->db, $name, $user->id)) {
+        $this->flash->addMessage("fail", "You are already a member of this project");
+        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
+    }
+
+    // Check if request already exists
+    if(RequestJoinProject::doesRequestExistByProjectName($this->db, $name, $user->id)) {
+        $this->flash->addMessage("fail", "You have already requested to join this project");
+        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
+    }
+
+    // Add request to database
+    $requestJoinProject = new RequestJoinProject($this->db);
+    $requestJoinProject->userID = $user->id;
+    $requestJoinProject->projectID = $project->id;
+    $requestJoinProject->save();
+
+    $this->flash->addMessage("success", "Request to join project sent");
+    return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
 })->setName('requestJoin');
 
 /**
