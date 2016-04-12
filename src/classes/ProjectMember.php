@@ -29,6 +29,24 @@ class ProjectMember extends DatabaseObject
         }
     }
 
+    public static function isProjectMemberByProjectName($db, $projectName, $userID)
+    {
+        $sql = "SELECT * FROM projectmembers ";
+        $sql .= "INNER JOIN projects ON projectID = projects.id ";
+        $sql .= "WHERE projectName = ? AND userID = " . (int)$userID . " ";
+        $sql .= "LIMIT 1";
+
+        $paramArray = array($projectName);
+
+        $result = self::findBySQL($db, $sql, $paramArray);
+
+        if($result) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public static function isProjectAdmin($db, $projectName, $userID)
     {
         $sql = "SELECT isAdmin ";

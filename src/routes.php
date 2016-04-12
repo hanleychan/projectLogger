@@ -1,4 +1,5 @@
 <?php 
+
 /**
  * Main Routes
  */
@@ -217,6 +218,7 @@ $app->post('/projects/add', function ($request, $response) {
     }
 })->setName('processAddProject');
 
+
 // Route for a specific project
 $app->get('/project/{name}', function ($request, $response, $args) {
     $router = $this->router;
@@ -226,7 +228,7 @@ $app->get('/project/{name}', function ($request, $response, $args) {
         return $response->withRedirect($router->pathFor('login'));
     }
 
-    $name = $args["name"];
+    $name = trim($args["name"]);
     return $response->withRedirect($router->pathFor("fetchProjectLogs", compact("name")));
 })->setName('project');
 
@@ -239,40 +241,51 @@ $app->post('/project/{name}', function($request, $response, $args) {
         return $response->withRedirect($router->pathFor('login'));
     }
 
+    $name = trim($args["name"]);
+
+    // Fetch project
+    if(!$project = Project::findProjectByName($this->db, $name)) {
+        $this->flash->addMessage("fail", "Project does not exist");
+        return $response->withRedirect($router->pathFor('projects'));
+    }
+
+    // Check if user is a member of this project
+    if(!ProjectMember::isProjectMemberByProjectName($this->db, $name, $this->session->userID)) {
+        $this->flash->addMessage("fail", "You do not have permission to add a new log to this project");
+        return $response->withRedirect($router->pathFor('fetchAddNewLog', compact("name")));
+    }
+
     $hours = (int)trim($request->getParam("hours"));
     $minutes = (int)trim($request->getParam("minutes"));
     $date = $request->getParam("datePicker"); 
-    $projectID = (int)trim($request->getParam("projectID"));
     $comment = trim($request->getParam("comment"));
-
+    $inputError = false;
 
     if(!$date = ProjectLog::formatDateToSQL($date)) {
-        echo "INVALID DATE";
-        exit;
+        $this->flash->addMessage("fail", "Invalid date entered");
+        $inputError = true;
     }
-
 
     if(!ProjectLog::isValidTime($hours, $minutes)) {
-        echo "INVALID TIME";
-        exit;
+        $this->flash->addMessage("fail", "Time must be between 0 to 24 hours");
+        $inputError = true;
     }
 
-    // Check if user is a member of this project before updating log
-    if(!ProjectMember::isProjectMember($this->db, $projectID, $this->session->userID)) {
-        echo "ERROR NOT A MEMBER OF GROUP";
-        exit;
+    if($inputError) {
+        return $response->withRedirect($router->pathFor('fetchAddNewLog', compact("name")));
     }
 
     // Add log to database
     $projectLog = new ProjectLog($this->db);
     $projectLog->projectTime = "{$hours}:{$minutes}:00";
     $projectLog->userID = $this->session->userID;
-    $projectLog->projectID = $projectID;
+    $projectLog->projectID = $project->id;
     $projectLog->comment = $comment;
     $projectLog->date = $date;
     $projectLog->save();
 
-    return "project updated";
+    $this->flash->addMessage("success", "Log successfully added to project");
+    return $response->withRedirect($router->pathFor('fetchProjectLogs', compact("name")));
 })->setName('addProjectLog');
 
 
@@ -287,39 +300,39 @@ $app->get('/project/{name}/projectLogs', function($request, $response, $args) {
     $page = "viewLogs";
     $name = trim($args["name"]);
 
-    // Check if project exists
-    if(!Project::doesProjectExist($this->db, $name)) {
-        return "NO SUCH PROJECT";
-        exit;
+    // Check if user is a member of this project
+    if(!$project = Project::findProjectByNameAndUser($this->db, $name, $this->session->userID)) {
+        $project = Project::findProjectByName($this->db, $name);
+
+        // Can't fetch project (Project doesn't exist)
+        if(!$project) {
+            $this->flash->addMessage("fail", "Project does not exist");
+            return $response->withRedirect($router->pathFor('projects'));
+        }
+        $projectMember = false;
+    } else {
+        $projectMember = true;
     }
 
     $projectLogs = ProjectLog::findLogsByProjectName($this->db, $name);
     $isAdmin = ProjectMember::isProjectAdmin($this->db, $name, $this->session->userID);
+    $user = User::findById($this->db, $this->session->userID);
 
     if($projectLogs) {
         foreach($projectLogs as $projectLog) {
+            // Reformat project time for a log entry
             $hours = (int)substr(trim($projectLog->projectTime), 0, 2);
             $mins = (int)substr(trim($projectLog->projectTime), 3, 2);
-            
             $hours .= (($hours > 1) ? " hrs" : " hr");
             $mins .= (($mins > 1) ? " mins" : " min"); 
             $projectLog->projectHours = $hours;
             $projectLog->projectMins = $mins;
 
-            if($projectLog->userID == $this->session->userID) {
+            // Check if project log belongs to user (check if edittable by user)
+            if($projectLog->userID === $user->id) {
                 $projectLog->canEdit = true;
             }
         }
-    }
-
-    $user = User::findById($this->db, $this->session->userID);
-
-    // Check if user is a member of this project
-    if(!$project = Project::findProjectByNameAndUser($this->db, $name, $this->session->userID)) {
-        $project = Project::findProjectByName($this->db, $name);
-        $projectMember = false;
-    } else {
-        $projectMember = true;
     }
 
     return $this->view->render($response, "project.twig", compact("user", "project", "projectLogs", "page", "projectMember", "isAdmin", "name"));
@@ -336,26 +349,27 @@ $app->get('/project/{name}/members', function($request, $response, $args) {
 
     $page = "members";
     $name = trim($args["name"]);
-    
-    // Check if project exists
-    if(!Project::doesProjectExist($this->db, $name)) {
-        return "NO SUCH PROJECT";
-        exit;
-    }
-
-    $projectMembers = ProjectMember::findProjectMembersByProjectName($this->db, $name); 
-
     $user = User::findById($this->db, $this->session->userID);
-
+    
     // Check if user is a member of this project
-    if(!$project = Project::findProjectByNameAndUser($this->db, $name, $this->session->userID)) {
+    if(!$project = Project::findProjectByNameAndUser($this->db, $name, $user->id)) {
         $project = Project::findProjectByName($this->db, $name);
+
+        // Can't fetch project (Project doesn't exist)
+        if(!$project) {
+            $this->flash->addMessage("fail", "Project does not exist");
+            return $reponse->withRedirect($router->pathFor('projects'));
+        }
+
         $projectMember = false;
     } else {
         $projectMember = true;
     }
 
-    return $this->view->render($response, "project.twig", compact("user", "project", "projectMembers", "page", "projectMember"));
+    $projectMembers = ProjectMember::findProjectMembersByProjectName($this->db, $name); 
+    $isAdmin = ProjectMember::isProjectAdmin($this->db, $name, $user->id);
+
+    return $this->view->render($response, "project.twig", compact("user", "project", "projectMembers", "page", "projectMember", "isAdmin"));
 })->setName("fetchProjectMembers");
 
 
@@ -369,25 +383,27 @@ $app->get('/project/{name}/newLog', function($request, $response, $args) {
 
     $page = "addNewLog";
     $name = trim($args["name"]);
+    $user = User::findById($this->db, $this->session->userID);
 
     // Check if project exists
     if(!Project::doesProjectExist($this->db, $name)) {
-        return "NO SUCH PROJECT";
-        exit;
+        $this->flash->addMessage("fail", "Project does not exist");
+        return $response->withRedirect($router->pathFor('projects'));
     }
 
-    if(!$project = Project::findProjectByNameAndUser($this->db, $name, $this->session->userID)) {
-        return "NOT A MEMBER OF PROJECT";
-        exit;
+    // Check if user is a member of this project
+    if(!$project = Project::findProjectByNameAndUser($this->db, $name, $user->id)) {
+        $this->flash->addMessage("fail", "You do not have permission to add a new log to this project");
+        return $response->withRedirect($router->pathFor('projects'));
     }
 
-    $user = User::findById($this->db, $this->session->userID);
     $projectMember = true;
 
     return $this->view->render($response, "project.twig", compact("user", "project", "projectMember", "page"));
 })->setName("fetchAddNewLog");
 
 
+// Route for editing an existing log
 $app->get('/project/{name}/edit/{logID}', function($request, $response, $args) {
     $router = $this->router;
     // Redirect to login page if not logged in
@@ -397,37 +413,44 @@ $app->get('/project/{name}/edit/{logID}', function($request, $response, $args) {
 
     $page = "editLog";
     $name = trim($args["name"]);
-    $logID = trim($args["logID"]);
+    $logID = (int)$args["logID"];
+    $user = User::findById($this->db, $this->session->userID);
+
+    // Check if project exists
+    if(!Project::doesProjectExist($this->db, $name)) {
+        $this->flash->addMessage("fail", "Project does not exist");
+        return $response->withRedirect($router->pathFor('projects'));
+    }
 
     // fetch project log entry
     if(!$projectLog = ProjectLog::findById($this->db, $logID)) {
-        return "LOG DOESN'T EXIST";
-        exit;
+        $this->flash->addMessage("fail", "Log does not exist");
+        return $response->withRedirect($router->pathFor('project', compact("name")));
     }
 
-    // check if is admin or log entry belongs to user 
-    if(!(ProjectMember::isProjectAdmin($this->db, $name, $this->session->userID) ||
-       $this->session->userID === $projectLog->userID)) {
-       return "NO PERMISSION TO EDIT";
-       exit;    
+    // check if user is admin or log entry belongs to user 
+    if (!(ProjectMember::isProjectAdmin($this->db, $name, $user->id) || $user->id === $projectLog->userID)) {   
+        $this->flash->addMessage("fail", "You do not have permission to edit this log entry");
+        return $response->withRedirect($router->pathFor('project', compact("name")));
     }
-    
+        
     // fetch project
     if(!$project = Project::findProjectByNameAndUser($this->db, $name, $this->session->userID)) {
-        return "NOT A MEMBER OF GROUP";
-        exit;
+        $this->flash->addMessage("fail", "Could not fetch project");
+        return $response->withRedirect($router->pathFor('project', compact("name")));
     }
 
+    // Reformat date and time formats
     $projectLog->date = ProjectLog::formatDateFromSQL($projectLog->date);
     $projectLog->hours = (int)substr($projectLog->projectTime, 0, 2);
     $projectLog->minutes = (int)substr($projectLog->projectTime, 3, 2);
-    $user = User::findById($this->db, $this->session->userID);
     $projectMember = true;
 
     return $this->view->render($response, "project.twig", compact("user", "project", "projectLog", "page", "projectMember"));
 })->setName('fetchEditLog');
 
 
+// Route for processing edit log changes
 $app->post('/project/{name}/edit/{logID}', function($request, $response, $args) {
     $router = $this->router;
     // Redirect to login page if not logged in
@@ -437,18 +460,24 @@ $app->post('/project/{name}/edit/{logID}', function($request, $response, $args) 
 
     $name = trim($args["name"]);
     $logID = (int)($args["logID"]);
+    $user = User::findById($this->db, $this->session->userID);
+
+    // Check if project exists
+    if(!Project::doesProjectExist($this->db, $name)) {
+        $this->flash->addMessage("fail", "Project does not exist");
+        return $response->withRedirect($router->pathFor('projects'));
+    }
 
     // fetch project log entry
     if(!$projectLog = ProjectLog::findById($this->db, $logID)) {
-        return "LOG DOESN'T EXIST";
-        exit;
+        $this->flash->addMessage("fail", "Log doesn't exist");
+        return $response->withRedirect($router->pathFor('fetchProjectLog', compact('name'))); 
     }
 
     // check if is admin or log entry belongs to user 
-    if(!(ProjectMember::isProjectAdmin($this->db, $name, $this->session->userID) || 
-       $this->session->userID === $projectLog->userID)) {
-       return "NO PERMISSION TO EDIT";
-       exit;    
+    if(!(ProjectMember::isProjectAdmin($this->db, $name, $user->id) || $user->id === $projectLog->userID)) {
+        $this->flash->addMessage("fail", "You do not have permission to edit this log");
+        return $response->withRedirect($router->pathFor('fetchProjectLog', compact('name'))); 
     }
 
     $hours = (int)trim($request->getParam("hours"));
@@ -456,26 +485,32 @@ $app->post('/project/{name}/edit/{logID}', function($request, $response, $args) 
     $date = $request->getParam("datePicker"); 
     $projectID = (int)trim($request->getParam("projectID"));
     $comment = trim($request->getParam("comment"));
-
+    $inputError = false;
 
     if(!$date = ProjectLog::formatDateToSQL($date)) {
-        echo "INVALID DATE";
-        exit;
+        $this->flash->addMessage("fail", "Invalid date entered");
+        $inputError = true;
     }
-
 
     if(!ProjectLog::isValidTime($hours, $minutes)) {
-        echo "INVALID TIME";
-        exit;
+        $this->flash->addMessage("fail", "Time must be between 0 to 24 hours");
+        $inputError = true;
     }
 
+    if($inputError) {
+        return $response->withRedirect($router->pathFor('fetchEditLog', compact('name', 'logID')));
+    }
+
+    // Update log in database
     $projectLog->date = $date;
     $projectLog->projectTime = "{$hours}:{$minutes}:00";
     $projectLog->comment = $comment;
     $projectLog->save();
 
-    return "project updated";
+    $this->flash->addMessage("success", "Log entry successfully updated");
+    return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
 })->setName('editLog');
+
 
 /**
  * Account Routes
