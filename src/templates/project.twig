@@ -7,7 +7,9 @@
 {% block content %}
 <h2>Project: {{ project.projectName }}</h2>
 {% if not projectMember %}
-    <p>Request to join</p>
+    <form action="{{ path_for('requestJoin', {'name': project.projectName})  }}" method="post">
+        <button type="submit">Request to join this project</button>
+    </form>
 {% endif %}
 {% for message in flash.message("fail") %}
     <p>{{ message}}</p>

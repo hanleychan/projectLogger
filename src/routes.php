@@ -511,6 +511,10 @@ $app->post('/project/{name}/edit/{logID}', function($request, $response, $args) 
     return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
 })->setName('editLog');
 
+// Route for requesting to become a member of a project group
+$app->post('/project/{name}/request', function($request, $response, $args) {
+    return "REQUEST TIME";
+})->setName('requestJoin');
 
 /**
  * Account Routes
