@@ -72,7 +72,7 @@ class ProjectMember extends DatabaseObject
      */
     public static function findProjectMembersByProjectName($db, $projectName)
     {
-        $sql = "SELECT ownerID, userID, username  ";
+        $sql = "SELECT ownerID, userID, username, isAdmin  ";
         $sql .= "FROM projectmembers INNER JOIN projects ON projects.id = projectID ";
         $sql .= "INNER JOIN users ON userID = users.id ";
         $sql .= "WHERE projectName = ?";

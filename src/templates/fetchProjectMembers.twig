@@ -1,9 +1,20 @@
 <h3>Members</h3>
-{% for projectMember in projectMembers %}
-    {{ projectMember.username }} <br>
-    {{ projectMember.ownerName }}
-{% endfor %}
+{% if projectMembers %}
+    <ul>
+    {% for projectMember in projectMembers %}
+        <li>
+            {{ projectMember.username }}
+            {% if projectMember.userID == projectMember.ownerID %}
+            - Project Owner
+            {% elseif projectMember.isAdmin %} 
+            - Admin
+            {% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+{% endif %}
 
 {% if isAdmin %}
-I AM ADMIN
+<h4>Members that requested to join this project</h4>
+someuser <button>Accept</button><button>Decline</button>
 {% endif %}
