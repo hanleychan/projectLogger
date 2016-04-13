@@ -1,18 +1,34 @@
 <h3>Members</h3>
-{% if projectMembers %}
-    <ul>
-    {% for projectMember in projectMembers %}
-        <li>
-            {{ projectMember.username }}
-            {% if projectMember.userID == projectMember.ownerID %}
-            - Project Owner
-            {% elseif projectMember.isAdmin %} 
-            - Admin
+<ul>
+{% for projectMember in projectMembers %}
+    <li>
+        {{ projectMember.username }}
+        {% if projectMember.userID == projectMember.ownerID %}
+        (Project Owner)
+        {% elseif projectMember.isAdmin %} 
+        (Admin)
+        {% endif %}
+        {% if isOwner or isAdmin  %}
+            {% if projectMember.userID != user.id %}
+                {% if isOwner %}
+                    <form action="" method="post">
+                        {% if not projectMember.isAdmin %}
+                            <button type="submit">Promote</button>
+                        {% else %}
+                            <button type="submit">Demote</button>
+                        {% endif %}
+                    </form>
+                {% endif %}
+                {% if isOwner or (isAdmin and not projectMember.isAdmin) %}
+                <form action="{{ path_for('confirmRemoveMember', {'name':project.projectName, 'username': projectMember.username}) }}" method="get">
+                    <button type="submit">Remove Member</button>
+                </form>
+                {% endif %}
             {% endif %}
-        </li>
-    {% endfor %}
-    </ul>
-{% endif %}
+        {% endif %}
+    </li>
+{% endfor %}
+</ul>
 
 {% if isAdmin %}
     <h4>Users requests to join this project:</h4>

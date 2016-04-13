@@ -370,8 +370,8 @@ $app->get('/project/{name}/members', function($request, $response, $args) {
 
     $projectMembers = ProjectMember::findProjectMembersByProjectName($this->db, $name); 
     $isAdmin = ProjectMember::isProjectAdmin($this->db, $name, $user->id);
-
-
+    $isOwner = ($project->ownerID === $user->id) ? true : false;
+ 
     // Fetch project join requests
     if($isAdmin) {
         $requests = RequestJoinProject::getRequestsByProjectName($this->db, $name); 
@@ -379,12 +379,12 @@ $app->get('/project/{name}/members', function($request, $response, $args) {
 
     return $this->view->render($response, "project.twig", compact("user", "project", "projectMembers", 
                                                                   "page", "projectMember", "isAdmin",
-                                                                  "requests"));
+                                                                  "isOwner", "requests"));
 })->setName("fetchProjectMembers");
 
 
 // Route for accepting and declining project membership
-$app->post('/project/{name}/members/{username}', function($request, $response, $args) {
+$app->post('/project/{name}/members/request/{username}', function($request, $response, $args) {
     $router = $this->router;
     // Redirect to login page if not logged in
     if(!$this->session->isLoggedIn()) {
@@ -434,6 +434,52 @@ $app->post('/project/{name}/members/{username}', function($request, $response, $
 
     return $response->withRedirect($router->pathFor('fetchProjectMembers', compact("name")));
 })->setName('processMemberRequest');
+
+$app->get('/project/{name}/remove/{username}', function($request, $response, $args) {
+    $router = $this->router;
+    // Redirect to login page if not logged in
+    if(!$this->session->isLoggedIn()) {
+        return $response->withRedirect($router->pathFor('login'));
+    }
+
+    $page = "removeMember";
+    $name = trim($args["name"]);
+    $username = trim($args["username"]);
+    $user = User::findById($this->db, $this->session->userID);
+
+    // Check if project exists
+    if(!$project = Project::findProjectByName($this->db, $name)) {
+        $this->flash->addMessage("fail", "Project does not exist");
+        return $response->withRedirect($router->pathFor('projects'));
+    }
+
+    // fetch project member
+    if(!$projectMember = ProjectMember::findProjectMemberByProjectNameAndUsername($this->db, $name, $username)) {
+        $this->flash->addMessage("fail", "User not found");
+        return $response->withRedirect($router->pathFor("fetchProjectMembers", compact("name")));
+    }
+
+    // Check for permission to remove member
+    $isAdmin = ProjectMember::isProjectAdmin($this->db, $name, $user->id);
+    if(!(($isAdmin && !$projectMember->isAdmin) || ($project->ownerID === $user->id))) {
+        $this->flash->addMessage("fail", "You do not have permission to remove this member");
+        return $response->withRedirect($router->pathFor("fetchProjectMembers", compact("name")));
+    }
+
+    return $this->view->render($response, 'project.twig', compact("user", "project", "page", "projectMember"));
+})->setName('confirmRemoveMember');
+
+// Route for removing a user from a project
+$app->post('/project/{name}/remove/{username}', function($request, $response, $args) {
+    $router = $this->router;
+    // Redirect to login page if not logged in
+    if(!$this->session->isLoggedIn()) {
+        return $response->withRedirect($router->pathFor('login'));
+    }
+
+    return "PROCESS REMOVE MEMBER PAGE";
+})->setName('processRemoveMember');
+
 
 // Route for adding a new project log entry
 $app->get('/project/{name}/newLog', function($request, $response, $args) {
