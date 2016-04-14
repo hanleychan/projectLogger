@@ -676,7 +676,6 @@ $app->post('/project/{name}/edit/{logID}', function($request, $response, $args) 
     $hours = (int)trim($request->getParam("hours"));
     $minutes = (int)trim($request->getParam("minutes"));
     $date = $request->getParam("datePicker"); 
-    $projectID = (int)trim($request->getParam("projectID"));
     $comment = trim($request->getParam("comment"));
     $inputError = false;
 
@@ -768,8 +767,9 @@ $app->get('/project/{name}/actions', function ($request, $response, $args) {
     }
 
     $isOwner = $project->ownerID === $user->id;
+    $projectMember = true;
 
-    return $this->view->render($response, 'project.twig', compact("user", "project", "isOwner", "page"));
+    return $this->view->render($response, 'project.twig', compact("user", "project", "isOwner", "page", "projectMember"));
 })->setName('projectActions');
 
 $app->get('/project/{name}/leave/{username}', function ($request, $response, $args) {
@@ -815,8 +815,8 @@ $app->post('/project/{name}/leave/{username}', function ($request, $response, $a
     $action = trim($request->getParam("action"));
     $user = User::findById($this->db, $this->session->userID);
 
-    // Fetch project
-    if(!$project = Project::findProjectByName($this->db, $name)) {
+    // Check if project exists
+    if(!Project::doesProjectExist($this->db, $name)) {
         $this->flash->addMessage("fail", "Project does not exist");
         return $response->withRedirect($router->pathFor('projects'));
     }
@@ -841,6 +841,70 @@ $app->post('/project/{name}/leave/{username}', function ($request, $response, $a
 
     return $response->withRedirect($router->pathFor('fetchProjectLogs', compact("name")));
 })->setName('processLeaveProject');
+
+$app->get('/project/{name}/delete', function ($request, $response, $args) {
+    $router = $this->router;
+    // Redirect to login page if not logged in
+    if(!$this->session->isLoggedIn()) {
+        return $response->withRedirect($router->pathFor('login'));
+    }
+
+    $page = "deleteProject";
+    $name = trim($args["name"]);
+    $user = User::findById($this->db, $this->session->userID);
+
+    // Fetch project
+    if(!$project = Project::findProjectByName($this->db, $name)) {
+        $this->flash->addMessage("fail", "Project does not exist");
+        return $response->withRedirect($router->pathFor('projects'));
+    }
+
+    // Check if user is the owner
+    if($project->ownerID !== $user->id) {
+        $this->flash->addMessage("fail", "You do not have permission to view this page");
+        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact("name")));
+    }
+
+    $projectMember = true;
+
+    return $this->view->render($response, "project.twig", compact("user", "project", "page", "projectMember"));
+})->setName('confirmDeleteProject');
+
+$app->post('/project/{name}/delete', function ($request, $response, $args) {
+    $router = $this->router;
+    // Redirect to login page if not logged in
+    if(!$this->session->isLoggedIn()) {
+        return $response->withRedirect($router->pathFor('login'));
+    }
+
+    $name = trim($args["name"]);
+    $action = trim($request->getParam("action"));
+    $user = User::findById($this->db, $this->session->userID);
+
+    // Fetch project
+    if(!$project = Project::findProjectByName($this->db, $name)) {
+        $this->flash->addMessage("fail", "Project does not exist");
+        return $response->withRedirect($router->pathFor('projects'));
+    }
+
+    // Check if user is the owner
+    if($project->ownerID !== $user->id) {
+        $this->flash->addMessage("fail", "You do not have permission to view this page");
+        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact("name")));
+    }
+
+    $projectMember = true;
+    if($action === "yes") {
+        $project->delete();
+        $this->flash->addMessage("success", "Project {$project->projectName} has been deleted successfully");
+    } elseif ($action === "no") {
+        return $response->withRedirect($router->pathFor('projectActions', compact("name")));
+    } else {
+        $this->flash->addMessage("fail", "There was an error processing your request");
+    }
+
+    return $response->withRedirect($router->pathFor('projects'));
+})->setName('processDeleteProject');
 
 /**
  * Account Routes

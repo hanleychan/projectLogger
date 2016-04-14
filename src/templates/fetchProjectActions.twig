@@ -2,7 +2,7 @@
 {% if isOwner %}
     <li>Rename Project</li>
     <li>Transfer project ownership</li>
-    <li>Delete Project</li>
+    <li><a href="{{ path_for('confirmDeleteProject', {'name':project.projectName}) }}">Delete Project</a></li>
 {% else %}
 <ul>
     <li><a href="{{ path_for('confirmLeaveProject', {'name':project.projectName, 'username':user.username }) }}">Leave Project</a></li>
