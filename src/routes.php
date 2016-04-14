@@ -743,6 +743,37 @@ $app->post('/project/{name}/request', function($request, $response, $args) {
     return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
 })->setName('requestJoin');
 
+$app->get('/project/{name}/actions', function ($request, $response, $args) {
+    $router = $this->router;
+    // Redirect to login page if not logged in
+    if(!$this->session->isLoggedIn()) {
+        return $response->withRedirect($router->pathFor('login'));
+    }
+
+    $name = trim($args["name"]);
+    $user = User::findById($this->db, $this->session->userID);
+
+    // Fetch project
+    if(!$project = Project::findProjectByName($this->db, $name)) {
+        $this->flash->addMessage("fail", "Project does not exist");
+        return $response->withRedirect($router->pathFor('projects'));
+    }
+
+    // Check if user is a project member of this project
+    if(!ProjectMember::isProjectMemberByProjectName($this->db, $name, $user->id)) {
+        $this->flash->addMessage("fail", "You are not a member of this project");
+        return $response->withRedirect($router->pathFor('projects'));
+    }
+
+    // Check if user is owner of the project
+    if($project->ownerID === $user->id) {
+        // Delete project, transfer ownership, rename project
+    } else {
+        // Leave project
+    }
+
+    return $this->view->render($response, 'projectActions.twig', compact("user", "project"));
+})->setName('projectActions');
 
 /**
  * Account Routes
