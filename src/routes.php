@@ -507,10 +507,63 @@ $app->post('/project/{name}/remove/{username}', function($request, $response, $a
         // Remove user from project database
         $projectMember->delete();
         $this->flash->addMessage("success", "{$projectMember->username} has been removed");
+    } elseif($action !== "No") {
+        $this->flash->addMessage("fail", "There was an error processing this request");
     }
 
     return $response->withRedirect($router->pathFor("fetchProjectMembers", compact("name")));
 })->setName('processRemoveMember');
+
+
+// Route for changing a project member to admin status or removing admin status
+$app->post('/project/{name}/rank/{username}', function ($request, $response, $args) {
+    $router = $this->router;
+    // Redirect to login page if not logged in
+    if(!$this->session->isLoggedIn()) {
+        return $response->withRedirect($router->pathFor('login'));
+    }
+
+    $name = trim($args["name"]);
+    $username = trim($args["username"]);
+    $user = User::findById($this->db, $this->session->userID);
+    $action = $request->getParam("action");
+
+    // fetch project
+    if(!$project = Project::findProjectByName($this->db, $name)) {
+        $this->flash->addMessage("fail", "Project does not exist");
+        return $response->withRedirect($router->pathFor("fetchProjectMembers", compact("name")));
+    }
+
+    // fetch project member
+    if(!$projectMember = ProjectMember::findProjectMemberByProjectNameAndUsername($this->db, $name, $username)) {
+        $this->flash->addMessage("fail", "Could not find user");
+        return $response->withRedirect($router->pathFor("fetchProjectMembers", compact("name")));
+    }
+
+    if($action === "promote") {
+        if($projectMember->isAdmin == false) {
+            $projectMember->isAdmin = true;
+            $projectMember->save();
+
+            $this->flash->addMessage("success", "{$username} is now an admin of project {$name}");
+        } else {
+            $this->flash->addMessage("fail", "{$username} is already an admin of project {$name}");
+        }
+    } elseif ($action === "demote") {
+        if($projectMember->isAdmin == true) {
+            $projectMember->isAdmin = false;
+            $projectMember->save();
+
+            $this->flash->addMessage("success", "{$username} is no longer an admin of project {$name}");
+        } else {
+            $this->flash->addMessage("fail", "{$username} is already a regular member of project {$name}");
+        }
+    } else {
+        $this->flash->addMessage("fail", "There was an error processing this request");
+    } 
+
+    return $response->withRedirect($router->pathFor("fetchProjectMembers", compact("name")));
+})->setName('processToggleAdmin'); 
 
 
 // Route for adding a new project log entry

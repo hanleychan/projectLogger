@@ -78,7 +78,8 @@ class ProjectLog extends DatabaseObject
         $sql = "SELECT projectlogs.id as id, username, date, comment, projectTime, userID ";
         $sql .= "FROM projectlogs INNER JOIN users ON userID = users.id ";
         $sql .= "INNER JOIN projects ON projectID = projects.id ";
-        $sql .= "WHERE projectName = ?";
+        $sql .= "WHERE projectName = ? ";
+        $sql .= "ORDER BY date DESC, id ASC";
         $paramArray = array($projectName);
 
         $results = self::findBySQL($db, $sql, $paramArray);

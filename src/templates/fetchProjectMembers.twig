@@ -11,11 +11,11 @@
         {% if isOwner or isAdmin  %}
             {% if projectMember.userID != user.id %}
                 {% if isOwner %}
-                    <form action="" method="post">
+                    <form action="{{ path_for('processToggleAdmin', {'name':project.projectName, 'username': projectMember.username})  }}" method="post">
                         {% if not projectMember.isAdmin %}
-                            <button type="submit">Promote</button>
+                            <button type="submit" name="action" value="promote">Promote</button>
                         {% else %}
-                            <button type="submit">Demote</button>
+                            <button type="submit" name="action" value="demote">Demote</button>
                         {% endif %}
                     </form>
                 {% endif %}
