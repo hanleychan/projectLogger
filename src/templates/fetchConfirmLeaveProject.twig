@@ -1,0 +1,8 @@
+<h2>Leave Project</h2>
+
+<form action="{{ path_for('processLeaveProject', {'name':project.projectName, 'username': user.username}) }}" method="post">
+<p>Are you sure you want to leave project</p>
+<button type="submit" name="action" value="yes">Yes</button>
+<button type="submit" name="action" value="no">No</button>
+</form>
+

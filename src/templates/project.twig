@@ -47,6 +47,10 @@
             {% include "fetchAddEditLog.twig" %}
         {% elseif page == "removeMember" %}
             {% include "fetchConfirmRemoveMember.twig" %}
+        {% elseif page == "projectActions" %}
+            {% include "fetchProjectActions.twig" %}
+        {% elseif page == "leaveProject" %}
+            {% include "fetchConfirmLeaveProject.twig" %}
         {% endif %}
 </div>
 <p><a href="{{ path_for('projects') }}">Return to projects</a></p>
