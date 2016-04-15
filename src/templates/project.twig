@@ -55,6 +55,8 @@
             {% include "fetchConfirmDeleteProject.twig" %}
         {% elseif page == "renameProject" %}
             {% include "fetchRenameProject.twig" %}
+        {% elseif page == "transferOwnership" %}
+            {% include "fetchTransferOwnership.twig" %}
         {% endif %}
 </div>
 <p><a href="{{ path_for('projects') }}">Return to projects</a></p>
