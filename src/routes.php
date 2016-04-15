@@ -1,9 +1,5 @@
 <?php 
 
-/**
- * Main Routes
- */
-
 // Home route
 $app->get('/', function ($request, $response) {
     // redirect to login page if not logged in
@@ -12,11 +8,12 @@ $app->get('/', function ($request, $response) {
         return $response->withRedirect($router->pathFor('login'));
     }
 
-    // Show main page if logged in. Otherwise redirect to login page
-    if ($this->session->isLoggedIn()) {
-        $user = User::findById($this->db, $this->session->userID);
-        return $this->view->render($response, 'index.twig', compact("user")); 
-    }
+    $user = User::findById($this->db, $this->session->userID);
+
+    // Fetch notifications
+    $notifications = Notification::getNotifications($this->db, $user->id);
+
+    return $this->view->render($response, 'index.twig', compact("user", "notifications")); 
 })->setName('home');
 
 
