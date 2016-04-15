@@ -1,12 +1,19 @@
 <h2>Transfer Project Ownership</h2>
-<form action="{{ path_for('processTransferOwnership', {'name': project.projectName}) }}" method="post">
+<form action="{{ path_for('confirmTransferOwnership', {'name': project.projectName}) }}" method="post">
 
 <ul>
     {% for projectMember in projectMembers %}
+    {% if projectMember.userID != project.ownerID %}
     <li>
         <input type="radio" id="{{ projectMember.username }}" name="newOwner" value="{{ projectMember.username }}">
-        <label for="{{ projectMember.username }}">{{ projectMember.username }}</label>
+        <label for="{{ projectMember.username }}">
+            {{ projectMember.username }}
+            {% if projectMember.isAdmin %}
+            (Admin)
+            {% endif %}
+        </label>
     </li>
+    {% endif %}
     {% endfor %}
 </ul>
 

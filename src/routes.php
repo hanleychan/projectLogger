@@ -1016,9 +1016,39 @@ $app->get('/project/{name}/transferOwnership', function($request, $response, $ar
     return $this->view->render($response, 'project.twig', compact("user", "project", "page", "projectMembers", "projectMember"));
 })->setName('transferOwnership');
 
-$app->post('/project/{name}/transferOwnership', function ($request, $response, $args) {
-    return "PROCESS TRANSFER";
-})->setName('processTransferOwnership');
+$app->post('/project/{name}/transferOwnership/confirm', function ($request, $response, $args) {
+    $router = $this->router;
+    // Redirect to login page if not logged in
+    if(!$this->session->isLoggedIn()) {
+        return $response->withRedirect($router->pathFor('login'));
+    }
+
+    $page = "confirmTransferOwnership";
+    $name = trim($args["name"]);
+    $newOwner = trim($request->getParam("newOwner"));
+    $user = User::findById($this->db, $this->session->userID);
+
+    // Fetch project
+    if(!$project = Project::findProjectByName($this->db, $name)) {
+        $this->flash->addMessage("fail", "Project does not exist");
+        return $response->withRedirect($route->pathFor('projects'));
+    }
+
+    // Check if user is the owner
+    if($project->ownerID !== $user->id) {
+        $this->flash->addMessage("fail", "You do not have permission to view this page");
+        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact("name")));
+    }
+
+    // Fetch new owner
+    if(!$owner = ProjectMember::findProjectMemberByProjectNameAndUsername($this->db, $name, $newOwner)) {
+        $this->flash->addMessage("fail", "There was an error processing your request");
+        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact("name")));
+    }
+
+    return $this->view->render($response, 'project.twig', compact("user", "page", "owner"));
+})->setName('confirmTransferOwnership');
+
 
 
 /**
