@@ -762,9 +762,10 @@ $app->get('/project/{name}/actions', function ($request, $response, $args) {
     }
 
     $isOwner = $project->ownerID === $user->id;
+    $isAdmin = ProjectMember::isProjectAdmin($this->db, $name, $user->id);
     $projectMember = true;
 
-    return $this->view->render($response, 'project.twig', compact("user", "project", "isOwner", "page", "projectMember"));
+    return $this->view->render($response, 'project.twig', compact("user", "project", "isOwner", "page", "projectMember", "isAdmin"));
 })->setName('projectActions');
 
 $app->get('/project/{name}/leave/{username}', function ($request, $response, $args) {
@@ -912,15 +913,77 @@ $app->get('/project/{name}/rename', function($request, $response, $args) {
     $name = trim($args["name"]);
     $user = User::findById($this->db, $this->session->userID);
 
+    // Fetch project
     if(!$project = Project::findProjectByName($this->db, $name)) {
         $this->flash->addMessage("fail", "Project does not exist");
         return $response->withRedirect($router->pathFor('projects'));
     }
 
-    return $this->view->render($response, "project.twig", compact("user", "project", "projectMember", "page"));
+    // Check for permission
+    if(!ProjectMember::isProjectAdmin($this->db, $name, $user->id) || !$project->ownerID === $user->id) {
+        $this->flash->addMessage("fail", "You do not have permission to view this page");
+        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact("name")));
+    }
+
+    $projectMember = true;
+
+    return $this->view->render($response, "project.twig", compact("user", "project", "projectMember", "page", "projectMember"));
 })->setName('renameProject');
 
+
 $app->post('/project/{name}/rename', function($request, $response, $args) {
+    $router = $this->router;
+    // Redirect to login page if not logged in
+    if(!$this->session->isLoggedIn()) {
+        return $response->withRedirect($router->pathFor('login'));
+    }
+
+    $name = trim($args["name"]);
+    $newName = trim($request->getParam("projectName"));
+    $action = trim($request->getParam("action"));
+    $user = User::findById($this->db, $this->session->userID);
+
+    // Fetch project
+    if(!$project = Project::findProjectByName($this->db, $name)) {
+        $this->flash->addMessage("fail", "Project does not exist");
+        return $response->withRedirect($router->pathFor('projects'));
+    }
+
+    // Check for permission
+    if(!ProjectMember::isProjectAdmin($this->db, $name, $user->id) || !$project->ownerID === $user->id) {
+        $this->flash->addMessage("fail", "You do not have permission to view this page");
+        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact("name")));
+    }
+
+    // Validate new project name
+    if(!Project::isValidProjectName($newName)) {
+        $this->flash->addMessage("fail", "New project name was entered in an invalid format");
+        return $response->withRedirect($router->pathFor('renameProject', compact("name")));
+    }
+
+    // Check if new name is the same as the existing name
+    if($name === $newName) {
+        $this->flash->addMessage("fail", "New project name is the same as the existing one");
+        return $response->withRedirect($router->pathFor('renameProject', compact("name")));
+    }
+
+    // Check if project already exists
+    if(Project::doesProjectExist($this->db, $newName) && strtolower($name) !== strtolower($newName)) {
+        $this->flash->addMessage("fail", "Project {$newName} already exists");
+        return $response->withRedirect($router->pathFor('renameProject', compact("name")));
+    }
+
+    if($action === "rename") {
+        // Rename project in database
+        $project->projectName = $newName;
+        $project->save();
+
+        $this->flash->addMessage("success", "Project {$name} has been renamed to {$newName} ");
+    } elseif ($action !== "cancel") {
+        $this->flash->addMessage("fail", "There was an error processing your request");
+    }
+
+    return $response->withRedirect($router->pathFor('projectActions', ["name"=>$newName]));
 })->setName('processRenameProject');
 
 $app->get('/project/{name}/transferOwnership', function($request, $response, $args) {
@@ -929,6 +992,7 @@ $app->get('/project/{name}/transferOwnership', function($request, $response, $ar
 
 $app->post('/project/{name}/transferOwnership', function ($request, $response, $args) {
 })->setName('processTransferOwnership');
+
 
 /**
  * Account Routes
