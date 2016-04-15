@@ -190,7 +190,7 @@ $app->post('/projects/add', function ($request, $response) {
     }
 
     $user = User::findById($this->db, $this->session->userID);
-    $projectName = strtolower(trim($request->getParam("projectName")));
+    $projectName = trim($request->getParam("projectName"));
 
     if(Project::doesProjectExist($this->db, $projectName)) {
         $this->flash->addMessage("fail", "Project name already exists");
@@ -277,11 +277,11 @@ $app->post('/project/{name}', function($request, $response, $args) {
 
     // Add log to database
     $projectLog = new ProjectLog($this->db);
-    $projectLog->projectTime = "{$hours}:{$minutes}:00";
     $projectLog->userID = $this->session->userID;
     $projectLog->projectID = $project->id;
     $projectLog->comment = $comment;
     $projectLog->date = $date;
+    $projectLog->minutes = ProjectLog::calculateTotalMinutes($hours, $minutes);
     $projectLog->save();
 
     $this->flash->addMessage("success", "Log successfully added to project");
@@ -321,12 +321,7 @@ $app->get('/project/{name}/projectLogs', function($request, $response, $args) {
     if($projectLogs) {
         foreach($projectLogs as $projectLog) {
             // Reformat project time for a log entry
-            $hours = (int)substr(trim($projectLog->projectTime), 0, 2);
-            $mins = (int)substr(trim($projectLog->projectTime), 3, 2);
-            $hours .= (($hours > 1) ? " hrs" : " hr");
-            $mins .= (($mins > 1) ? " mins" : " min"); 
-            $projectLog->projectHours = $hours;
-            $projectLog->projectMins = $mins;
+            $projectLog->projectTime = ProjectLog::formatTimeOutput($projectLog->minutes);
 
             // Check if project log belongs to user (check if edittable by user)
             if($projectLog->userID === $user->id) {
@@ -635,8 +630,8 @@ $app->get('/project/{name}/edit/{logID}', function($request, $response, $args) {
 
     // Reformat date and time formats
     $projectLog->date = ProjectLog::formatDateFromSQL($projectLog->date);
-    $projectLog->hours = (int)substr($projectLog->projectTime, 0, 2);
-    $projectLog->minutes = (int)substr($projectLog->projectTime, 3, 2);
+    $projectLog->hours = floor($projectLog->minutes / 60);
+    $projectLog->minutes = $projectLog->minutes % 60;
     $projectMember = true;
 
     return $this->view->render($response, "project.twig", compact("user", "project", "projectLog", "page", "projectMember"));
@@ -905,6 +900,35 @@ $app->post('/project/{name}/delete', function ($request, $response, $args) {
 
     return $response->withRedirect($router->pathFor('projects'));
 })->setName('processDeleteProject');
+
+$app->get('/project/{name}/rename', function($request, $response, $args) {
+    $router = $this->router;
+    // Redirect to login page if not logged in
+    if(!$this->session->isLoggedIn()) {
+        return $response->withRedirect($router->pathFor('login'));
+    }
+
+    $page = "renameProject";
+    $name = trim($args["name"]);
+    $user = User::findById($this->db, $this->session->userID);
+
+    if(!$project = Project::findProjectByName($this->db, $name)) {
+        $this->flash->addMessage("fail", "Project does not exist");
+        return $response->withRedirect($router->pathFor('projects'));
+    }
+
+    return $this->view->render($response, "project.twig", compact("user", "project", "projectMember", "page"));
+})->setName('renameProject');
+
+$app->post('/project/{name}/rename', function($request, $response, $args) {
+})->setName('processRenameProject');
+
+$app->get('/project/{name}/transferOwnership', function($request, $response, $args) {
+    return "TRANSFER OWNER PAGE";
+})->setName('transferOwnership');
+
+$app->post('/project/{name}/transferOwnership', function ($request, $response, $args) {
+})->setName('processTransferOwnership');
 
 /**
  * Account Routes

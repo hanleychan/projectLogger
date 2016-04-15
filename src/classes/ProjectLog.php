@@ -3,7 +3,7 @@
 class ProjectLog extends DatabaseObject
 {
     public $id;
-    public $projectTime;
+    public $minutes;
     public $userID;
     public $projectID;
     public $comment;
@@ -11,7 +11,7 @@ class ProjectLog extends DatabaseObject
     public $username;
 
     protected static $tableName = 'projectlogs';
-    protected static $dbFields = array('id', 'projectTime', 'userID', 'projectID', 'comment', 'date');
+    protected static $dbFields = array('id', 'minutes', 'userID', 'projectID', 'comment', 'date');
 
     public static function isValidTime($hours, $minutes)
     {
@@ -50,6 +50,7 @@ class ProjectLog extends DatabaseObject
         }
     }
 
+
     /**
      * Formats date from yyyy-mm-dd format to mm/dd/yyyy format
      */
@@ -73,9 +74,30 @@ class ProjectLog extends DatabaseObject
         }
     }
     
+    public static function calculateTotalMinutes($hours, $minutes)
+    {
+        return $minutes + ($hours * 60);
+    }
+
+    public static function formatTimeOutput($minutes)
+    {
+        $output = "";
+
+        $hours = floor($minutes / 60);
+        $output .= $hours;
+        $output .= ($hours > 1) ? " hrs " : " hr ";
+
+        $minutes = $minutes % 60;
+        $output .= $minutes;
+        $output .= ($minutes > 1) ? " mins" : " min";
+
+        return $output;
+    }
+
+
     public static function findLogsByProjectName($db, $projectName)
     {
-        $sql = "SELECT projectlogs.id as id, username, date, comment, projectTime, userID ";
+        $sql = "SELECT projectlogs.id as id, username, date, comment, minutes, userID ";
         $sql .= "FROM projectlogs INNER JOIN users ON userID = users.id ";
         $sql .= "INNER JOIN projects ON projectID = projects.id ";
         $sql .= "WHERE projectName = ? ";
