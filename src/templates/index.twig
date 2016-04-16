@@ -28,8 +28,30 @@
         {% else %}
             <p>You have no notifications at this time</p>
         {% endif %}
-        <h3>Pending Project Requests</h3>
+
         <h3>Pending Actions</h3>
+        {% if pendingProjectActions %}
+            <ul>
+                {% for pendingProjectAction in pendingProjectActions %}
+                <li>
+                    There are user requests to join project:
+                    <a href="{{ path_for('fetchProjectMembers', {'name':pendingProjectAction.projectName})  }}">
+                        {{ pendingProjectAction.projectName }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% if not pendingProjectActions %}
+        <p>You have no pending actions at this time</p>
+        {% endif %}
+
+        <h3>Pending Project Join Requests</h3>
+        {% if pendingProjects %}
+
+        {% else %}
+        <p>You have no pending project requests at this time</p>
+        {% endif %}
     </section>
 {% endblock %}
 

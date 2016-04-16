@@ -13,7 +13,11 @@ $app->get('/', function ($request, $response) {
     // Fetch notifications
     $notifications = Notification::getNotifications($this->db, $user->id);
 
-    return $this->view->render($response, 'index.twig', compact("user", "notifications")); 
+    // Fetch pending actions
+    $pendingProjectActions = RequestJoinProject::getAllRequestsForOwner($this->db, $user->id);
+
+
+    return $this->view->render($response, 'index.twig', compact("user", "notifications", "pendingProjectActions")); 
 })->setName('home');
 
 $app->post('/deleteNotification', function ($request, $response, $args) {

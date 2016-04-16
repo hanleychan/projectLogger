@@ -6,6 +6,7 @@ class RequestJoinProject extends DatabaseObject
     public $userID;
     public $projectID;
     public $username;
+    public $projectName;
 
     protected static $tableName = 'requestjoinproject';
     protected static $dbFields = array('id', 'userID', 'projectID');
@@ -61,6 +62,20 @@ class RequestJoinProject extends DatabaseObject
         } else {
             return false;
         }
-
     }
+
+    public static function getAllRequestsForOwner($db, $userID)
+    {
+        $sql = "SELECT projectName ";
+        $sql .= "FROM requestjoinproject INNER JOIN projects ON projectID = projects.id ";
+        $sql .= "WHERE ownerID = " . (int)$userID;
+        $result = self::findBySQL($db, $sql);
+
+        if($result) {
+            return $result;
+        } else {
+            return false;
+        }
+    }
+
 }
