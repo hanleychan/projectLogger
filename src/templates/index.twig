@@ -11,10 +11,18 @@
 
     <section id="notifications">
         <h3>Notifications:</h3>
+        <div id="notificationMessage"></div>
+
         {% if notifications %}
             <ul>
             {% for notification in notifications %}
-                <li>{{ notification.date  }}: {{ notification.notification }}</li> 
+                <li>
+                    <form action="{{ path_for('deleteNotification') }}" method="post">
+                        {{ notification.date  }}: {{ notification.notification }}
+                        <input type="hidden" name="notificationID" value="{{ notification.id }}">
+                        <button class="deleteNotification">x</button>
+                    </form>
+                </li> 
             {% endfor %}
             </ul>
         {% else %}
@@ -23,4 +31,46 @@
         <h3>Pending Project Requests</h3>
         <h3>Pending Actions</h3>
     </section>
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+    <script>
+        $('.deleteNotification').click(function(event) {
+            event.preventDefault();
+            var notificationItem = $(this).closest("li");
+            var notificationID = $(this).prev().val();
+
+            // Delete notification from database
+            $.ajax({
+                url: "{{ path_for('deleteNotification') }}",
+                type: "post",
+                dataType: "json",
+                data: {
+                    "notificationID": notificationID
+                },
+                success: function (result) {
+                    if(result.loginExpired) {
+                        alert("Login Expired");
+                        window.location = "{{ path_for('login') }}";
+                    } else if(result.error) {
+                        
+                    }
+                    else if (!result.error) {
+                        notificationItem.hide("slow");
+
+                        // Show notification removed message and auto remove it
+                        var $message = $("<p style='display:none;'>Notification deleted</p>");
+                        $message.appendTo("#notificationMessage").show("slow");
+                        setTimeout(function() {
+                            $message.hide("slow", function() {
+                                $message.remove();
+                            });
+                        }, 1500);
+                    }
+                }
+            });
+        });
+
+    </script>
 {% endblock %}

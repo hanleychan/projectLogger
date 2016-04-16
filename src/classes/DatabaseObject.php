@@ -49,6 +49,8 @@ class DatabaseObject
             } else {
                 return false;
             }
+        } else {
+            return false;
         }
     }
 

@@ -16,6 +16,70 @@ $app->get('/', function ($request, $response) {
     return $this->view->render($response, 'index.twig', compact("user", "notifications")); 
 })->setName('home');
 
+$app->post('/deleteNotification', function ($request, $response, $args) {
+    $isAJAX = false;
+    $error = false;
+    $loginExpired = false;
+    $router = $this->router;
+    $notificationID = $request->getParam("notificationID");
+    $user = User::findById($this->db, $this->session->userID);
+
+    // Check if AJAX request
+    if(strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'){
+        $isAJAX = true;
+    }
+
+    // Check if logged in
+    if($isAJAX) {
+        if(!$this->session->isLoggedIn()) {
+            $error = true;
+            $loginExpired = true;
+
+            return json_encode(compact("error", "loginExpired"));
+        }
+
+    } else {
+        if(!$this->session->isLoggedIn()) {
+            return $response->withRedirect($router->pathFor('login'));
+        }
+    }
+    // Fetch notification
+    if(!$notification = Notification::findById($this->db, $notificationID)) {
+        $error = true;
+
+        if($isAJAX) {
+            return json_encode(compact("error", "loginExpired"));
+        } else {
+            $this->flash->addMessage("fail", "Could not fetch notification");
+            return $response->withRedirect($router->pathFor('home'));
+        }
+    }
+    // Check if notification belongs to user
+    if($notification->userID !== $user->id) {
+        $error = true;
+
+        if($isAJAX) {
+            return json_encode(compact("error", "loginExpired"));
+        } else {
+            $this->flash->addMessage("fail", "You do not have permission to perform this action");
+            return $response->withRedirect($router->pathFor('home'));
+        }
+    }
+
+    // Remove notification from database
+    if($error === false) {
+        $notification->delete();
+    }
+
+    if($isAJAX) {
+        return json_encode(compact("error", "loginExpired"));
+    } else {
+        $this->flash->addMessage("success", "Notification deleted");
+        return $response->withRedirect($router->pathFor('home'));
+    }
+    
+})->setName('deleteNotification');
+
 
 /**
  * Register Routes
