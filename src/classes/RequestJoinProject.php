@@ -78,4 +78,17 @@ class RequestJoinProject extends DatabaseObject
         }
     }
 
+    public static function getAllRequestsForUser($db, $userID)
+    {
+        $sql = "SELECT projectName ";
+        $sql .= "FROM requestjoinproject INNER JOIN projects ON projectID = projects.id ";
+        $sql .= "WHERE userID = " . (int)$userID;
+        $result = self::findBySQL($db, $sql);
+
+        if($result) {
+            return $result;
+        } else {
+            return false;
+        }
+    }
 }

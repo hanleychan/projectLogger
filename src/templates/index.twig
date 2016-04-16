@@ -48,7 +48,16 @@
 
         <h3>Pending Project Join Requests</h3>
         {% if pendingProjects %}
-
+            <p>You are awaiting acceptance to the below projects</p>
+            <ul>
+                {% for pendingProject in pendingProjects %}
+                <li>
+                    <a href="{{ path_for('fetchProjectLogs', {'name': pendingProject.projectName}) }}">
+                    {{ pendingProject.projectName }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
         {% else %}
         <p>You have no pending project requests at this time</p>
         {% endif %}

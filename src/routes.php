@@ -16,8 +16,10 @@ $app->get('/', function ($request, $response) {
     // Fetch pending actions
     $pendingProjectActions = RequestJoinProject::getAllRequestsForOwner($this->db, $user->id);
 
+    // Fetch pending project requests
+    $pendingProjects = RequestJoinProject::getAllRequestsForUser($this->db, $user->id);
 
-    return $this->view->render($response, 'index.twig', compact("user", "notifications", "pendingProjectActions")); 
+    return $this->view->render($response, 'index.twig', compact("user", "notifications", "pendingProjectActions", "pendingProjects")); 
 })->setName('home');
 
 $app->post('/deleteNotification', function ($request, $response, $args) {
