@@ -53,10 +53,7 @@
                     if(result.loginExpired) {
                         alert("Login Expired");
                         window.location = "{{ path_for('login') }}";
-                    } else if(result.error) {
-                        
-                    }
-                    else if (!result.error) {
+                    } else {
                         notificationItem.hide("slow");
 
                         // Show notification removed message and auto remove it
