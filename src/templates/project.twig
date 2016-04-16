@@ -6,19 +6,27 @@
 
 {% block content %}
 <h2>Project: {{ project.projectName }}</h2>
-<p><a href="{{ path_for('projectActions', {'name': project.projectName})  }}">Project Actions</a></p>
 
-{% if not projectMember %}
-    <form action="{{ path_for('requestJoin', {'name': project.projectName})  }}" method="post">
-        <button type="submit">Request to join this project</button>
-    </form>
-{% endif %}
 {% for message in flash.message("fail") %}
     <p>{{ message}}</p>
 {% endfor %}
 {% for message in flash.message("success") %}
     <p>{{ message}}</p>
 {% endfor %}
+
+<p><a href="{{ path_for('projectActions', {'name': project.projectName})  }}">Project Actions</a></p>
+
+{% if not projectMember %}
+        {% if userHasJoinRequest %}
+            <form action="{{ path_for('cancelRequestJoin', {'name': project.projectName}) }}" method="post">
+                <button type="submit">Cancel request to join project</button>
+            </form>
+        {% else %}
+            <form action="{{ path_for('requestJoin', {'name': project.projectName})  }}" method="post">
+                <button type="submit">Request to join this project</button>
+            </form>
+        {% endif %}
+{% endif %}
 
 <ul>
     <li>Owner: {{ project.ownerName }}</li>

@@ -366,9 +366,10 @@ $app->get('/project/{name}/projectLogs', function($request, $response, $args) {
 
     $page = "viewLogs";
     $name = trim($args["name"]);
+    $user = User::findById($this->db, $this->session->userID);
 
     // Check if user is a member of this project
-    if(!$project = Project::findProjectByNameAndUser($this->db, $name, $this->session->userID)) {
+    if(!$project = Project::findProjectByNameAndUser($this->db, $name, $user->id)) {
         $project = Project::findProjectByName($this->db, $name);
 
         // Can't fetch project (Project doesn't exist)
@@ -383,7 +384,14 @@ $app->get('/project/{name}/projectLogs', function($request, $response, $args) {
 
     $projectLogs = ProjectLog::findLogsByProjectName($this->db, $name);
     $isAdmin = ProjectMember::isProjectAdmin($this->db, $name, $this->session->userID);
-    $user = User::findById($this->db, $this->session->userID);
+
+    // Check if user has requested to join this project if not a project member
+    if(RequestJoinProject::getRequestByProjectName($this->db, $name, $user->id)) {
+        $userHasJoinRequest = true;
+    } else {
+        $userHasJoinRequest = false;
+    } 
+    
 
     if($projectLogs) {
         foreach($projectLogs as $projectLog) {
@@ -399,7 +407,7 @@ $app->get('/project/{name}/projectLogs', function($request, $response, $args) {
 
     return $this->view->render($response, "project.twig", compact("user", "project", "projectLogs",
                                                                   "page", "projectMember", "isAdmin",
-                                                                  "name"));
+                                                                  "userHasJoinRequest"));
 })->setName("fetchProjectLogs");
 
 
@@ -789,7 +797,7 @@ $app->post('/project/{name}/request', function($request, $response, $args) {
     }
 
     // Check if request already exists
-    if(RequestJoinProject::doesRequestExistByProjectName($this->db, $name, $user->id)) {
+    if(RequestJoinProject::getRequestByProjectName($this->db, $name, $user->id)) {
         $this->flash->addMessage("fail", "You have already requested to join this project");
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
@@ -803,6 +811,36 @@ $app->post('/project/{name}/request', function($request, $response, $args) {
     $this->flash->addMessage("success", "Request to join project sent");
     return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
 })->setName('requestJoin');
+
+// Route for canceling a request to join a project
+$app->post('/project/{name}/request/cancel', function($request, $response, $args) {
+    $router = $this->router;
+    // Redirect to login page if not logged in
+    if(!$this->session->isLoggedIn()) {
+        return $response->withRedirect($router->pathFor('login'));
+    }
+
+    $name = trim($args["name"]);
+    $user = User::findById($this->db, $this->session->userID);
+
+    // Check if project exists
+    if(!$project = Project::findProjectByName($this->db, $name)) {
+        $this->flash->addMessage("fail", "Project does not exist");
+        return $response->withRedirect($router->pathFor('projects'));
+    }
+
+    // Fetch request 
+    if(!$requestJoinProject = RequestJoinProject::getRequestByProjectName($this->db, $name, $user->id)) {
+        $this->flash->addMessage("fail", "You do not have a pending request to join this project");
+        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
+    }
+
+    // Remove request from database
+    $requestJoinProject->delete();
+
+    $this->flash->addMessage("success", "Request to join this project has been cancelled");
+    return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
+})->setName('cancelRequestJoin');
 
 // Route for project actions
 $app->get('/project/{name}/actions', function ($request, $response, $args) {

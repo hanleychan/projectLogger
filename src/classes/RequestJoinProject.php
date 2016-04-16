@@ -11,9 +11,10 @@ class RequestJoinProject extends DatabaseObject
     protected static $tableName = 'requestjoinproject';
     protected static $dbFields = array('id', 'userID', 'projectID');
 
-    public static function doesRequestExistByProjectName($db, $projectName, $userID)
+    public static function getRequestByProjectName($db, $projectName, $userID)
     {
-        $sql = "SELECT * FROM requestjoinproject INNER JOIN projects ";
+        $sql = "SELECT requestjoinproject.id as id, userID, projectID ";
+        $sql .= "FROM requestjoinproject INNER JOIN projects ";
         $sql .= "ON projectID = projects.id ";
         $sql .= "WHERE projectName = ? AND  userID = " . (int)$userID . " ";
         $sql .= "LIMIT 1";
@@ -22,7 +23,7 @@ class RequestJoinProject extends DatabaseObject
         $result = self::findBySQL($db, $sql, $paramArray);
 
         if($result) {
-            return true;
+            return $result[0];
         } else {
             return false;
         }
