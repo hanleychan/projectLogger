@@ -386,12 +386,11 @@ $app->get('/project/{name}/projectLogs', function($request, $response, $args) {
     $isAdmin = ProjectMember::isProjectAdmin($this->db, $name, $this->session->userID);
 
     // Check if user has requested to join this project if not a project member
-    if(RequestJoinProject::getRequestByProjectName($this->db, $name, $user->id)) {
+    if(!$projectMember && RequestJoinProject::getRequestByProjectName($this->db, $name, $user->id)) {
         $userHasJoinRequest = true;
     } else {
         $userHasJoinRequest = false;
     } 
-    
 
     if($projectLogs) {
         foreach($projectLogs as $projectLog) {
@@ -438,6 +437,13 @@ $app->get('/project/{name}/members', function($request, $response, $args) {
         $projectMember = true;
     }
 
+    // Check if user has requested to join this project if not a project member
+    if(!$projectMember && RequestJoinProject::getRequestByProjectName($this->db, $name, $user->id)) {
+        $userHasJoinRequest = true;
+    } else {
+        $userHasJoinRequest = false;
+    } 
+
     $projectMembers = ProjectMember::findProjectMembersByProjectName($this->db, $name); 
     $isAdmin = ProjectMember::isProjectAdmin($this->db, $name, $user->id);
     $isOwner = ($project->ownerID === $user->id) ? true : false;
@@ -449,7 +455,7 @@ $app->get('/project/{name}/members', function($request, $response, $args) {
 
     return $this->view->render($response, "project.twig", compact("user", "project", "projectMembers", 
                                                                   "page", "projectMember", "isAdmin",
-                                                                  "isOwner", "requests"));
+                                                                  "isOwner", "requests", "userHasJoinRequest"));
 })->setName("fetchProjectMembers");
 
 
@@ -576,6 +582,16 @@ $app->post('/project/{name}/remove/{username}', function($request, $response, $a
     if($action === "Yes") {
         // Remove user from project database
         $projectMember->delete();
+
+        // Add notification removed user 
+        $notification = new Notification($this->db);
+        $notification->date = date("Y-m-d");
+        $notification->userID = $projectMember->userID;
+        $notification->notification = "You were removed from project ";
+        $notification->notification .= "<a href=\"{$router->pathFor('fetchProjectLogs', compact('name'))}\">{$name}</a> ";
+        $notification->notification .= "by {$user->username}"; 
+        $notification->save();
+
         $this->flash->addMessage("success", "{$projectMember->username} has been removed");
     } elseif($action !== "No") {
         $this->flash->addMessage("fail", "There was an error processing this request");
