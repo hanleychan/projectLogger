@@ -1083,6 +1083,19 @@ $app->post('/project/{name}/rename', function($request, $response, $args) {
         $project->projectName = $newName;
         $project->save();
 
+        // Add a notification for all other project members
+        $projectMembers = ProjectMember::findProjectMembersByProjectName($this->db, $newName);
+        foreach($projectMembers as $projectMember) {
+            if($projectMember->userID != $user->id) {
+                $notification = new Notification($this->db);
+                $notification->userID = $projectMember->userID;
+                $notification->date = date("Y-m-d");
+                $notification->notification = "Project {$name} has been renamed to ";
+                $notification->notification .= "<a href=\"{$router->pathFor('fetchProjectLogs', ['name'=>$newName])}\">{$newName}</a> ";
+                $notification->notification .= "by {$user->username}";
+                $notification->save();
+            }
+        } 
 
         $this->flash->addMessage("success", "Project {$name} has been renamed to {$newName} ");
     } elseif ($action !== "cancel") {
