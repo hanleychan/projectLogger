@@ -486,7 +486,7 @@ $app->post('/project/{name}/members/request/{username}', function($request, $res
 
     // Fetch request
     if(!$request = RequestJoinProject::getRequestByProjectNameAndUsername($this->db, $name, $username)) {
-        $this->flash->addMessage("fail", "Could not find request");
+        $this->flash->addMessage("fail", "Could not find member request");
         return $response->withRedirect($router->pathFor('fetchProjectMembers', compact("name")));
     }
 
@@ -501,8 +501,26 @@ $app->post('/project/{name}/members/request/{username}', function($request, $res
         $projectMember->isAdmin = false;
         $projectMember->save();
 
+        // Add notification for accepted user 
+        $notification = new Notification($this->db);
+        $notification->date = date("Y-m-d");
+        $notification->userID = $projectMember->userID;
+        $notification->notification = "Your request to join project ";
+        $notification->notification .= "<a href=\"{$router->pathFor('fetchProjectLogs', compact('name'))}\">{$name}</a> ";
+        $notification->notification .= "has been approved by {$user->username}"; 
+        $notification->save();
+
         $this->flash->addMessage("success", "You have added {$username} to this project");
     } elseif ($action === "decline") {
+        // Add notification for declined user 
+        $notification = new Notification($this->db);
+        $notification->date = date("Y-m-d");
+        $notification->userID = $request->userID;
+        $notification->notification = "Your request to join project ";
+        $notification->notification .= "<a href=\"{$router->pathFor('fetchProjectLogs', compact('name'))}\">{$name}</a> ";
+        $notification->notification .= "has been declined by {$user->username}"; 
+        $notification->save();
+
         $this->flash->addMessage("success", "You have declined {$username} from joining this project");
     } else {
         $this->flash->addMessage("fail", "There was a problem processing this request");
@@ -631,6 +649,15 @@ $app->post('/project/{name}/rank/{username}', function ($request, $response, $ar
             $projectMember->isAdmin = true;
             $projectMember->save();
 
+            // Add notification
+            $notification = new Notification($this->db);
+            $notification->date = date("Y-m-d");
+            $notification->userID = $projectMember->userID;
+            $notification->notification = "Your rank was changed to admin for project ";
+            $notification->notification .= "<a href=\"{$router->pathFor('fetchProjectLogs', compact('name'))}\">{$name}</a> ";
+            $notification->notification .= "by {$user->username}"; 
+            $notification->save();
+
             $this->flash->addMessage("success", "{$username} is now an admin of project {$name}");
         } else {
             $this->flash->addMessage("fail", "{$username} is already an admin of project {$name}");
@@ -640,6 +667,14 @@ $app->post('/project/{name}/rank/{username}', function ($request, $response, $ar
             $projectMember->isAdmin = false;
             $projectMember->save();
 
+            // Add notification
+            $notification = new Notification($this->db);
+            $notification->date = date("Y-m-d");
+            $notification->userID = $projectMember->userID;
+            $notification->notification = "Your rank was changed to normal user for project ";
+            $notification->notification .= "<a href=\"{$router->pathFor('fetchProjectLogs', compact('name'))}\">{$name}</a> ";
+            $notification->notification .= "by {$user->username}"; 
+            $notification->save();
             $this->flash->addMessage("success", "{$username} is no longer an admin of project {$name}");
         } else {
             $this->flash->addMessage("fail", "{$username} is already a regular member of project {$name}");
