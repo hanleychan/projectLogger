@@ -1083,6 +1083,7 @@ $app->post('/project/{name}/rename', function($request, $response, $args) {
         $project->projectName = $newName;
         $project->save();
 
+
         $this->flash->addMessage("success", "Project {$name} has been renamed to {$newName} ");
     } elseif ($action !== "cancel") {
         $this->flash->addMessage("fail", "There was an error processing your request");
@@ -1193,6 +1194,15 @@ $app->post('/project/{name}/transferOwnership/{newOwner}', function ($request, $
             $owner->isAdmin = true;
             $owner->save();
         }
+
+        // Add notification for new owner
+        $notification = new Notification($this->db);
+        $notification->date = date("Y-m-d");
+        $notification->userID = $projectMember->userID;
+        $notification->notification = "{$project->ownerName} has transferred ownership of project ";
+        $notification->notification .= " <a href=\"{$router->pathFor('fetchProjectLogs', compact('name'))}\">{$name}</a> ";
+        $notification->notification .= "to you";
+        $notification->save();
 
         $this->flash->addMessage("success", "Project ownership has been transfered to {$projectMember->username}");
         return $response->withRedirect($router->pathFor('projectActions', compact("name")));
