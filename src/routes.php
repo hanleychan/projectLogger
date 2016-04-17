@@ -996,7 +996,23 @@ $app->post('/project/{name}/delete', function ($request, $response, $args) {
 
     $projectMember = true;
     if($action === "yes") {
+        $projectMembers = ProjectMember::findProjectMembersByProjectName($this->db, $name);
+
+        // Delete the project
         $project->delete();
+
+        // Add a notification for all other project members
+        foreach($projectMembers as $projectMember) {
+            if($projectMember->userID != $user->id) {
+                $notification = new Notification($this->db);
+                $notification->userID = $projectMember->userID;
+                $notification->date = date("Y-m-d");
+                $notification->notification = "Project {$name} has been deleted ";
+                $notification->notification .= "by {$user->username}";
+                $notification->save();
+            }
+        } 
+
         $this->flash->addMessage("success", "Project {$project->projectName} has been deleted successfully");
     } elseif ($action === "no") {
         return $response->withRedirect($router->pathFor('projectActions', compact("name")));
