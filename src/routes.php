@@ -1383,9 +1383,9 @@ $app->post('/project/{name}/transferOwnership/{newOwner}', function ($request, $
         $project->save();
 
         // Make new owner admin
-        if($owner->isAdmin = false) {
-            $owner->isAdmin = true;
-            $owner->save();
+        if($projectMember->isAdmin == false) {
+            $projectMember->isAdmin = true;
+            $projectMember->save();
         }
 
         // Add notification for new owner
