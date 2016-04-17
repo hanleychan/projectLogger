@@ -14,6 +14,9 @@
         <div id="notificationMessage"></div>
 
         {% if notifications %}
+            <form action="{{ path_for('deleteAllNotifications') }}" method="post">
+                <button type="submit">Clear All Notifications</button>
+            </form>
             <ul>
             {% for notification in notifications %}
                 <li>

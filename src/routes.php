@@ -22,7 +22,26 @@ $app->get('/', function ($request, $response) {
     return $this->view->render($response, 'index.twig', compact("user", "notifications", "pendingProjectActions", "pendingProjects")); 
 })->setName('home');
 
-$app->post('/deleteNotification', function ($request, $response, $args) {
+$app->post('/deleteAllNotifications', function ($request, $response) {
+    $router = $this->router;
+
+    // redirect to login page if not logged in
+    if(!$this->session->isLoggedIn()) {
+        return $response->withRedirect($router->pathFor('login'));
+    }
+
+    $user = User::findById($this->db, $this->session->userID);
+
+    // Fetch notifications
+    $notifications = Notification::getNotifications($this->db, $user->id);
+    foreach($notifications as $notification) {
+        $notification->delete();
+    }
+
+    return $response->withRedirect($router->pathFor('home'));
+})->setName('deleteAllNotifications');
+
+$app->post('/deleteNotification', function ($request, $response) {
     $isAJAX = false;
     $error = false;
     $loginExpired = false;
