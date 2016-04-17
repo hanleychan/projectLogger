@@ -118,7 +118,10 @@ $app->get('/register', function ($request, $response) {
         return $response->withRedirect($router->pathFor('home'));
     }
 
-    return $this->view->render($response, 'register.twig');
+    // Get form data if available
+    $postData = $this->session->getPostData();
+
+    return $this->view->render($response, 'register.twig', compact("postData"));
 })->setName('register');
 
 
@@ -132,6 +135,10 @@ $app->post('/register', function ($request, $response) {
     // Check if username is valid 
     if(User::fetchUser($this->db, $username)) {
         $this->flash->addMessage("fail", "Username {$username} already exists");
+
+        // Store form data in session variable
+        $this->session->setPostData($_POST);
+
         return $response->withRedirect($router->pathFor('register'));
     }
     elseif(!User::isValidFormatUsername($username)) {
@@ -139,15 +146,26 @@ $app->post('/register', function ($request, $response) {
                                  "Username can contain only letters and numbers and be between " . 
                                  User::USERNAME_MIN_LENGTH . " & " . User::USERNAME_MAX_LENGTH . 
                                  " characters long");
+        // Store form data in session variable
+        $this->session->setPostData($_POST);
+
         return $response->withRedirect($router->pathFor('register'));
     }
     elseif(!User::isValidPassword($password)) {
         $this->flash->addMessage("fail",
                                  "Passwords must be at least " . USER::PASSWORD_MIN_LENGTH . " characters long");
+
+        // Store form data in session variable
+        $this->session->setPostData($_POST);
+
         return $response->withRedirect($router->pathFor('register'));
     }
     elseif(!User::doPasswordsMatch($password, $password2)) {
         $this->flash->addMessage("fail", "Passwords must match");
+
+        // Store form data in session variable
+        $this->session->setPostData($_POST);
+
         return $response->withRedirect($router->pathFor('register'));
     }
     else {
@@ -816,6 +834,9 @@ $app->get('/project/{name}/edit/{logID}', function($request, $response, $args) {
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact("name")));
     }
 
+    // Fetch post data
+    $postData = $this->session->getPostData();
+
     // Reformat date and time formats
     $projectLog->date = ProjectLog::formatDateFromSQL($projectLog->date);
     $projectLog->hours = floor($projectLog->minutes / 60);
@@ -830,7 +851,7 @@ $app->get('/project/{name}/edit/{logID}', function($request, $response, $args) {
     $totalMinutesByMe = ProjectLog::getTotalTimeByProjectNameAndUser($this->db, $name, $user->id);
     $totalMinutesByMe = ProjectLog::formatTimeOutput($totalMinutesByMe);
 
-    return $this->view->render($response, "project.twig", compact("user", "project", "projectLog", "page", "projectMember", "totalMinutes", "totalMinutesByMe"));
+    return $this->view->render($response, "project.twig", compact("user", "project", "projectLog", "page", "projectMember", "totalMinutes", "totalMinutesByMe", "postData"));
 })->setName('fetchEditLog');
 
 
@@ -881,6 +902,7 @@ $app->post('/project/{name}/edit/{logID}', function($request, $response, $args) 
     }
 
     if($inputError) {
+        $this->session->setPostData($_POST);
         return $response->withRedirect($router->pathFor('fetchEditLog', compact('name', 'logID')));
     }
 
@@ -1205,6 +1227,9 @@ $app->get('/project/{name}/rename', function($request, $response, $args) {
 
     $projectMember = true;
 
+    // Get form session data if available
+    $postData = $this->session->getPostData();
+
     // Get combined minutes of all users for this project
     $totalMinutes = ProjectLog::getTotalTimeByProjectName($this->db, $name);
     $totalMinutes = ProjectLog::formatTimeOutput($totalMinutes);
@@ -1213,7 +1238,7 @@ $app->get('/project/{name}/rename', function($request, $response, $args) {
     $totalMinutesByMe = ProjectLog::getTotalTimeByProjectNameAndUser($this->db, $name, $user->id);
     $totalMinutesByMe = ProjectLog::formatTimeOutput($totalMinutesByMe);
 
-    return $this->view->render($response, "project.twig", compact("user", "project", "projectMember", "page", "projectMember", "totalMinutes", "totalMinutesByMe"));
+    return $this->view->render($response, "project.twig", compact("user", "project", "projectMember", "page", "projectMember", "totalMinutes", "totalMinutesByMe", "postData"));
 })->setName('renameProject');
 
 
@@ -1244,6 +1269,10 @@ $app->post('/project/{name}/rename', function($request, $response, $args) {
     // Validate new project name
     if(!Project::isValidProjectName($newName)) {
         $this->flash->addMessage("fail", "New project name was entered in an invalid format");
+
+        // Store form data in session
+        $this->session->setPostData($_POST);
+
         return $response->withRedirect($router->pathFor('renameProject', compact("name")));
     }
 

@@ -10,7 +10,7 @@
     {% endfor %}
     <form action="{{ path_for('processRegister') }}" method="post">
         <label for="username">Username:</label><br>
-        <input type="text" id="username" name="username"><br>
+        <input type="text" id="username" name="username"{% if postData %} value="{{ postData.username }}" {% endif %}><br>
 
         <label for="password">Password:</label><br>
         <input type="password" id="password" name="password"><br>

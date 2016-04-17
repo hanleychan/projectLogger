@@ -10,13 +10,14 @@
 <form action="{{ path_for("editLog", {'name': project.projectName, 'logID':projectLog.id}) }}" method="post">
 {% endif %}
     <label for="datePicker">Date</label>
-    <input type="text" id="datePicker" name="datePicker" placeholder="mm/dd/yyyy"{% if projectLog %} value="{{ projectLog.date }}"{% endif %}><br>
+    <input type="text" id="datePicker" name="datePicker" placeholder="mm/dd/yyyy"
+           value="{% if postData %}{{ postData.datePicker }}{% elseif projectLog %}{{ projectLog.date }}{% else %}{{ "now" | date("m/d/Y") }}{% endif %}"><br>
     <label for="hours">Hours</label>
-    <input type="number" id="hours" name="hours" min="0" max="24"{% if projectLog %} value="{{ projectLog.hours }}"{% endif %}><br>
+    <input type="number" id="hours" name="hours" min="0" max="24"{% if postData or projectLog %} value="{% if postData %}{{ postData.hours }}{% else %}{{ projectLog.hours }}{% endif %}"{% endif %}><br>
     <label for="minutes">Minutes</label>
-    <input type="number" id="minutes" name="minutes" min="0" max="59"{% if projectLog %} value="{{ projectLog.minutes }}"{% endif %}><br>
+    <input type="number" id="minutes" name="minutes" min="0" max="59"{% if postData or projectLog %} value="{% if postData %}{{postData.minutes }}{% else %}{{ projectLog.minutes }}{% endif %}"{% endif %}><br>
     <label for="comment">Comment</label>
-    <input type="text" id="comment" name="comment"{% if projectLog %} value="{{ projectLog.comment }}"{% endif %}><br>
+    <input type="text" id="comment" name="comment"{% if postData or projectLog %} value="{% if postData %}{{ postData.comment }}{% else %}{{ projectLog.comment }}{% endif %}"{% endif %}><br>
 
     <input type="submit" value="Save">
 </form>

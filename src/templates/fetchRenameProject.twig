@@ -1,7 +1,7 @@
 <h2>Rename project</h2>
 <form action="" method="post">
     <label for="projectName">Project Name:</label>
-    <input type="text" id="projectName" name="projectName"><br>
+    <input type="text" id="projectName" name="projectName"{% if postData %} value="{{ postData.projectName }}"{% endif %}><br>
     <button type="submit" name="action" value="rename">Rename</button>
     <button type="submit" name="action" value="cancel">Cancel</button>
 </form>
