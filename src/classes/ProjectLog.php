@@ -9,6 +9,7 @@ class ProjectLog extends DatabaseObject
     public $comment;
     public $date;
     public $username;
+    public $totalMinutes;
 
     protected static $tableName = 'projectlogs';
     protected static $dbFields = array('id', 'minutes', 'userID', 'projectID', 'comment', 'date');
@@ -93,7 +94,37 @@ class ProjectLog extends DatabaseObject
 
         return $output;
     }
+    
+    public static function getTotalTimeByProjectName($db, $projectName)
+    {
+        $sql = "SELECT SUM(minutes) as totalMinutes FROM projectlogs ";
+        $sql .= "INNER JOIN projects ON projectlogs.projectID = projects.id ";
+        $sql .= "WHERE projectName = ? LIMIT 1";
+        $paramArray = array($projectName);
 
+        $result = self::findBySQL($db, $sql, $paramArray);
+        if($result) {
+            return (int)$result[0]->totalMinutes;
+        } else {
+            return false;
+        }
+    }
+
+    public static function getTotalTimeByProjectNameAndUser($db, $projectName, $userID)
+    {
+        $sql = "SELECT SUM(minutes) as totalMinutes FROM projectlogs ";
+        $sql .= "INNER JOIN projects ON projectlogs.projectID = projects.id ";
+        $sql .= "WHERE projectName = ? AND userID = " . (int)$userID . " ";
+        $sql .= "LIMIT 1";
+        $paramArray = array($projectName);
+
+        $result = self::findBySQL($db, $sql, $paramArray);
+        if($result) {
+            return (int)$result[0]->totalMinutes;
+        } else {
+            return false;
+        }
+    }
 
     public static function findLogsByProjectName($db, $projectName)
     {

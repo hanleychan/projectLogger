@@ -30,9 +30,9 @@
 
 <ul>
     <li>Owner: {{ project.ownerName }}</li>
-    <li>Total Hours:</li>
+    <li>Total Hours: {{ totalMinutes }}</li>
     {% if projectMember %}
-    <li>Total Hours By Me:</li>
+    <li>Total Hours By Me: {{ totalMinutesByMe }}</li>
     {% endif %}
     
 </ul>

@@ -404,10 +404,23 @@ $app->get('/project/{name}/projectLogs', function($request, $response, $args) {
         }
     }
 
+    // Get combined minutes of all users for this project
+    $totalMinutes = ProjectLog::getTotalTimeByProjectName($this->db, $name);
+    $totalMinutes = ProjectLog::formatTimeOutput($totalMinutes);
+
+    // Get combined minutes of me for this project
+    if($projectMember) {
+        $totalMinutesByMe = ProjectLog::getTotalTimeByProjectNameAndUser($this->db, $name, $user->id);
+        $totalMinutesByMe = ProjectLog::formatTimeOutput($totalMinutesByMe);
+    } else {
+        $totalMinutesByMe = false;
+    }
+
     return $this->view->render($response, "project.twig", compact("user", "project", "projectLogs",
                                                                   "page", "projectMember", "isAdmin",
-                                                                  "userHasJoinRequest"));
-})->setName("fetchProjectLogs");
+                                                                  "userHasJoinRequest", "totalMinutes",
+                                                                  "totalMinutesByMe"));
+})->setName('fetchProjectLogs');
 
 
 // Route for fetching members of a project
@@ -453,9 +466,22 @@ $app->get('/project/{name}/members', function($request, $response, $args) {
         $requests = RequestJoinProject::getRequestsByProjectName($this->db, $name); 
     }
 
+    // Get combined minutes of all users for this project
+    $totalMinutes = ProjectLog::getTotalTimeByProjectName($this->db, $name);
+    $totalMinutes = ProjectLog::formatTimeOutput($totalMinutes);
+
+    // Get combined minutes of me for this project
+    if($projectMember) {
+        $totalMinutesByMe = ProjectLog::getTotalTimeByProjectNameAndUser($this->db, $name, $user->id);
+        $totalMinutesByMe = ProjectLog::formatTimeOutput($totalMinutesByMe);
+    } else {
+        $totalMinutesByMe = false;
+    }
+
     return $this->view->render($response, "project.twig", compact("user", "project", "projectMembers", 
                                                                   "page", "projectMember", "isAdmin",
-                                                                  "isOwner", "requests", "userHasJoinRequest"));
+                                                                  "isOwner", "requests", "userHasJoinRequest",
+                                                                  "totalMinutes", "totalMinutesByMe"));
 })->setName("fetchProjectMembers");
 
 
@@ -562,7 +588,15 @@ $app->get('/project/{name}/remove/{username}', function($request, $response, $ar
         return $response->withRedirect($router->pathFor("fetchProjectMembers", compact("name")));
     }
 
-    return $this->view->render($response, 'project.twig', compact("user", "project", "page", "projectMember"));
+    // Get combined minutes of all users for this project
+    $totalMinutes = ProjectLog::getTotalTimeByProjectName($this->db, $name);
+    $totalMinutes = ProjectLog::formatTimeOutput($totalMinutes);
+
+    // Get combined minutes of me for this project
+    $totalMinutesByMe = ProjectLog::getTotalTimeByProjectNameAndUser($this->db, $name, $user->id);
+    $totalMinutesByMe = ProjectLog::formatTimeOutput($totalMinutesByMe);
+
+    return $this->view->render($response, 'project.twig', compact("user", "project", "page", "projectMember", "totalMinutes", "totalMinutesByMe"));
 })->setName('confirmRemoveMember');
 
 // Route for processing removing a user from a project
@@ -713,7 +747,16 @@ $app->get('/project/{name}/newLog', function($request, $response, $args) {
 
     $projectMember = true;
 
-    return $this->view->render($response, "project.twig", compact("user", "project", "projectMember", "page"));
+    // Get combined minutes of all users for this project
+    $totalMinutes = ProjectLog::getTotalTimeByProjectName($this->db, $name);
+    $totalMinutes = ProjectLog::formatTimeOutput($totalMinutes);
+
+    // Get combined minutes of me for this project
+    $totalMinutesByMe = ProjectLog::getTotalTimeByProjectNameAndUser($this->db, $name, $user->id);
+    $totalMinutesByMe = ProjectLog::formatTimeOutput($totalMinutesByMe);
+
+    return $this->view->render($response, "project.twig", compact("user", "project", "projectMember", "page",
+                                                                  "totalMinutes", "totalMinutesByMe"));
 })->setName("fetchAddNewLog");
 
 
@@ -739,19 +782,19 @@ $app->get('/project/{name}/edit/{logID}', function($request, $response, $args) {
     // fetch project log entry
     if(!$projectLog = ProjectLog::findById($this->db, $logID)) {
         $this->flash->addMessage("fail", "Log does not exist");
-        return $response->withRedirect($router->pathFor('project', compact("name")));
+        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact("name")));
     }
 
     // check if user is admin or log entry belongs to user 
     if (!(ProjectMember::isProjectAdmin($this->db, $name, $user->id) || $user->id === $projectLog->userID)) {   
         $this->flash->addMessage("fail", "You do not have permission to edit this log entry");
-        return $response->withRedirect($router->pathFor('project', compact("name")));
+        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact("name")));
     }
         
     // fetch project
     if(!$project = Project::findProjectByNameAndUser($this->db, $name, $this->session->userID)) {
         $this->flash->addMessage("fail", "Could not fetch project");
-        return $response->withRedirect($router->pathFor('project', compact("name")));
+        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact("name")));
     }
 
     // Reformat date and time formats
@@ -760,7 +803,15 @@ $app->get('/project/{name}/edit/{logID}', function($request, $response, $args) {
     $projectLog->minutes = $projectLog->minutes % 60;
     $projectMember = true;
 
-    return $this->view->render($response, "project.twig", compact("user", "project", "projectLog", "page", "projectMember"));
+    // Get combined minutes of all users for this project
+    $totalMinutes = ProjectLog::getTotalTimeByProjectName($this->db, $name);
+    $totalMinutes = ProjectLog::formatTimeOutput($totalMinutes);
+
+    // Get combined minutes of me for this project
+    $totalMinutesByMe = ProjectLog::getTotalTimeByProjectNameAndUser($this->db, $name, $user->id);
+    $totalMinutesByMe = ProjectLog::formatTimeOutput($totalMinutesByMe);
+
+    return $this->view->render($response, "project.twig", compact("user", "project", "projectLog", "page", "projectMember", "totalMinutes", "totalMinutesByMe"));
 })->setName('fetchEditLog');
 
 
@@ -785,13 +836,13 @@ $app->post('/project/{name}/edit/{logID}', function($request, $response, $args) 
     // fetch project log entry
     if(!$projectLog = ProjectLog::findById($this->db, $logID)) {
         $this->flash->addMessage("fail", "Log doesn't exist");
-        return $response->withRedirect($router->pathFor('fetchProjectLog', compact('name'))); 
+        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name'))); 
     }
 
     // check if is admin or log entry belongs to user 
     if(!(ProjectMember::isProjectAdmin($this->db, $name, $user->id) || $user->id === $projectLog->userID)) {
         $this->flash->addMessage("fail", "You do not have permission to edit this log");
-        return $response->withRedirect($router->pathFor('fetchProjectLog', compact('name'))); 
+        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name'))); 
     }
 
     $hours = (int)trim($request->getParam("hours"));
@@ -921,7 +972,19 @@ $app->get('/project/{name}/actions', function ($request, $response, $args) {
     $isAdmin = ProjectMember::isProjectAdmin($this->db, $name, $user->id);
     $projectMember = true;
 
-    return $this->view->render($response, 'project.twig', compact("user", "project", "isOwner", "page", "projectMember", "isAdmin"));
+    // Get combined minutes of all users for this project
+    $totalMinutes = ProjectLog::getTotalTimeByProjectName($this->db, $name);
+    $totalMinutes = ProjectLog::formatTimeOutput($totalMinutes);
+
+    // Get combined minutes of me for this project
+    if($projectMember) {
+        $totalMinutesByMe = ProjectLog::getTotalTimeByProjectNameAndUser($this->db, $name, $user->id);
+        $totalMinutesByMe = ProjectLog::formatTimeOutput($totalMinutesByMe);
+    } else {
+        $totalMinutesByMe = false;
+    }
+
+    return $this->view->render($response, 'project.twig', compact("user", "project", "isOwner", "page", "projectMember", "isAdmin", "totalMinutes", "totalMinutesByMe"));
 })->setName('projectActions');
 
 $app->get('/project/{name}/leave/{username}', function ($request, $response, $args) {
@@ -951,7 +1014,19 @@ $app->get('/project/{name}/leave/{username}', function ($request, $response, $ar
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact("name")));
     }
     
-    return $this->view->render($response, "project.twig", compact("user", "project", "page"));
+    // Get combined minutes of all users for this project
+    $totalMinutes = ProjectLog::getTotalTimeByProjectName($this->db, $name);
+    $totalMinutes = ProjectLog::formatTimeOutput($totalMinutes);
+
+    // Get combined minutes of me for this project
+    if($projectMember) {
+        $totalMinutesByMe = ProjectLog::getTotalTimeByProjectNameAndUser($this->db, $name, $user->id);
+        $totalMinutesByMe = ProjectLog::formatTimeOutput($totalMinutesByMe);
+    } else {
+        $totalMinutesByMe = false;
+    }
+
+    return $this->view->render($response, "project.twig", compact("user", "project", "page", "projectMember", "totalMinutes", "totalMinutesByMe"));
 })->setName('confirmLeaveProject');
 
 
@@ -1019,7 +1094,19 @@ $app->get('/project/{name}/delete', function ($request, $response, $args) {
 
     $projectMember = true;
 
-    return $this->view->render($response, "project.twig", compact("user", "project", "page", "projectMember"));
+    // Get combined minutes of all users for this project
+    $totalMinutes = ProjectLog::getTotalTimeByProjectName($this->db, $name);
+    $totalMinutes = ProjectLog::formatTimeOutput($totalMinutes);
+
+    // Get combined minutes of me for this project
+    if($projectMember) {
+        $totalMinutesByMe = ProjectLog::getTotalTimeByProjectNameAndUser($this->db, $name, $user->id);
+        $totalMinutesByMe = ProjectLog::formatTimeOutput($totalMinutesByMe);
+    } else {
+        $totalMinutesByMe = false;
+    }
+
+    return $this->view->render($response, "project.twig", compact("user", "project", "page", "projectMember", "totalMinutes", "totalMinutesByMe"));
 })->setName('confirmDeleteProject');
 
 $app->post('/project/{name}/delete', function ($request, $response, $args) {
@@ -1099,7 +1186,15 @@ $app->get('/project/{name}/rename', function($request, $response, $args) {
 
     $projectMember = true;
 
-    return $this->view->render($response, "project.twig", compact("user", "project", "projectMember", "page", "projectMember"));
+    // Get combined minutes of all users for this project
+    $totalMinutes = ProjectLog::getTotalTimeByProjectName($this->db, $name);
+    $totalMinutes = ProjectLog::formatTimeOutput($totalMinutes);
+
+    // Get combined minutes of me for this project
+    $totalMinutesByMe = ProjectLog::getTotalTimeByProjectNameAndUser($this->db, $name, $user->id);
+    $totalMinutesByMe = ProjectLog::formatTimeOutput($totalMinutesByMe);
+
+    return $this->view->render($response, "project.twig", compact("user", "project", "projectMember", "page", "projectMember", "totalMinutes", "totalMinutesByMe"));
 })->setName('renameProject');
 
 
@@ -1199,7 +1294,15 @@ $app->get('/project/{name}/transferOwnership', function($request, $response, $ar
     $projectMembers = ProjectMember::findProjectMembersByProjectName($this->db, $name); 
     $projectMember = true;
 
-    return $this->view->render($response, 'project.twig', compact("user", "project", "page", "projectMembers", "projectMember"));
+    // Get combined minutes of all users for this project
+    $totalMinutes = ProjectLog::getTotalTimeByProjectName($this->db, $name);
+    $totalMinutes = ProjectLog::formatTimeOutput($totalMinutes);
+
+    // Get combined minutes of me for this project
+    $totalMinutesByMe = ProjectLog::getTotalTimeByProjectNameAndUser($this->db, $name, $user->id);
+    $totalMinutesByMe = ProjectLog::formatTimeOutput($totalMinutesByMe);
+
+    return $this->view->render($response, 'project.twig', compact("user", "project", "page", "projectMembers", "projectMember", "totalMinutes", "totalMinutesByMe"));
 })->setName('transferOwnership');
 
 $app->post('/project/{name}/transferOwnership/confirm', function ($request, $response, $args) {
@@ -1232,7 +1335,17 @@ $app->post('/project/{name}/transferOwnership/confirm', function ($request, $res
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact("name")));
     }
 
-    return $this->view->render($response, 'project.twig', compact("user", "page", "project", "owner"));
+    $projectMember = true;
+
+    // Get combined minutes of all users for this project
+    $totalMinutes = ProjectLog::getTotalTimeByProjectName($this->db, $name);
+    $totalMinutes = ProjectLog::formatTimeOutput($totalMinutes);
+
+    // Get combined minutes of me for this project
+    $totalMinutesByMe = ProjectLog::getTotalTimeByProjectNameAndUser($this->db, $name, $user->id);
+    $totalMinutesByMe = ProjectLog::formatTimeOutput($totalMinutesByMe);
+
+    return $this->view->render($response, 'project.twig', compact("user", "page", "project", "owner", "projectMember", "totalMinutes", "totalMinutesByMe"));
 })->setName('confirmTransferOwnership');
 
 $app->post('/project/{name}/transferOwnership/{newOwner}', function ($request, $response, $args) {

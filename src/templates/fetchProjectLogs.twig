@@ -20,7 +20,7 @@
             <td>{{ projectLog.username }}</td>
             {% if isAdmin or projectLog.canEdit %}
             <td>
-                <form action="{{ path_for('editLog', {'name':name, 'logID':projectLog.id}) }}" method="get">
+                <form action="{{ path_for('editLog', {'name':project.projectName, 'logID':projectLog.id}) }}" method="get">
                     <button type="submit">Edit</button>
                 </form>
             </td>
