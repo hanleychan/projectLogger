@@ -863,6 +863,47 @@ $app->get('/project/{name}/edit/{logID}', function($request, $response, $args) {
     return $this->view->render($response, "project.twig", compact("user", "project", "projectLog", "page", "projectMember", "totalMinutes", "totalMinutesByMe", "postData"));
 })->setName('fetchEditLog');
 
+$app->post('/project{name}/deleteLog/{logID}', function ($request, $response, $args) {
+    $router = $this->router;
+    // Redirect to login page if not logged in
+    if(!$this->session->isLoggedIn()) {
+        return $response->withRedirect($router->pathFor('login'));
+    }
+   
+    $name = trim($args["name"]);
+    $logID = (int)($args["logID"]);
+    $action = $request->getParam("action");
+    $user = User::findById($this->db, $this->session->userID);
+
+    // Check if project exists
+    if(!Project::doesProjectExist($this->db, $name)) {
+        $this->flash->addMessage("fail", "Project does not exist");
+        return $response->withRedirect($router->pathFor('projects'));
+    }
+
+    // fetch project log entry
+    if(!$projectLog = ProjectLog::findById($this->db, $logID)) {
+        $this->flash->addMessage("fail", "Log doesn't exist");
+        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name'))); 
+    }
+
+    // check if is admin or log entry belongs to user 
+    if(!(ProjectMember::isProjectAdmin($this->db, $name, $user->id) || $user->id === $projectLog->userID)) {
+        $this->flash->addMessage("fail", "You do not have permission to delete this log");
+        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name'))); 
+    }
+
+    if($action === "delete") {
+        // Delete log in database
+        $projectLog->delete();
+
+        $this->flash->addMessage("success", "Log entry successfully deleted");
+    } elseif ($action !== "cancel") {
+        $this->flash->addMessage("fail", "There was an error processing your request");
+    }
+
+    return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
+})->setName('deleteLog');
 
 // Route for processing edit log changes
 $app->post('/project/{name}/edit/{logID}', function($request, $response, $args) {
@@ -874,6 +915,7 @@ $app->post('/project/{name}/edit/{logID}', function($request, $response, $args) 
 
     $name = trim($args["name"]);
     $logID = (int)($args["logID"]);
+    $action = $request->getParam("action");
     $user = User::findById($this->db, $this->session->userID);
 
     // Check if project exists
@@ -915,13 +957,17 @@ $app->post('/project/{name}/edit/{logID}', function($request, $response, $args) 
         return $response->withRedirect($router->pathFor('fetchEditLog', compact('name', 'logID')));
     }
 
-    // Update log in database
-    $projectLog->date = $date;
-    $projectLog->projectTime = "{$hours}:{$minutes}:00";
-    $projectLog->comment = $comment;
-    $projectLog->save();
+    if($action === "save") {
+        // Update log in database
+        $projectLog->date = $date;
+        $projectLog->projectTime = "{$hours}:{$minutes}:00";
+        $projectLog->comment = $comment;
+        $projectLog->save();
+        $this->flash->addMessage("success", "Log entry successfully updated");
+    } elseif ($action !== "cancel") {
+        $this->flash->addMessage("fail", "There was an error processing your request");
+    }
 
-    $this->flash->addMessage("success", "Log entry successfully updated");
     return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
 })->setName('editLog');
 
@@ -1461,6 +1507,19 @@ $app->post('/project/{name}/transferOwnership/{newOwner}', function ($request, $
     }
         return $response->withRedirect($router->pathFor('transferOwnership', compact("name")));
 })->setName('processTransferOwnership');
+
+
+
+$app->get('/profile/{username}', function ($request, $response, $args) {
+    $router = $this->router;
+
+    // Redirect to login page if not logged in
+    if(!$this->session->isLoggedIn()) {
+        return $response->withRedirect($router->pathFor('login'));
+    }
+
+    $user = User::findById($this->db, $this->session->userID);
+})->setName('userProfile');
 
 
 /**
