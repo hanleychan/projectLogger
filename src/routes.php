@@ -405,6 +405,11 @@ $app->get('/project/{name}/projectLogs', function($request, $response, $args) {
     $name = trim($args["name"]);
     $user = User::findById($this->db, $this->session->userID);
 
+    $displayLogsUsername = $request->getParam("show");
+    if($displayLogsUsername === "all") {
+        $displayLogsUsername = "";
+    }
+
     // Check if user is a member of this project
     if(!$project = Project::findProjectByNameAndUser($this->db, $name, $user->id)) {
         $project = Project::findProjectByName($this->db, $name);
@@ -419,7 +424,10 @@ $app->get('/project/{name}/projectLogs', function($request, $response, $args) {
         $projectMember = true;
     }
 
-    $projectLogs = ProjectLog::findLogsByProjectName($this->db, $name);
+    // Fetch project members
+    $projectMembers = ProjectMember::findProjectMembersByProjectName($this->db, $name, false); 
+
+    $projectLogs = ProjectLog::findLogsByProjectName($this->db, $name, $displayLogsUsername);
     $isAdmin = ProjectMember::isProjectAdmin($this->db, $name, $this->session->userID);
 
     // Check if user has requested to join this project if not a project member
@@ -456,7 +464,8 @@ $app->get('/project/{name}/projectLogs', function($request, $response, $args) {
     return $this->view->render($response, "project.twig", compact("user", "project", "projectLogs",
                                                                   "page", "projectMember", "isAdmin",
                                                                   "userHasJoinRequest", "totalMinutes",
-                                                                  "totalMinutesByMe"));
+                                                                  "totalMinutesByMe", "projectMembers",
+                                                                  "displayLogsUsername"));
 })->setName('fetchProjectLogs');
 
 

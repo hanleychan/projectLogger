@@ -1,7 +1,7 @@
 {% if page == "addNewLog" %}
-<h3>Add New Log</h3>
+<h3>Add New Log Entry</h3>
 {% elseif page == "editLog" %}
-<h3>Edit Log</h3>
+<h3>Edit Log Entry</h3>
 {% endif %}
 
 {% if page == "addNewLog" %}
@@ -19,7 +19,14 @@
     <label for="comment">Comment</label>
     <input type="text" id="comment" name="comment"{% if postData or projectLog %} value="{% if postData %}{{ postData.comment }}{% else %}{{ projectLog.comment }}{% endif %}"{% endif %}><br>
 
-    <input type="submit" value="Save">
+    <input type="submit" name="action" value="Save">
+    <input type="submit" name="action" value="Cancel">
 </form>
 
-
+{% if page == "editLog" %}
+<h3>Delete Log Entry:</h3>
+<form action="" method="post">
+<input type="submit" name="action" value="Delete">
+<input type="submit" name="action" value="Cancel">
+</form>
+{% endif %}

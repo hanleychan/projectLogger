@@ -4,6 +4,7 @@
     <title>Project Logs</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ path_for('home') }}stylesheets/main.css">
     {% block head %}
     {% endblock %}
 </head>
@@ -15,6 +16,7 @@
             <ul>
                 <li><a href="{{ path_for('home') }}">Home</a></li>
                 <li><a href="{{ path_for('projects') }}">Projects</a></li>
+                <li><a href="">Friends</a></li>
                 <li><a href="{{ path_for('account') }}">Account</a></li>
                 <li><a href="{{ path_for('logout') }}">Logout</a></li>
             </ul>

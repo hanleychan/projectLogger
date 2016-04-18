@@ -1,14 +1,35 @@
 <h3>Logs</h3>
+<form action="" method="get">
+    <label for="show">Display:</label> 
+    <select id="show" name="show">
+        <option value="all"{% if not displayLogsUsername %} selected {% endif %}>All</option>
+
+        <option value="{{ user.username }}"{% if displayLogsUsername == user.username %} selected{% endif %}>
+            Me only
+        </option>
+
+        {% for projectMember in projectMembers %}
+            {% if projectMember.username != user.username %}
+                <option value="{{ projectMember.username }}"{% if displayLogsUsername == projectMember.username %} selected{% endif %}>
+                    {{ projectMember.username }}
+                </option>
+            {% endif %}
+        {% endfor %}
+    </select>
+    <input type="submit" value="Go">
+</form>
 {% if not projectLogs %}
-<p>NO LOGS YET</p>
+<p>No logs found</p>
 {% else %}
     <table>
         <tr>
-            <th>Date</th>
+            <th>Date<th>
             <th>Time</th>
             <th>Comment</th>
             <th>User</th>
+            {% if isAdmin or projectLog.canEdit %}
             <th></th>
+            {% endif %}
         </tr>
     {% for projectLog in projectLogs %}
         <tr>

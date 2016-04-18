@@ -70,13 +70,20 @@ class ProjectMember extends DatabaseObject
     /**
      * Returns all project members for a project from a specified project name
      */
-    public static function findProjectMembersByProjectName($db, $projectName)
+    public static function findProjectMembersByProjectName($db, $projectName, $adminFirst = true)
     {
         $sql = "SELECT ownerID, userID, username, isAdmin  ";
         $sql .= "FROM projectmembers INNER JOIN projects ON projects.id = projectID ";
         $sql .= "INNER JOIN users ON userID = users.id ";
         $sql .= "WHERE projectName = ? ";
-        $sql .= "ORDER BY isAdmin DESC, username ASC";
+        $sql .= "ORDER BY ";
+
+        if($adminFirst) {
+            $sql .= "isAdmin DESC,";
+        }
+
+        $sql .= " username ASC";
+
         $paramArray = array($projectName);
         $results = self::findBySQL($db, $sql, $paramArray);
         if($results) {

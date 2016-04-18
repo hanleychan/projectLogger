@@ -126,14 +126,24 @@ class ProjectLog extends DatabaseObject
         }
     }
 
-    public static function findLogsByProjectName($db, $projectName)
+    public static function findLogsByProjectName($db, $projectName, $username = "")
     {
         $sql = "SELECT projectlogs.id as id, username, date, comment, minutes, userID ";
         $sql .= "FROM projectlogs INNER JOIN users ON userID = users.id ";
         $sql .= "INNER JOIN projects ON projectID = projects.id ";
         $sql .= "WHERE projectName = ? ";
+        
+        if(!empty($username)) {
+            $sql .= "AND username = ? ";
+        }
+
         $sql .= "ORDER BY date DESC, id ASC";
+
         $paramArray = array($projectName);
+
+        if(!empty($username)) {
+            array_push($paramArray, $username);
+        }
 
         $results = self::findBySQL($db, $sql, $paramArray);
         if($results) {
