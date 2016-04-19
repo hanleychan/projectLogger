@@ -21,6 +21,40 @@
 {% if not projectLogs %}
 <p>No logs found</p>
 {% else %}
+
+{% if pagination.getNumPages() > 1 %}
+    {% set url = path_for('fetchProjectLogs', {'name':project.projectName}) %}
+    {% if displayLogsUsername %}
+        {% set url = url ~ '?show=' ~ displayLogsUsername ~ "&" %}
+    {% else %}
+        {% set url = url ~ '?' %}
+    {% endif %}
+
+    <form action="{{ path_for('fetchProjectLogs', {'name':project.projectName}) }}" method="get">
+        {% if pagination.hasPrevPage() %}
+            <a href="{{ url ~ "page=" ~ (pagination.currentPage - 1) }}">prev</a>
+        {% endif %}
+
+        {% if displayLogsUsername %}
+        <input type="hidden" name="show" value="{{ displayLogsUsername }}">
+        {% endif %}
+
+        <select name="page">
+        {% for page in 1..pagination.getNumPages() %}
+            <option value="{{ page }}"{% if page == pagination.currentPage %} selected{% endif %}>
+                {{ page }} of {{ pagination.getNumPages() }}
+            </option>
+        {% endfor %}
+        </select>
+
+        <input type="submit" value="Go">
+
+        {% if pagination.hasNextPage() %}
+            <a href="{{ url ~ "page=" ~ (pagination.currentPage + 1) }}">next</a> 
+        {% endif %}
+    </form>
+{% endif %}
+
     <table>
         <tr>
             <th>Date</th>

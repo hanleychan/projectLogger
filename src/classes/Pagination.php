@@ -7,7 +7,7 @@ class Pagination {
     /**
      * Sets up pagination data
      */
-    public function __construct($numItems = 0, $numItemsPerPage = 10, $currentPage = 1) {
+    public function __construct($numItems = 0, $currentPage = 1, $numItemsPerPage = 10) {
         $this->numItems = $numItems;
         $this->numItemsPerPage = $numItemsPerPage;
 
@@ -50,7 +50,11 @@ class Pagination {
      * Returns the total number of pages
      */
     public function getNumPages() {
-        return ceil($this->numItems / $this->numItemsPerPage);
+        if($this->numItems === 0) {
+            return 1;
+        } else {
+            return ceil($this->numItems / $this->numItemsPerPage);
+        }
     }
 
     public function calculateOffset() {

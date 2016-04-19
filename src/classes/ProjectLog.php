@@ -10,6 +10,7 @@ class ProjectLog extends DatabaseObject
     public $date;
     public $username;
     public $totalMinutes;
+    public $numLogs;
 
     protected static $tableName = 'projectlogs';
     protected static $dbFields = array('id', 'minutes', 'userID', 'projectID', 'comment', 'date');
@@ -94,6 +95,7 @@ class ProjectLog extends DatabaseObject
 
         return $output;
     }
+
     
     public static function getTotalTimeByProjectName($db, $projectName)
     {
@@ -126,7 +128,7 @@ class ProjectLog extends DatabaseObject
         }
     }
 
-    public static function findLogsByProjectName($db, $projectName, $username = "")
+    public static function findLogsByProjectName($db, $projectName, $username = "", $limit="", $offset=0)
     {
         $sql = "SELECT projectlogs.id as id, username, date, comment, minutes, userID ";
         $sql .= "FROM projectlogs INNER JOIN users ON userID = users.id ";
@@ -139,6 +141,10 @@ class ProjectLog extends DatabaseObject
 
         $sql .= "ORDER BY date DESC, id ASC";
 
+        if(!empty($limit)) {
+            $sql .= " LIMIT " . (int)$offset . ", " . (int)$limit;
+        }
+
         $paramArray = array($projectName);
 
         if(!empty($username)) {
@@ -150,6 +156,33 @@ class ProjectLog extends DatabaseObject
             return $results;
         } else {
             return false;
+        }
+    }
+
+    public static function getNumLogsByProjectName($db, $projectName, $username = "")
+    {
+        $sql = "SELECT COUNT(*) as numLogs ";
+        $sql .= "FROM projectlogs INNER JOIN users ON userID = users.id ";
+        $sql .= "INNER JOIN projects ON projectID = projects.id ";
+        $sql .= "WHERE projectName = ? ";
+        
+        if(!empty($username)) {
+            $sql .= "AND username = ? ";
+        }
+
+        $sql .= "LIMIT 1";
+
+        $paramArray = array($projectName);
+
+        if(!empty($username)) {
+            array_push($paramArray, $username);
+        }
+
+        $results = self::findBySQL($db, $sql, $paramArray);
+        if($results) {
+            return (int)$results[0]->numLogs;
+        } else {
+            return 0;
         }
     }
 }
