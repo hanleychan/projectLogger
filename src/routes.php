@@ -2,12 +2,6 @@
 
 // Home route
 $app->get('/', function ($request, $response) {
-    // redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        $router = $this->router;
-        return $response->withRedirect($router->pathFor('login'));
-    }
-
     $user = User::findById($this->db, $this->session->userID);
 
     // Fetch notifications
@@ -20,16 +14,9 @@ $app->get('/', function ($request, $response) {
     $pendingProjects = RequestJoinProject::getAllRequestsForUser($this->db, $user->id);
 
     return $this->view->render($response, 'index.twig', compact("user", "notifications", "pendingProjectActions", "pendingProjects")); 
-})->setName('home');
+})->add($redirectToLoginMW)->setName('home');
 
 $app->post('/deleteAllNotifications', function ($request, $response) {
-    $router = $this->router;
-
-    // redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
-
     $user = User::findById($this->db, $this->session->userID);
 
     // Fetch notifications
@@ -38,16 +25,14 @@ $app->post('/deleteAllNotifications', function ($request, $response) {
         $notification->delete();
     }
 
+    $router = $this->router;
     return $response->withRedirect($router->pathFor('home'));
-})->setName('deleteAllNotifications');
+})->add($redirectToLoginMW)->setName('deleteAllNotifications');
 
 $app->post('/deleteNotification', function ($request, $response) {
     $isAJAX = false;
     $error = false;
     $loginExpired = false;
-    $router = $this->router;
-    $notificationID = $request->getParam("notificationID");
-    $user = User::findById($this->db, $this->session->userID);
 
     // Check if AJAX request
     if(strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'){
@@ -62,12 +47,12 @@ $app->post('/deleteNotification', function ($request, $response) {
 
             return json_encode(compact("error", "loginExpired"));
         }
-
-    } else {
-        if(!$this->session->isLoggedIn()) {
-            return $response->withRedirect($router->pathFor('login'));
-        }
     }
+
+    $router = $this->router;
+    $notificationID = $request->getParam("notificationID");
+    $user = User::findById($this->db, $this->session->userID);
+
     // Fetch notification
     if(!$notification = Notification::findById($this->db, $notificationID)) {
         $error = true;
@@ -79,6 +64,7 @@ $app->post('/deleteNotification', function ($request, $response) {
             return $response->withRedirect($router->pathFor('home'));
         }
     }
+
     // Check if notification belongs to user
     if($notification->userID !== $user->id) {
         $error = true;
@@ -103,7 +89,7 @@ $app->post('/deleteNotification', function ($request, $response) {
         return $response->withRedirect($router->pathFor('home'));
     }
     
-})->setName('deleteNotification');
+})->add($redirectToLoginMW)->setName('deleteNotification');
 
 
 /**
@@ -112,17 +98,11 @@ $app->post('/deleteNotification', function ($request, $response) {
 
 // Register route
 $app->get('/register', function ($request, $response) {
-    // redirect to main page if already logged in
-    if($this->session->isLoggedIn()) {
-        $router = $this->router;
-        return $response->withRedirect($router->pathFor('home'));
-    }
-
     // Get form data if available
     $postData = $this->session->getPostData();
 
     return $this->view->render($response, 'register.twig', compact("postData"));
-})->setName('register');
+})->add($redirectToMainPageMW)->setName('register');
 
 
 // Process register form
@@ -179,7 +159,7 @@ $app->post('/register', function ($request, $response) {
         return $response->withRedirect($router->pathFor('login'));
     }
 
-})->setName('processRegister');
+})->add($redirectToMainPageMW)->setName('processRegister');
 
 
 /**
@@ -188,14 +168,8 @@ $app->post('/register', function ($request, $response) {
 
 // Login route
 $app->get('/login', function ($request, $response) {
-    // Redirect to main page if already logged in
-    if($this->session->isLoggedIn()) {
-        $router = $this->router;
-        return $response->withRedirect($router->pathFor('home'));
-    }
-
     return $this->view->render($response, 'login.twig');
-})->setName('login');
+})->add($redirectToMainPageMW)->setName('login');
 
 
 // Process login form
@@ -215,24 +189,17 @@ $app->post('/login', function ($request, $response) {
 
     $this->flash->addMessage("fail","Username and/or password is incorrect");
     return $response->withRedirect($router->pathFor('login'));
-})->setName('processLogin');
+})->add($redirectToMainPageMW)->setName('processLogin');
 
 
 // Logout route
 $app->get('/logout', function ($request, $response) {
-    $router = $this->router;
-
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        $this->flash->addMessage("fail", "You are not logged in");
-        return $response->withRedirect($router->pathFor('login')); 
-    }
-
     $this->session->logout();
     $this->flash->addMessage("success", "Logout success");
 
+    $router = $this->router;
     return $response->withRedirect($router->pathFor('login')); 
-})->setName('logout');
+})->add($redirectToLoginMW)->setName('logout');
 
 
 /**
@@ -241,58 +208,31 @@ $app->get('/logout', function ($request, $response) {
 
 // Projects route
 $app->get('/projects', function ($request, $response) {
-    $router = $this->router;
-
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
-
     $user = User::findById($this->db, $this->session->userID);
     $projects = Project::findProjectsByUser($this->db, $user->id);
 
     return $this->view->render($response, "projects.twig", compact("user", "projects"));
-})->setName('projects');
+})->add($redirectToLoginMW)->setName('projects');
 
 $app->get('/projects/all', function($request, $response) {
-    $router = $this->router;
-
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
-
     $projects = Project::findAll($this->db);
     $user = User::findById($this->db, $this->session->userID);
 
     return $this->view->render($response, "allProjects.twig", compact("user", "projects"));
-})->setName('allProjects');
+})->add($redirectToLoginMW)->setName('allProjects');
 
 
 // Add new project route
 $app->get('/projects/add', function ($request, $response) {
-    $router = $this->router;
-
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
-
     $user = User::findById($this->db, $this->session->userID);
 
     return $this->view->render($response, "addProject.twig", compact("user"));
-})->setName('addProject');
+})->add($redirectToLoginMW)->setName('addProject');
 
 
 // Process add new project route
 $app->post('/projects/add', function ($request, $response) {
     $router = $this->router;
- 
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
-
     $user = User::findById($this->db, $this->session->userID);
     $projectName = trim($request->getParam("projectName"));
 
@@ -320,31 +260,21 @@ $app->post('/projects/add', function ($request, $response) {
         $this->flash->addMessage("fail", "Project name has an invalid format");
         return $response->withRedirect($router->pathFor('addProject'));
     }
-})->setName('processAddProject');
+})->add($redirectToLoginMW)->setName('processAddProject');
 
 
 // Route for a specific project
 $app->get('/project/{name}', function ($request, $response, $args) {
-    $router = $this->router;
- 
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
-
     $name = trim($args["name"]);
+
+    $router = $this->router;
     return $response->withRedirect($router->pathFor("fetchProjectLogs", compact("name")));
-})->setName('project');
+})->add($redirectToLoginMW)->setName('project');
 
 
 // Route for adding a project log entry 
 $app->post('/project/{name}', function($request, $response, $args) {
     $router = $this->router;
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
-
     $name = trim($args["name"]);
 
     // Fetch project
@@ -390,17 +320,12 @@ $app->post('/project/{name}', function($request, $response, $args) {
 
     $this->flash->addMessage("success", "Log successfully added to project");
     return $response->withRedirect($router->pathFor('fetchProjectLogs', compact("name")));
-})->setName('addProjectLog');
+})->add($redirectToLoginMW)->setName('addProjectLog');
 
 
 // Route for getting all log entries for a project
 $app->get('/project/{name}/projectLogs', function($request, $response, $args) {
     $router = $this->router;
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
-
     $page = "viewLogs";
     $name = trim($args["name"]);
     $user = User::findById($this->db, $this->session->userID);
@@ -466,16 +391,12 @@ $app->get('/project/{name}/projectLogs', function($request, $response, $args) {
                                                                   "userHasJoinRequest", "totalMinutes",
                                                                   "totalMinutesByMe", "projectMembers",
                                                                   "displayLogsUsername"));
-})->setName('fetchProjectLogs');
+})->add($redirectToLoginMW)->setName('fetchProjectLogs');
 
 
 // Route for fetching members of a project
 $app->get('/project/{name}/members', function($request, $response, $args) {
     $router = $this->router;
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
 
     $page = "members";
     $name = trim($args["name"]);
@@ -528,16 +449,12 @@ $app->get('/project/{name}/members', function($request, $response, $args) {
                                                                   "page", "projectMember", "isAdmin",
                                                                   "isOwner", "requests", "userHasJoinRequest",
                                                                   "totalMinutes", "totalMinutesByMe"));
-})->setName("fetchProjectMembers");
+})->add($redirectToLoginMW)->setName("fetchProjectMembers");
 
 
 // Route for accepting and declining project membership
 $app->post('/project/{name}/members/request/{username}', function($request, $response, $args) {
     $router = $this->router;
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
 
     $action = trim($request->getParam("action"));
     $name = trim($args["name"]);
@@ -599,16 +516,12 @@ $app->post('/project/{name}/members/request/{username}', function($request, $res
     }
 
     return $response->withRedirect($router->pathFor('fetchProjectMembers', compact("name")));
-})->setName('processMemberRequest');
+})->add($redirectToLoginMW)->setName('processMemberRequest');
 
 
 // Confirm remove user from project route
 $app->get('/project/{name}/remove/{username}', function($request, $response, $args) {
     $router = $this->router;
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
 
     $page = "removeMember";
     $name = trim($args["name"]);
@@ -643,15 +556,11 @@ $app->get('/project/{name}/remove/{username}', function($request, $response, $ar
     $totalMinutesByMe = ProjectLog::formatTimeOutput($totalMinutesByMe);
 
     return $this->view->render($response, 'project.twig', compact("user", "project", "page", "projectMember", "totalMinutes", "totalMinutesByMe"));
-})->setName('confirmRemoveMember');
+})->add($redirectToLoginMW)->setName('confirmRemoveMember');
 
 // Route for processing removing a user from a project
 $app->post('/project/{name}/remove/{username}', function($request, $response, $args) {
     $router = $this->router;
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
  
     $name = trim($args["name"]);
     $username = trim($args["username"]);
@@ -696,16 +605,12 @@ $app->post('/project/{name}/remove/{username}', function($request, $response, $a
     }
 
     return $response->withRedirect($router->pathFor("fetchProjectMembers", compact("name")));
-})->setName('processRemoveMember');
+})->add($redirectToLoginMW)->setName('processRemoveMember');
 
 
 // Route for changing a project member to admin status or removing admin status
 $app->post('/project/{name}/rank/{username}', function ($request, $response, $args) {
     $router = $this->router;
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
 
     $name = trim($args["name"]);
     $username = trim($args["username"]);
@@ -764,16 +669,12 @@ $app->post('/project/{name}/rank/{username}', function ($request, $response, $ar
     } 
 
     return $response->withRedirect($router->pathFor("fetchProjectMembers", compact("name")));
-})->setName('processToggleAdmin'); 
+})->add($redirectToLoginMW)->setName('processToggleAdmin'); 
 
 
 // Route for adding a new project log entry
 $app->get('/project/{name}/newLog', function($request, $response, $args) {
     $router = $this->router;
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
 
     $page = "addNewLog";
     $name = trim($args["name"]);
@@ -803,16 +704,12 @@ $app->get('/project/{name}/newLog', function($request, $response, $args) {
 
     return $this->view->render($response, "project.twig", compact("user", "project", "projectMember", "page",
                                                                   "totalMinutes", "totalMinutesByMe"));
-})->setName("fetchAddNewLog");
+})->add($redirectToLoginMW)->setName("fetchAddNewLog");
 
 
 // Route for editing an existing log
 $app->get('/project/{name}/edit/{logID}', function($request, $response, $args) {
     $router = $this->router;
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
 
     $page = "editLog";
     $name = trim($args["name"]);
@@ -861,14 +758,10 @@ $app->get('/project/{name}/edit/{logID}', function($request, $response, $args) {
     $totalMinutesByMe = ProjectLog::formatTimeOutput($totalMinutesByMe);
 
     return $this->view->render($response, "project.twig", compact("user", "project", "projectLog", "page", "projectMember", "totalMinutes", "totalMinutesByMe", "postData"));
-})->setName('fetchEditLog');
+})->add($redirectToLoginMW)->setName('fetchEditLog');
 
 $app->post('/project{name}/deleteLog/{logID}', function ($request, $response, $args) {
     $router = $this->router;
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
    
     $name = trim($args["name"]);
     $logID = (int)($args["logID"]);
@@ -903,15 +796,11 @@ $app->post('/project{name}/deleteLog/{logID}', function ($request, $response, $a
     }
 
     return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
-})->setName('deleteLog');
+})->add($redirectToLoginMW)->setName('deleteLog');
 
 // Route for processing edit log changes
 $app->post('/project/{name}/edit/{logID}', function($request, $response, $args) {
     $router = $this->router;
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
 
     $name = trim($args["name"]);
     $logID = (int)($args["logID"]);
@@ -969,15 +858,11 @@ $app->post('/project/{name}/edit/{logID}', function($request, $response, $args) 
     }
 
     return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
-})->setName('editLog');
+})->add($redirectToLoginMW)->setName('editLog');
 
 // Route for requesting to join a project group
 $app->post('/project/{name}/request', function($request, $response, $args) {
     $router = $this->router;
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
 
     $name = trim($args["name"]);
     $user = User::findById($this->db, $this->session->userID);
@@ -1008,15 +893,11 @@ $app->post('/project/{name}/request', function($request, $response, $args) {
 
     $this->flash->addMessage("success", "Request to join project sent");
     return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
-})->setName('requestJoin');
+})->add($redirectToLoginMW)->setName('requestJoin');
 
 // Route for canceling a request to join a project
 $app->post('/project/{name}/request/cancel', function($request, $response, $args) {
     $router = $this->router;
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
 
     $name = trim($args["name"]);
     $user = User::findById($this->db, $this->session->userID);
@@ -1038,15 +919,11 @@ $app->post('/project/{name}/request/cancel', function($request, $response, $args
 
     $this->flash->addMessage("success", "Request to join this project has been cancelled");
     return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
-})->setName('cancelRequestJoin');
+})->add($redirectToLoginMW)->setName('cancelRequestJoin');
 
 // Route for project actions
 $app->get('/project/{name}/actions', function ($request, $response, $args) {
     $router = $this->router;
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
 
     $page = "projectActions";
     $name = trim($args["name"]);
@@ -1081,14 +958,10 @@ $app->get('/project/{name}/actions', function ($request, $response, $args) {
     }
 
     return $this->view->render($response, 'project.twig', compact("user", "project", "isOwner", "page", "projectMember", "isAdmin", "totalMinutes", "totalMinutesByMe"));
-})->setName('projectActions');
+})->add($redirectToLoginMW)->setName('projectActions');
 
 $app->get('/project/{name}/leave/{username}', function ($request, $response, $args) {
     $router = $this->router;
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
 
     $page = "leaveProject";
     $name = trim($args["name"]);
@@ -1123,15 +996,11 @@ $app->get('/project/{name}/leave/{username}', function ($request, $response, $ar
     }
 
     return $this->view->render($response, "project.twig", compact("user", "project", "page", "projectMember", "totalMinutes", "totalMinutesByMe"));
-})->setName('confirmLeaveProject');
+})->add($redirectToLoginMW)->setName('confirmLeaveProject');
 
 
 $app->post('/project/{name}/leave/{username}', function ($request, $response, $args) {
     $router = $this->router;
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
 
     $name = trim($args["name"]);
     $username = trim($args["username"]);
@@ -1163,14 +1032,10 @@ $app->post('/project/{name}/leave/{username}', function ($request, $response, $a
     }
 
     return $response->withRedirect($router->pathFor('fetchProjectLogs', compact("name")));
-})->setName('processLeaveProject');
+})->add($redirectToLoginMW)->setName('processLeaveProject');
 
 $app->get('/project/{name}/delete', function ($request, $response, $args) {
     $router = $this->router;
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
 
     $page = "deleteProject";
     $name = trim($args["name"]);
@@ -1203,14 +1068,10 @@ $app->get('/project/{name}/delete', function ($request, $response, $args) {
     }
 
     return $this->view->render($response, "project.twig", compact("user", "project", "page", "projectMember", "totalMinutes", "totalMinutesByMe"));
-})->setName('confirmDeleteProject');
+})->add($redirectToLoginMW)->setName('confirmDeleteProject');
 
 $app->post('/project/{name}/delete', function ($request, $response, $args) {
     $router = $this->router;
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
 
     $name = trim($args["name"]);
     $action = trim($request->getParam("action"));
@@ -1255,14 +1116,10 @@ $app->post('/project/{name}/delete', function ($request, $response, $args) {
     }
 
     return $response->withRedirect($router->pathFor('projects'));
-})->setName('processDeleteProject');
+})->add($redirectToLoginMW)->setName('processDeleteProject');
 
 $app->get('/project/{name}/rename', function($request, $response, $args) {
     $router = $this->router;
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
 
     $page = "renameProject";
     $name = trim($args["name"]);
@@ -1294,15 +1151,11 @@ $app->get('/project/{name}/rename', function($request, $response, $args) {
     $totalMinutesByMe = ProjectLog::formatTimeOutput($totalMinutesByMe);
 
     return $this->view->render($response, "project.twig", compact("user", "project", "projectMember", "page", "projectMember", "totalMinutes", "totalMinutesByMe", "postData"));
-})->setName('renameProject');
+})->add($redirectToLoginMW)->setName('renameProject');
 
 
 $app->post('/project/{name}/rename', function($request, $response, $args) {
     $router = $this->router;
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
 
     $name = trim($args["name"]);
     $newName = trim($request->getParam("projectName"));
@@ -1368,14 +1221,10 @@ $app->post('/project/{name}/rename', function($request, $response, $args) {
     }
 
     return $response->withRedirect($router->pathFor('projectActions', ["name"=>$newName]));
-})->setName('processRenameProject');
+})->add($redirectToLoginMW)->setName('processRenameProject');
 
 $app->get('/project/{name}/transferOwnership', function($request, $response, $args) {
     $router = $this->router;
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
 
     $page = "transferOwnership";
     $name = trim($args["name"]);
@@ -1406,14 +1255,10 @@ $app->get('/project/{name}/transferOwnership', function($request, $response, $ar
     $totalMinutesByMe = ProjectLog::formatTimeOutput($totalMinutesByMe);
 
     return $this->view->render($response, 'project.twig', compact("user", "project", "page", "projectMembers", "projectMember", "totalMinutes", "totalMinutesByMe"));
-})->setName('transferOwnership');
+})->add($redirectToLoginMW)->setName('transferOwnership');
 
 $app->post('/project/{name}/transferOwnership/confirm', function ($request, $response, $args) {
     $router = $this->router;
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
 
     $page = "confirmTransferOwnership";
     $name = trim($args["name"]);
@@ -1449,14 +1294,10 @@ $app->post('/project/{name}/transferOwnership/confirm', function ($request, $res
     $totalMinutesByMe = ProjectLog::formatTimeOutput($totalMinutesByMe);
 
     return $this->view->render($response, 'project.twig', compact("user", "page", "project", "owner", "projectMember", "totalMinutes", "totalMinutesByMe"));
-})->setName('confirmTransferOwnership');
+})->add($redirectToLoginMW)->setName('confirmTransferOwnership');
 
 $app->post('/project/{name}/transferOwnership/{newOwner}', function ($request, $response, $args) {
     $router = $this->router;
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
 
     $name = trim($args["name"]);
     $newOwner = trim($args["newOwner"]);
@@ -1506,20 +1347,12 @@ $app->post('/project/{name}/transferOwnership/{newOwner}', function ($request, $
         $this->flash->addMessage("fail", "There was an error processing your request");
     }
         return $response->withRedirect($router->pathFor('transferOwnership', compact("name")));
-})->setName('processTransferOwnership');
-
+})->add($redirectToLoginMW)->setName('processTransferOwnership');
 
 
 $app->get('/profile/{username}', function ($request, $response, $args) {
-    $router = $this->router;
-
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
-
     $user = User::findById($this->db, $this->session->userID);
-})->setName('userProfile');
+})->add($redirectToLoginMW)->setName('userProfile');
 
 
 /**
@@ -1530,12 +1363,8 @@ $app->get('/profile/{username}', function ($request, $response, $args) {
 $app->get('/account', function ($request, $response) {
     $router = $this->router;
 
-    // Redirect to login page if not logged in
-    if(!$this->session->isLoggedIn()) {
-        return $response->withRedirect($router->pathFor('login'));
-    }
 
     $user = User::findById($this->db, $this->session->userID);
     return $this->view->render($response, "account.twig", compact("user"));
-})->setName('account');
+})->add($redirectToLoginMW)->setName('account');
 

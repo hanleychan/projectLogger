@@ -49,13 +49,10 @@ $container['flash'] = function ($c) {
     return new \Slim\Flash\Messages();
 };
 
-// Add middleware
-$app->add(function ($request, $response, $next) {
-    $this->view->offsetSet('flash', $this->flash);
+// load middleware
+require_once("../middleware.php");
 
-    return $next($request, $response);
-});
-
+// load routes
 require_once("../routes.php");
 
 $app->run();
