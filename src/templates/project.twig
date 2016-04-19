@@ -82,6 +82,27 @@
                 $("#datePicker").datepicker();
             });
         {% endif %}
+
+        {% if page == "viewLogs" and pagination.getNumPages() > 1 %}
+
+            $("#pageSelect").change(function() {
+                {% if displayLogsUsername %}
+                    var pageURL = "?show={{ displayLogsUsername }}" + "&page=" + $("#pageSelect").val();
+                {% else %}
+                    var pageURL = "?page=" + $("#pageSelect").val();
+                {% endif %}
+
+                window.location = pageURL;
+            });
+        {% endif %}
+
+        {% if page == "viewLogs" %}
+            $("#show").change(function() {
+                var pageURL = "?show=" + $("#show").val();
+
+                window.location = pageURL;
+            });
+        {% endif %}
     </script>
 <script>
 </script>

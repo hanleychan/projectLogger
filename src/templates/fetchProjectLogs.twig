@@ -16,7 +16,9 @@
             {% endif %}
         {% endfor %}
     </select>
-    <input type="submit" value="Go">
+    <noscript>
+        <input type="submit" value="Go">
+    </noscript>
 </form>
 {% if not projectLogs %}
 <p>No logs found</p>
@@ -39,7 +41,7 @@
         <input type="hidden" name="show" value="{{ displayLogsUsername }}">
         {% endif %}
 
-        <select name="page">
+        <select id="pageSelect" name="page">
         {% for page in 1..pagination.getNumPages() %}
             <option value="{{ page }}"{% if page == pagination.currentPage %} selected{% endif %}>
                 {{ page }} of {{ pagination.getNumPages() }}
@@ -47,7 +49,9 @@
         {% endfor %}
         </select>
 
-        <input type="submit" value="Go">
+        <noscript>
+            <input type="submit" value="Go">
+        </noscript>
 
         {% if pagination.hasNextPage() %}
             <a href="{{ url ~ "page=" ~ (pagination.currentPage + 1) }}">next</a> 
