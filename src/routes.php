@@ -325,7 +325,7 @@ $app->post('/project/{name}', function ($request, $response, $args) {
     }
 
     if (!ProjectLog::isValidTime($hours, $minutes)) {
-        $this->flash->addMessage('fail', 'Time must be between 0 to 24 hours');
+        $this->flash->addMessage('fail', 'Time must be between 1 minute to 24 hours');
         $inputError = true;
     }
 

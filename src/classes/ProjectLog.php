@@ -24,6 +24,8 @@ class ProjectLog extends DatabaseObject
             return false;
         } elseif($hours < 0 || $minutes < 0) {
             return false;
+        } elseif ($hours === 0 && $minutes === 0) {
+            return false;
         } else {
             return true;
         }
