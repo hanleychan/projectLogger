@@ -12,6 +12,34 @@
         <p>No projects found</p>
     {% else %}
         <div id="projectsList">
+            {% if pagination.getNumPages() > 1 %}
+                {% set url = path_for('allProjects') %}
+                {% if search %}
+                    {% set url = url ~ '?search=' ~ search ~ "&" %}
+                {% else %}
+                    {% set url = url ~ '?' %}
+                {% endif %}
+
+                <form action="{{ path_for('allProjects') }}" method="get">
+                    {% if pagination.hasPrevPage() %}
+                        <a href="{{ url ~ "page=" ~ (pagination.currentPage - 1) }}">prev</a>
+                    {% endif %}
+                    <select id="pageSelect" name="page">
+                        {% for page in 1..pagination.getNumPages() %}
+                        <option value="{{ page }}"{% if pagination.currentPage == page %} selected{% endif %}>{{ page }} of {{ pagination.getNumPages() }}</option> 
+                        {% endfor %}
+                    </select>
+                    {% if search %}
+                    <input type="hidden" name="search" value="{{ search }}">
+                    {% endif %}
+                    <noscript>
+                        <input type="submit" value="Go">
+                    </noscript>
+                    {% if pagination.hasNextPage() %}
+                        <a href="{{ url ~ "page=" ~ (pagination.currentPage + 1) }}">next</a> 
+                    {% endif %}
+                </form>
+            {% endif %}
             <ul>
             {% for project in projects %}
                 <li><a href="{{ path_for('project', {'name': project.projectName }) }}">{{ project.projectName }}</a></li>
@@ -41,6 +69,16 @@
                     }
                 });
             }, 100);
+        });
+
+        $(document).on("change", "#pageSelect", function() {
+            {% if search %}
+                var pageURL = "?search={{ search }}&page=" + $("#pageSelect").val();
+            {% else %}
+                var pageURL = "?page=" + $("#pageSelect").val();
+            {% endif %}
+
+            window.location = pageURL;
         });
     </script>
 {% endblock %}

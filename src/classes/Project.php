@@ -82,23 +82,36 @@ class Project extends DatabaseObject
         }
     }
 
-    public static function findProjectsBySearch($db, $search="")
+    public static function findProjectsBySearch($db, $search="", $limit="", $offset="0")
     {
-        if(!empty($search)) {
-            $search = "%{$search}%";
-            $sql = "SELECT * FROM projects WHERE projectName LIKE ?";
-            $paramArray = array($search);
-            $result = self::findBySQL($db, $sql, $paramArray);
-            
-            if($result) {
-                return $result;
-            } else {
-                return false;
-            }
+        $search = "%{$search}%";
+        $sql = "SELECT * FROM projects WHERE projectName LIKE ? ";
+        $sql .= "ORDER BY projectName ASC";
 
-        } else {
-            return self::findAll($db, "projectName", "ASC");
+        if(!empty($limit)) {
+            $sql .= " LIMIT " . (int)$offset . ", " . (int)$limit;
         }
+
+        
+        $paramArray = array($search);
+        $result = self::findBySQL($db, $sql, $paramArray);
+        
+        if($result) {
+            return $result;
+        } else {
+            return false;
+        }
+    }
+
+    public static function getTotalProjectsBySearch($db, $search="")
+    {
+        $search = "%{$search}%";
+        $sql = "SELECT COUNT(*) FROM projects WHERE projectName LIKE ?";
+        $paramArray = array($search);
+
+        $result = $db->prepare($sql);
+        $result->execute($paramArray);
+        return (int)$result->fetch(PDO::FETCH_NUM)[0]; 
     }
 
     /**

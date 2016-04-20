@@ -227,17 +227,20 @@ $app->get('/projects/all', function ($request, $response) {
     if($this->session->isLoggedIn()) {
         $user = User::findById($this->db, $this->session->userID);
     }
+
+
+    $numProjects = Project::getTotalProjectsBySearch($this->db, $search);
+    $pageNum = (int)$request->getParam("page");
+    $numItemsPerPage = 20;
+    $pagination = new Pagination($numProjects, $pageNum, $numItemsPerPage);
+    $offset = $pagination->calculateOffset();
     
-    if(!empty($search)) {
-        $projects = Project::findProjectsBySearch($this->db, $search);
-    } else {
-        $projects = Project::findAll($this->db, "projectName", "ASC");
-    }
+    $projects = Project::findProjectsBySearch($this->db, $search, $numItemsPerPage, $offset);
 
     if ($isAJAX) {
-        return $this->view->render($response, 'fetchProjectsListByFilter.twig', compact("projects"));
+        return $this->view->render($response, 'fetchProjectsListByFilter.twig', compact("projects", "pagination", "search"));
     } else {
-        return $this->view->render($response, 'allProjects.twig', compact('user', 'projects', 'search'));
+        return $this->view->render($response, 'allProjects.twig', compact('user', 'projects', 'search', "pagination"));
     }
 })->add($redirectToLoginMW)->setName('allProjects');
 
