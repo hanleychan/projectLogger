@@ -213,8 +213,20 @@ $app->get('/projects', function ($request, $response) {
 })->add($redirectToLoginMW)->setName('projects');
 
 $app->get('/projects/all', function ($request, $response) {
+    $isAJAX = false;
+    $error = false;
+    $loginExpired = false;
     $search = trim($request->getParam("search"));
-    $user = User::findById($this->db, $this->session->userID);
+
+    // Check if AJAX request
+    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) 
+        && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+            $isAJAX = true;
+    }
+
+    if($this->session->isLoggedIn()) {
+        $user = User::findById($this->db, $this->session->userID);
+    }
     
     if(!empty($search)) {
         $projects = Project::findProjectsBySearch($this->db, $search);
@@ -222,7 +234,11 @@ $app->get('/projects/all', function ($request, $response) {
         $projects = Project::findAll($this->db, "projectName", "ASC");
     }
 
-    return $this->view->render($response, 'allProjects.twig', compact('user', 'projects'));
+    if ($isAJAX) {
+        return $this->view->render($response, 'fetchProjectsListByFilter.twig', compact("projects"));
+    } else {
+        return $this->view->render($response, 'allProjects.twig', compact('user', 'projects', 'search'));
+    }
 })->add($redirectToLoginMW)->setName('allProjects');
 
 // Add new project route

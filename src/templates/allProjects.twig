@@ -1,18 +1,43 @@
 {% extends "layout.twig" %}
 {% block content %}
     <h2>All Projects</h2>
-    {% if not projects %}
-        <p>There are no projects added yet</p>
-    {% else %}
-        <form action="{{ path_for('allProjects') }}" method="get">
-            <label for="search">Search Projects</label>
-            <input type="text" id="search" name="search"><br>
+    <form action="{{ path_for('allProjects') }}" method="get">
+        <label for="search">Search Projects</label>
+        <input type="text" id="search" name="search"{% if search %} value="{{ search }}"{% endif %}><br>
+        <noscript>
             <input type="submit" value="Search">
-        </form>
-        <ul>
-        {% for project in projects %}
-            <li><a href="{{ path_for('project', {'name': project.projectName }) }}">{{ project.projectName }}</a></li>
-        {% endfor %}
-        </ul>
+        </noscript>
+    </form>
+
+    {% if not projects %}
+        <p>No projects found</p>
+    {% else %}
+        <div id="projectsList">
+            <ul>
+            {% for project in projects %}
+                <li><a href="{{ path_for('project', {'name': project.projectName }) }}">{{ project.projectName }}</a></li>
+            {% endfor %}
+            </ul>
+        </div>
     {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+    <script>
+        $("#search").on("keyup change paste", function() {
+            setTimeout(function () { 
+                $.ajax({
+                    url: "{{ path_for('allProjects') }}",
+                    type: "get",
+                    data: {
+                        "search": $("#search").val()
+                    },
+                    success: function (result) {
+                        $("#projectsList").html(result);
+                    }
+                });
+            }, 100);
+        });
+    </script>
 {% endblock %}
