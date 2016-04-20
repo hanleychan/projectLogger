@@ -26,12 +26,23 @@ class DatabaseObject
     /**
      * Queries the database and returns all entries in the table.
      */
-    public static function findAll($db)
+    public static function findAll($db, $sortColumn="id", $order="DESC")
     {
         $sql = 'SELECT * FROM '.static::$tableName;
+        // Validate sort column and order
+        if(in_array($sortColumn, static::$dbFields) 
+            && (strtoupper($order) === "DESC" || strtoupper($order) === "ASC" )) {
+
+                $sql .= " ORDER BY {$sortColumn} {$order}"; 
+        }
+
         $results = static::findBySQL($db, $sql);
 
-        return $results;
+        if($results) {
+            return $results;
+        } else {
+            return false;
+        }
     }
 
     /**

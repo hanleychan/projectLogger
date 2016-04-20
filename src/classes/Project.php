@@ -54,7 +54,8 @@ class Project extends DatabaseObject
     {
         $sql = "SELECT projects.id as id, projectName, ownerID, userID, isAdmin ";
         $sql .= "FROM projects INNER JOIN projectmembers ON projects.id = projectmembers.projectID ";
-        $sql .= "WHERE userID = " . (int)$userID;
+        $sql .= "WHERE userID = " . (int)$userID . " ";
+        $sql .= "ORDER BY projectName ASC";
         $result = self::findBySQL($db, $sql);
 
         if($result) {
@@ -78,6 +79,25 @@ class Project extends DatabaseObject
             return $result[0];
         } else {
             return false;
+        }
+    }
+
+    public static function findProjectsBySearch($db, $search="")
+    {
+        if(!empty($search)) {
+            $search = "%{$search}%";
+            $sql = "SELECT * FROM projects WHERE projectName LIKE ?";
+            $paramArray = array($search);
+            $result = self::findBySQL($db, $sql, $paramArray);
+            
+            if($result) {
+                return $result;
+            } else {
+                return false;
+            }
+
+        } else {
+            return self::findAll($db, "projectName", "ASC");
         }
     }
 

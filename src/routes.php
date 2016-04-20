@@ -213,8 +213,14 @@ $app->get('/projects', function ($request, $response) {
 })->add($redirectToLoginMW)->setName('projects');
 
 $app->get('/projects/all', function ($request, $response) {
-    $projects = Project::findAll($this->db);
+    $search = trim($request->getParam("search"));
     $user = User::findById($this->db, $this->session->userID);
+    
+    if(!empty($search)) {
+        $projects = Project::findProjectsBySearch($this->db, $search);
+    } else {
+        $projects = Project::findAll($this->db, "projectName", "ASC");
+    }
 
     return $this->view->render($response, 'allProjects.twig', compact('user', 'projects'));
 })->add($redirectToLoginMW)->setName('allProjects');
