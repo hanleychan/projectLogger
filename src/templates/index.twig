@@ -14,10 +14,10 @@
         <div id="notificationMessage"></div>
 
         {% if notifications %}
-            <form action="{{ path_for('deleteAllNotifications') }}" method="post">
+            <form action="{{ path_for('deleteAllNotifications') }}" method="post" id="clearNotificationsForm">
                 <button type="submit">Clear All Notifications</button>
             </form>
-            <ul>
+            <ul id="notificationsList">
             {% for notification in notifications %}
                 <li>
                     <form action="{{ path_for('deleteNotification') }}" method="post">
@@ -31,7 +31,9 @@
         {% else %}
             <p>You have no notifications at this time</p>
         {% endif %}
+    </section>
 
+    <section id="pendingActions">
         <h3>Pending Actions</h3>
         {% if pendingProjectActions %}
             <ul>
@@ -48,7 +50,9 @@
         {% if not pendingProjectActions %}
         <p>You have no pending actions at this time</p>
         {% endif %}
+    </section>
 
+    <section id="pendingJoinRequests">
         <h3>Pending Project Join Requests</h3>
         {% if pendingProjects %}
             <p>You are awaiting acceptance to the below projects</p>
@@ -70,6 +74,8 @@
 {% block scripts %}
     <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
     <script>
+        var numNotifications = $("#notificationsList li").length;
+
         $('.deleteNotification').click(function(event) {
             event.preventDefault();
             var notificationItem = $(this).closest("li");
@@ -98,6 +104,12 @@
                                 $message.remove();
                             });
                         }, 1500);
+
+                        // Remove remove all notifications button if there are no more notifications
+                        if(--numNotifications === 0) {
+                            $("#clearNotificationsForm").remove();                         
+                            $("#notifications").append("<p>You have no notifications at this time</p>");
+                        }
                     }
                 }
             });
