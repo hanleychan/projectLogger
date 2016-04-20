@@ -3,10 +3,9 @@
     <h2>All Projects</h2>
     <form action="{{ path_for('allProjects') }}" method="get">
         <label for="search">Search Projects</label>
-        <input type="text" id="search" name="search"{% if search %} value="{{ search }}"{% endif %}><br>
-        <noscript>
-            <input type="submit" value="Search">
-        </noscript>
+        <input type="text" id="search" name="search"{% if search %} value="{{ search }}"{% endif %}>
+        <input type="submit" value="Search">
+        <button id="clearSearch">Clear</button>
     </form>
 
     {% if not projects %}
@@ -25,6 +24,10 @@
 {% block scripts %}
     <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
     <script>
+        $("#clearSearch").click(function() {
+            $("#search").val("");
+        });
+
         $("#search").on("keyup change paste", function() {
             setTimeout(function () { 
                 $.ajax({
