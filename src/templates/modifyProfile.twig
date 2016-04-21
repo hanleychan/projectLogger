@@ -1,0 +1,22 @@
+{% extends 'layout.twig' %}
+
+{% block content %}
+<h2>Update Profile</h2>
+<form action="{{ path_for('processModifyProfile') }}" method="post" enctype="multipart/form-data">
+    <label for="name">Name:</label><br>
+    <input type="text" id="name" name="name"><br>
+
+    <label for="photo">Photo:</label><br>
+    <input type="file" id="photo" name="photo" accept="image/gif, image/jpeg, image/png"><br>
+
+    <label for="removePhoto">Remove Photo</label><br>
+    <input type="checkbox" name="removePhoto" value="removePhoto"><br>
+
+    <label for="otherInfo">Other Info:</label><br>
+    <textarea id="otherInfo" name="otherInfo"></textarea><br>
+    
+    <button type="submit" name="action" value="save">Save</button>
+    <button type="submit" name="action" value="cancel">Cancel</button>
+
+</form>
+{% endblock %}

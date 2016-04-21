@@ -1449,3 +1449,20 @@ $app->get('/account', function ($request, $response) {
 
     return $this->view->render($response, 'account.twig', compact('user'));
 })->add($redirectToLoginMW)->setName('account');
+
+$app->get('/account/profile', function ($request, $response) {
+    $user = User::findById($this->db, $this->session->userID);
+    return $this->view->render($response, 'modifyProfile.twig', compact("user"));
+})->add($redirectToLoginMW)->setName('modifyProfile');
+
+$app->post('/account/profile/', function ($request, $response) {
+    return "PROCESS FORM";
+})->add($redirectToLoginMW)->setName('processModifyProfile');
+
+$app->get('/account/password', function ($request, $response) {
+    return "CHANGE PASSWORD PAGE";
+})->add($redirectToLoginMW)->setName('changePassword');
+
+$app->post('/account/password', function ($request, $response) {
+    return "PROCESS CHANGE PASSWORD";
+})->add($redirectToLoginMW)->setName('processChangePassword');
