@@ -1,6 +1,5 @@
 <?php
 
-
 // Home route
 $app->get('/', function ($request, $response) {
     $user = User::findById($this->db, $this->session->userID);
@@ -1547,10 +1546,39 @@ $app->post('/account/profile/', function ($request, $response) {
 
 $app->get('/account/password', function ($request, $response) {
     $user = User::findById($this->db, $this->session->userID);
-    return "CHANGE PASSWORD PAGE";
+
+    return $this->view->render($response, 'changePassword.twig', compact("user"));
 })->add($redirectToLoginMW)->setName('changePassword');
 
 $app->post('/account/password', function ($request, $response) {
+    $router = $this->router;
     $user = User::findById($this->db, $this->session->userID);
-    return "PROCESS CHANGE PASSWORD";
+
+    $password = $this->request->getParam("currentPassword");
+    $newPassword = $this->request->getParam("newPassword");
+    $newPassword2 = $this->request->getParam("newPassword2");
+ 
+    // Check if current password is correct
+    if (!password_verify($password, $user->password)) {
+        $this->flash->addMessage('fail', 'Current password was entered incorrectly');
+        return $response->withRedirect($router->pathFor('changePassword'));
+    }
+
+    // Check if new password is valid
+    if (!User::isValidPassword($newPassword)) {
+        $this->flash->addMessage('fail', 'Invalid formatted password');
+        return $response->withRedirect($router->pathFor('changePassword'));
+    }
+
+    // Check if new passwords match
+    if (!User::doPasswordsMatch($newPassword, $newPassword2)) {
+        $this->flash->addMessage('fail', 'Passwords do not match');
+        return $response->withRedirect($router->pathFor('changePassword'));
+    }
+
+    $user->password = User::encryptPassword($newPassword);
+    $user->save();
+
+    $this->flash->addMessage("success", "Password has been changed successfully");
+    return $response->withRedirect($router->pathFor('account'));
 })->add($redirectToLoginMW)->setName('processChangePassword');
