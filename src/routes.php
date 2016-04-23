@@ -1443,8 +1443,6 @@ $app->get('/profile/{username}', function ($request, $response, $args) {
 
 // Account route
 $app->get('/account', function ($request, $response) {
-    $router = $this->router;
-
     $user = User::findById($this->db, $this->session->userID);
 
     return $this->view->render($response, 'account.twig', compact('user'));
@@ -1452,17 +1450,85 @@ $app->get('/account', function ($request, $response) {
 
 $app->get('/account/profile', function ($request, $response) {
     $user = User::findById($this->db, $this->session->userID);
-    return $this->view->render($response, 'modifyProfile.twig', compact("user"));
+
+    $maxPhotoSize = Profile::getMaxPhotoAllowedFileSizeInBytes();
+
+    // Fetch profile if exists
+
+    return $this->view->render($response, 'modifyProfile.twig', compact("user", "maxPhotoSize"));
 })->add($redirectToLoginMW)->setName('modifyProfile');
 
 $app->post('/account/profile/', function ($request, $response) {
-    return "PROCESS FORM";
+    $user = User::findById($this->db, $this->session->userID);
+
+    $action = trim($this->request->getParam("action"));
+    $name = trim(ucwords($this->request->getParam("name")));
+    $otherInfo = trim($this->request->getParam("otherInfo"));
+    $removePhoto = $this->request->getParam("removePhoto");
+    $photo = $request->getUploadedFiles()['photo'];
+
+    // Fetch profile if it exists otherwise create a new profile
+    if($profile = Profile::getProfileByUserID($this->db, $user->id)) {
+        $newProfile = false;
+    } else {
+        $profile = new Profile($this->db);
+        $newProfile = true;
+    }
+
+    $profile->name = (!empty($name)) ? $name : null;
+    $profile->otherInfo = (!empty($otherInfo)) ? $otherInfo : null;
+
+    if($removePhoto === "removePhoto") { 
+        // Remove old photo
+        if(!$newProfile) {
+            $photoFile = $profile->photoPath . '/' . $profile->photoName;
+            if(file_exists($photoFile)) {
+                unlink($photoFile);
+                $profile->photoName = null;
+                $profile->photoPath = null;
+            }
+        }
+    } elseif ($photo->getError() === 0) {
+        // Handle uploaded photo
+        $uploadFileName = $photo->getClientFilename();
+        $uploadMediaType = $photo->getClientMediaType();
+        $photoInfo = getimagesize($photo->file);
+
+        // Check if uploaded file is a valid photo
+        if($photoInfo === false) {
+            echo "Unable to determine image type of uploaded file";
+            exit;
+        }
+        if($photoInfo[2] !== IMAGETYPE_GIF && $photoInfo[2] !== IMAGETYPE_JPEG && $photoInfo[2] !== IMAGETYPE_PNG) {
+            echo "NOT A VALID PHOTO TYPE";
+            exit;
+        }
+        
+        // Create directory if not exists
+        $uploadDirectory = "uploads/";
+        $uploadDirectory .= $user->username[0] . "/";
+        if(isset($user->username[1])) {
+            $uploadDirectory .= $user->username[1] . "/";
+        }
+        $uploadDirectory .= $user->username;
+        if(!file_exists($uploadDirectory)) {
+            mkdir($uploadDirectory, 0777, true);
+        }
+
+        $photo->moveTo("{$uploadDirectory}/$uploadFileName");
+        $profile->photoName = $uploadFileName;
+        $profile->photoPath = $uploadDirectory;
+    }
+
+    $profile->save();
 })->add($redirectToLoginMW)->setName('processModifyProfile');
 
 $app->get('/account/password', function ($request, $response) {
+    $user = User::findById($this->db, $this->session->userID);
     return "CHANGE PASSWORD PAGE";
 })->add($redirectToLoginMW)->setName('changePassword');
 
 $app->post('/account/password', function ($request, $response) {
+    $user = User::findById($this->db, $this->session->userID);
     return "PROCESS CHANGE PASSWORD";
 })->add($redirectToLoginMW)->setName('processChangePassword');
