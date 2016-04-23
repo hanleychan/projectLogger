@@ -5,16 +5,23 @@
 <form action="{{ path_for('processModifyProfile') }}" method="post" enctype="multipart/form-data">
     <input type="hidden" name="MAX_FILE_SIZE" value="{{ maxPhotoSize }}">
 
-    <label for="photo">Photo:</label><br>
+    {% if profile.photoName and profile.photoPath %}
+    <div id="profilePhoto">
+        <img src="{{ path_for('home') ~ profile.photoPath ~ '/' ~ profile.photoName  }}" alt="profilePhoto"><br>
+    </div>
+    {% endif %}
+
+    <label for="photo">Photo:</label>
     <input type="file" id="photo" name="photo" accept="image/gif, image/jpeg, image/png"><br>
     <label for="removePhoto">Remove Photo</label>
     <input type="checkbox" id="removePhoto" name="removePhoto" value="removePhoto"><br>
 
+
     <label for="name">Name:</label><br>
-    <input type="text" name="name" id="name"><br>
+    <input type="text" name="name" id="name" {% if profile.name %} value="{{ profile.name }}"{% endif %}><br>
 
     <label for="otherInfo">Other Info:</label><br>
-    <textarea id="otherInfo" name="otherInfo" maxlength="255"></textarea><br>
+    <textarea id="otherInfo" name="otherInfo" maxlength="255">{% if profile.otherInfo %}{{ profile.otherInfo }}{% endif %}</textarea><br>
     
     <button type="submit" name="action" value="save">Save</button>
     <button type="submit" name="action" value="cancel">Cancel</button>

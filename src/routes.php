@@ -1454,11 +1454,13 @@ $app->get('/account/profile', function ($request, $response) {
     $maxPhotoSize = Profile::getMaxPhotoAllowedFileSizeInBytes();
 
     // Fetch profile if exists
-
-    return $this->view->render($response, 'modifyProfile.twig', compact("user", "maxPhotoSize"));
+    $profile = Profile::getProfileByUserID($this->db, $user->id);
+        
+    return $this->view->render($response, 'modifyProfile.twig', compact("user", "maxPhotoSize", "profile"));
 })->add($redirectToLoginMW)->setName('modifyProfile');
 
 $app->post('/account/profile/', function ($request, $response) {
+    $router = $this->router;
     $user = User::findById($this->db, $this->session->userID);
 
     $action = trim($this->request->getParam("action"));
@@ -1515,12 +1517,32 @@ $app->post('/account/profile/', function ($request, $response) {
             mkdir($uploadDirectory, 0777, true);
         }
 
-        $photo->moveTo("{$uploadDirectory}/$uploadFileName");
+        $photo->moveTo("{$uploadDirectory}/{$uploadFileName}");
+
+        // Resize photo
+        $resizedPhoto = new Imagick("{$uploadDirectory}/{$uploadFileName}");
+        $resizedPhoto->resizeImage(400,400, Imagick::FILTER_UNDEFINED, 1, true);
+        $resizedPhoto->writeImage("{$uploadDirectory}/{$uploadFileName}");
+        $resizedPhoto->destroy();
+    
+
+        // Remove old photos
+        $photoFile = $profile->photoPath . '/' . $profile->photoName;
+        if(file_exists($photoFile)) {
+            unlink($photoFile);
+        }
+
         $profile->photoName = $uploadFileName;
         $profile->photoPath = $uploadDirectory;
+    } else {
+        echo "There was a problem processing the uploaded file";
+        exit;
     }
 
     $profile->save();
+    $this->flash->addMessage("success", "Profile has been successfully updated");
+    return $response->withRedirect($router->pathFor('account'));
+    
 })->add($redirectToLoginMW)->setName('processModifyProfile');
 
 $app->get('/account/password', function ($request, $response) {
