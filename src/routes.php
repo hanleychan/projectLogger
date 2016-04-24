@@ -329,6 +329,7 @@ $app->post('/project/{name}', function ($request, $response, $args) {
     }
 
     if ($inputError) {
+        $this->session->setPostData($_POST);
         return $response->withRedirect($router->pathFor('fetchAddNewLog', compact('name')));
     }
 
@@ -736,6 +737,9 @@ $app->get('/project/{name}/newLog', function ($request, $response, $args) {
 
     $projectMember = true;
 
+    // Fetch post data
+    $postData = $this->session->getPostData();
+
     // Get combined minutes of all users for this project
     $totalMinutes = ProjectLog::getTotalTimeByProjectName($this->db, $name);
     $totalMinutes = ProjectLog::formatTimeOutput($totalMinutes);
@@ -745,7 +749,7 @@ $app->get('/project/{name}/newLog', function ($request, $response, $args) {
     $totalMinutesByMe = ProjectLog::formatTimeOutput($totalMinutesByMe);
 
     return $this->view->render($response, 'project.twig', compact('user', 'project', 'projectMember', 'page',
-                                                                  'totalMinutes', 'totalMinutesByMe'));
+                                                                  'totalMinutes', 'totalMinutesByMe', 'postData'));
 })->add($redirectToLoginMW)->setName('fetchAddNewLog');
 
 // Route for editing an existing log
@@ -894,7 +898,6 @@ $app->post('/project/{name}/edit/{logID}', function ($request, $response, $args)
 
     if ($inputError) {
         $this->session->setPostData($_POST);
-
         return $response->withRedirect($router->pathFor('fetchEditLog', compact('name', 'logID')));
     }
 
