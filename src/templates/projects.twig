@@ -1,13 +1,10 @@
 {% extends 'layout.twig' %}
+{% import "macros.twig" as macros %}
 
 {% block content %}
 <h2>Projects</h2>
-{% for message in flash.message("fail") %}
-    <p>{{ message}}</p>
-{% endfor %}
-{% for message in flash.message("success") %}
-    <p>{{ message}}</p>
-{% endfor %}
+{{ macros.displayFlashMessages(flash.message("fail"), flash.message("success")) }}
+
 <p><a href="{{ path_for('allProjects') }}">Browse all projects</a></p>
 <h3>My Projects</h3>
 <p><a href="{{ path_for("addProject") }}">+ Add New Project</a></p>

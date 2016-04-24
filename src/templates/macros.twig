@@ -1,0 +1,8 @@
+{% macro displayFlashMessages(failMsgs, successMsgs) %}
+    {% for message in failMsgs %}
+        <p>{{ message}}</p>
+    {% endfor %}
+    {% for message in successMsgs %}
+        <p>{{ message}}</p>
+    {% endfor %}
+{% endmacro %}

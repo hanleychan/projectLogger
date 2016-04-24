@@ -1,7 +1,10 @@
 {% extends 'layout.twig' %}
+{% import "macros.twig" as macros %}
 
 {% block content %}
 <h2>Update Profile</h2>
+{{ macros.displayFlashMessages(flash.message("fail"), flash.message("success")) }}
+
 <form action="{{ path_for('processModifyProfile') }}" method="post" enctype="multipart/form-data">
     <input type="hidden" name="MAX_FILE_SIZE" value="{{ maxPhotoSize }}">
 

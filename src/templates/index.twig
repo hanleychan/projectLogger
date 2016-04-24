@@ -1,13 +1,9 @@
 {% extends 'layout.twig' %}
+{% import "macros.twig" as macros %}
 
 {% block content %}
     <h2>Main Page</h2>
-    {% for message in flash.message("fail") %}
-        <p>{{ message}}</p>
-    {% endfor %}
-    {% for message in flash.message("success") %}
-        <p>{{ message}}</p>
-    {% endfor %}
+    {{ macros.displayFlashMessages(flash.message("fail"), flash.message("success")) }}
 
     <section id="notifications">
         <h3>Notifications:</h3>

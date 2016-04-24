@@ -1,4 +1,5 @@
 {% extends 'layout.twig' %}
+{% import "macros.twig" as macros %}
 
 {% block head %}
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
@@ -6,13 +7,7 @@
 
 {% block content %}
 <h2>Project: {{ project.projectName }}</h2>
-
-{% for message in flash.message("fail") %}
-    <p>{{ message}}</p>
-{% endfor %}
-{% for message in flash.message("success") %}
-    <p>{{ message}}</p>
-{% endfor %}
+{{ macros.displayFlashMessages(flash.message("fail"), flash.message("success")) }}
 
 <p><a href="{{ path_for('projectActions', {'name': project.projectName})  }}">Project Actions</a></p>
 
