@@ -25,6 +25,7 @@
 
 <ul>
     <li>Owner: <a href="{{ path_for('userProfile', {'username':project.ownerName}) }}">{{ project.ownerName }}</a></li>
+    <li>Date Created: {{ project.dateAdded }}</li>
     <li>Total Hours: {{ totalMinutes }}</li>
     {% if projectMember %}
     <li>Total Hours By Me: {{ totalMinutesByMe }}</li>

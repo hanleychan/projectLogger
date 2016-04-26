@@ -5,6 +5,7 @@ class Project extends DatabaseObject
     public $id;
     public $projectName;
     public $ownerID;
+    public $dateAdded;
     public $ownerName;
     public $userID;
     public $isAdmin;
@@ -16,7 +17,7 @@ class Project extends DatabaseObject
     const NAME_MAX_LENGTH = 20;
     const NAME_MIN_LENGTH = 1; 
     protected static $tableName = 'projects';
-    protected static $dbFields = array('id', 'projectName', 'ownerID');
+    protected static $dbFields = array('id', 'projectName', 'ownerID', 'dateAdded');
 
     /**
      * Returns whether a project name is in a valid format
@@ -71,7 +72,7 @@ class Project extends DatabaseObject
      */
     public static function findProjectByName($db, $projectName)
     {
-        $sql = "SELECT projects.id as id, projectName, ownerID, username as ownerName FROM projects INNER JOIN users ON ownerID = users.id WHERE projectName = ? LIMIT 1";
+        $sql = "SELECT projects.id as id, projectName, ownerID, username as ownerName, dateAdded FROM projects INNER JOIN users ON ownerID = users.id WHERE projectName = ? LIMIT 1";
         $paramArray = array($projectName);
 
         $result = self::findBySQL($db, $sql, $paramArray);
@@ -119,7 +120,7 @@ class Project extends DatabaseObject
      */
     public static function findProjectByNameAndUser($db, $projectName, $userID)
     {
-        $sql = "SELECT projects.id as id, projectName, ownerID, userID, isAdmin, username as ownerName ";
+        $sql = "SELECT projects.id as id, projectName, ownerID, userID, isAdmin, username as ownerName, dateAdded ";
         $sql .= "FROM projects INNER JOIN projectmembers ON projects.id = projectmembers.projectID ";
         $sql .= "INNER JOIN users ON projects.ownerID = users.id ";
         $sql .= "WHERE projectName = ? AND userID = " . (int)$userID . " LIMIT 1";

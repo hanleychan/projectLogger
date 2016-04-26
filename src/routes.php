@@ -270,6 +270,7 @@ $app->post('/projects/add', function ($request, $response) {
         $project = new Project($this->db);
         $project->projectName = $projectName;
         $project->ownerID = $user->id;
+        $project->dateAdded = date("Y-m-d");
         $project->save();
 
         $projectMember = new ProjectMember($this->db);
@@ -378,6 +379,8 @@ $app->get('/project/{name}/projectLogs', function ($request, $response, $args) {
     } else {
         $projectMember = true;
     }
+
+    $project->dateAdded = ProjectLog::formatDateFromSQL($project->dateAdded);
 
     // Fetch project members
     $projectMembers = ProjectMember::findProjectMembersByProjectName($this->db, $name, false);
