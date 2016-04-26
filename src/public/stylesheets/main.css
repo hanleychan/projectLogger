@@ -1,2 +1,5 @@
 body {
   background-color: yellow; }
+
+form#toggleAdminForm, form#removeMemberForm {
+  display: inline; }

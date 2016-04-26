@@ -12,7 +12,7 @@ $app->get('/', function ($request, $response) {
 
     // Fetch pending project requests
     $pendingProjects = RequestJoinProject::getAllRequestsForUser($this->db, $user->id);
-
+echo BASE_URL . "uploads";
     return $this->view->render($response, 'index.twig', compact('user', 'notifications', 'pendingProjectActions', 'pendingProjects'));
 })->add($redirectToLoginMW)->setName('home');
 
@@ -463,6 +463,7 @@ $app->get('/project/{name}/members', function ($request, $response, $args) {
     }
 
     $projectMembers = ProjectMember::findProjectMembersByProjectName($this->db, $name);
+
     $isAdmin = ProjectMember::isProjectAdmin($this->db, $name, $user->id);
     $isOwner = ($project->ownerID === $user->id) ? true : false;
 
@@ -1488,7 +1489,8 @@ $app->post('/account/profile/', function ($request, $response) {
     $otherInfo = trim($this->request->getParam("otherInfo"));
     $removePhoto = $this->request->getParam("removePhoto");
     $photo = $request->getUploadedFiles()['photo'];
-
+    echo "<pre>";
+var_dump($photo->getError());
     // Fetch profile if it exists otherwise create a new profile
     if($profile = Profile::getProfileByUserID($this->db, $user->id)) {
         $newProfile = false;
@@ -1544,7 +1546,6 @@ $app->post('/account/profile/', function ($request, $response) {
         $resizedPhoto->resizeImage(400,400, Imagick::FILTER_UNDEFINED, 1, true);
         $resizedPhoto->writeImage("{$uploadDirectory}/{$uploadFileName}");
         $resizedPhoto->destroy();
-    
 
         // Remove old photos
         $photoFile = $profile->photoPath . '/' . $profile->photoName;
@@ -1554,7 +1555,7 @@ $app->post('/account/profile/', function ($request, $response) {
 
         $profile->photoName = $uploadFileName;
         $profile->photoPath = $uploadDirectory;
-    } else {
+    } elseif ($photo->getError() !== 4) {
         echo "There was a problem processing the uploaded file";
         exit;
     }

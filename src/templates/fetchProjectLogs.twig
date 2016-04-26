@@ -76,7 +76,7 @@
                 {{ projectLog.projectTime }}
             </td>
             <td>{{ projectLog.comment }}</td>
-            <td>{{ projectLog.username }}</td>
+            <td><a href="{{ path_for('userProfile', {'username':projectLog.username}) }}">{{ projectLog.username }}</a></td>
             {% if isAdmin or projectLog.canEdit %}
             <td>
                 <form action="{{ path_for('editLog', {'name':project.projectName, 'logID':projectLog.id}) }}" method="get">

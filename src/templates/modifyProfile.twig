@@ -9,9 +9,7 @@
     <input type="hidden" name="MAX_FILE_SIZE" value="{{ maxPhotoSize }}">
 
     {% if profile.photoName and profile.photoPath %}
-    <div id="profilePhoto">
         <img src="{{ path_for('home') ~ profile.photoPath ~ '/' ~ profile.photoName  }}" alt="profilePhoto"><br>
-    </div>
     {% endif %}
 
     <label for="photo">Photo:</label>

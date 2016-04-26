@@ -1,28 +1,36 @@
 <h3>Members</h3>
 <ul>
-{% for projectMember in projectMembers %}
     <li>
-        {{ projectMember.username }}
-        {% if projectMember.userID == projectMember.ownerID %}
+        <a href="{{ path_for('userProfile', {'username':project.ownerName}) }}">
+        {{ project.ownerName }}
+        </a>
         (Project Owner)
-        {% elseif projectMember.isAdmin %} 
-        (Admin)
-        {% endif %}
-        {% if isOwner or isAdmin  %}
-            {% if projectMember.userID != user.id %}
-                {% if isOwner %}
-                    <form action="{{ path_for('processToggleAdmin', {'name':project.projectName, 'username': projectMember.username})  }}" method="post">
-                        {% if not projectMember.isAdmin %}
-                            <button type="submit" name="action" value="promote">Promote</button>
-                        {% else %}
-                            <button type="submit" name="action" value="demote">Demote</button>
-                        {% endif %}
+    </li>
+{% for projectMember in projectMembers %}
+    {% if projectMember.userID != projectMember.ownerID %}
+        <li>
+            <a href="{{ path_for('userProfile', {'username':projectMember.username})  }}">
+            {{ projectMember.username }}
+            </a>
+            {% if projectMember.isAdmin %} 
+            (Admin)
+            {% endif %}
+            {% if isOwner or isAdmin  %}
+                {% if projectMember.userID != user.id %}
+                    {% if isOwner %}
+                        <form id="toggleAdminForm" action="{{ path_for('processToggleAdmin', {'name':project.projectName, 'username': projectMember.username})  }}" method="post">
+                            {% if not projectMember.isAdmin %}
+                                <button type="submit" name="action" value="promote">Promote</button>
+                            {% else %}
+                                <button type="submit" name="action" value="demote">Demote</button>
+                            {% endif %}
+                        </form>
+                    {% endif %}
+                    {% if isOwner or (isAdmin and not projectMember.isAdmin) %}
+                    <form id="removeMemberForm" action="{{ path_for('confirmRemoveMember', {'name':project.projectName, 'username': projectMember.username}) }}" method="get">
+                        <button type="submit">Remove Member</button>
                     </form>
-                {% endif %}
-                {% if isOwner or (isAdmin and not projectMember.isAdmin) %}
-                <form action="{{ path_for('confirmRemoveMember', {'name':project.projectName, 'username': projectMember.username}) }}" method="get">
-                    <button type="submit">Remove Member</button>
-                </form>
+                    {% endif %}
                 {% endif %}
             {% endif %}
         {% endif %}
@@ -37,7 +45,9 @@
         {% for request in requests %}
             <li>
                 <form action="{{ path_for('processMemberRequest', {'name':project.projectName, 'username':request.username}) }}" method="post">
-                    {{ request.username }}
+                    <a href="{{ path_for('userProfile',{'username':request.username}) }}">
+                        {{ request.username }}
+                    </a>
                     <button type="submit" name="action" value="accept">Accept</button>
                     <button type="submit" name="action" value="decline">Decline</button>
                 </form>

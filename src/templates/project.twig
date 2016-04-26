@@ -24,7 +24,7 @@
 {% endif %}
 
 <ul>
-    <li>Owner: {{ project.ownerName }}</li>
+    <li>Owner: <a href="{{ path_for('userProfile', {'username':project.ownerName}) }}">{{ project.ownerName }}</a></li>
     <li>Total Hours: {{ totalMinutes }}</li>
     {% if projectMember %}
     <li>Total Hours By Me: {{ totalMinutesByMe }}</li>
