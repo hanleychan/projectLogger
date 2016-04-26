@@ -14,6 +14,34 @@ class Profile extends DatabaseObject
     protected static $tableName = 'profiles';
     protected static $dbFields = array('id', 'userID', 'name', 'photoName', 'photoPath', 'otherInfo');
 
+    public static function isValidImageFile($photo)
+    {
+        $photoInfo = getimagesize($photo->file);
+        if($photoInfo === false) {
+            return false;
+        }
+        return true;
+    }
+
+    public static function isValidImageFormat($photo)
+    {
+        $photoInfo = getimagesize($photo->file);
+        if($photoInfo[2] !== IMAGETYPE_GIF && $photoInfo[2] !== IMAGETYPE_JPEG && $photoInfo[2] !== IMAGETYPE_PNG) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static function resizePhoto($photo)
+    {
+        $resizedPhoto = new Imagick($photo);
+        $resizedPhoto->resizeImage(200,200, Imagick::FILTER_UNDEFINED, 1, true);
+        $resizedPhoto->writeImage($photo);
+        $resizedPhoto->destroy();
+    }
+
+    
     public static function getMaxPhotoAllowedFileSizeInBytes()
     {
         $postMaxSize = self::convertPHPSizeToBytes(ini_get('post_max_size'));

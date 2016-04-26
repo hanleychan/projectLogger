@@ -109,10 +109,15 @@ $app->get('/register', function ($request, $response) {
 
 // Process register form
 $app->post('/register', function ($request, $response) {
+    $router = $this->router;
     $username = strtolower(trim($request->getParam('username')));
     $password = $request->getParam('password');
     $password2 = $request->getParam('password2');
-    $router = $this->router;
+
+    $name = trim(ucwords($this->request->getParam("name")));
+    $otherInfo = trim($this->request->getParam("otherInfo"));
+    $removePhoto = $this->request->getParam("removePhoto");
+    $photo = $request->getUploadedFiles()['photo'];
 
     // Check if username is valid 
     if (User::fetchUser($this->db, $username)) {
@@ -158,6 +163,53 @@ $app->post('/register', function ($request, $response) {
         // Create a new profile for the user
         $profile = new Profile($this->db);
         $profile->userID = $user->id;
+        $profile->name = (!empty($name)) ? $name : null;
+        $profile->otherInfo = (!empty($otherInfo)) ? $otherInfo : null;
+
+        if ($photo->getError() === 0) {
+            // Check if uploaded file is a valid photo
+            if(!Profile::isValidImageFile($photo)) {
+                $this->flash->addMessage("fail", "Unable to determine image type of the uploaded file");
+                return $response->withRedirect($router->pathFor('modifyProfile'));
+            }
+
+            if(!Profile::isValidImageFormat($photo)) {
+                $this->flash->addMessage("fail", "Image is not a JPG, GIF, or PNG file");
+                return $response->withRedirect($router->pathFor('modifyProfile'));
+            }
+
+            $uploadFileName = $photo->getClientFilename();
+            $uploadMediaType = $photo->getClientMediaType();
+
+            // Create directory if not exists
+            $uploadDirectory = "uploads/";
+            $uploadDirectory .= $user->username[0] . "/";
+            if(isset($user->username[1])) {
+                $uploadDirectory .= $user->username[1] . "/";
+            }
+            $uploadDirectory .= $user->username;
+            if(!file_exists($uploadDirectory)) {
+                mkdir($uploadDirectory, 0777, true);
+            }
+
+            $photo->moveTo("{$uploadDirectory}/{$uploadFileName}");
+
+            // Resize photo
+            Profile::resizePhoto("{$uploadDirectory}/{$uploadFileName}");
+
+            // Remove old photos
+            $photoFile = $profile->photoPath . '/' . $profile->photoName;
+            if(file_exists($photoFile)) {
+                unlink($photoFile);
+            }
+
+            $profile->photoName = $uploadFileName;
+            $profile->photoPath = $uploadDirectory;
+        } elseif ($photo->getError() !== 4) {
+            $this->flash->addMessage("fail", "There was a problem processing the uploaded file");
+            return $response->withRedirect($router->pathFor('modifyProfile'));
+        }
+
         $profile->save();
 
         // redirect to login page
@@ -1492,8 +1544,7 @@ $app->post('/account/profile/', function ($request, $response) {
     $otherInfo = trim($this->request->getParam("otherInfo"));
     $removePhoto = $this->request->getParam("removePhoto");
     $photo = $request->getUploadedFiles()['photo'];
-    echo "<pre>";
-var_dump($photo->getError());
+
     // Fetch profile if it exists otherwise create a new profile
     if($profile = Profile::getProfileByUserID($this->db, $user->id)) {
         $newProfile = false;
@@ -1516,21 +1567,20 @@ var_dump($photo->getError());
             }
         }
     } elseif ($photo->getError() === 0) {
-        // Handle uploaded photo
+        // Check if uploaded file is a valid photo
+        if(!Profile::isValidImageFile($photo)) {
+            $this->flash->addMessage("fail", "Unable to determine image type of the uploaded file");
+            return $response->withRedirect($router->pathFor('modifyProfile'));
+        }
+
+        if(!Profile::isValidImageFormat($photo)) {
+            $this->flash->addMessage("fail", "Image is not a JPG, GIF, or PNG file");
+            return $response->withRedirect($router->pathFor('modifyProfile'));
+        }
+
         $uploadFileName = $photo->getClientFilename();
         $uploadMediaType = $photo->getClientMediaType();
-        $photoInfo = getimagesize($photo->file);
 
-        // Check if uploaded file is a valid photo
-        if($photoInfo === false) {
-            echo "Unable to determine image type of uploaded file";
-            exit;
-        }
-        if($photoInfo[2] !== IMAGETYPE_GIF && $photoInfo[2] !== IMAGETYPE_JPEG && $photoInfo[2] !== IMAGETYPE_PNG) {
-            echo "NOT A VALID PHOTO TYPE";
-            exit;
-        }
-        
         // Create directory if not exists
         $uploadDirectory = "uploads/";
         $uploadDirectory .= $user->username[0] . "/";
@@ -1545,10 +1595,7 @@ var_dump($photo->getError());
         $photo->moveTo("{$uploadDirectory}/{$uploadFileName}");
 
         // Resize photo
-        $resizedPhoto = new Imagick("{$uploadDirectory}/{$uploadFileName}");
-        $resizedPhoto->resizeImage(200,200, Imagick::FILTER_UNDEFINED, 1, true);
-        $resizedPhoto->writeImage("{$uploadDirectory}/{$uploadFileName}");
-        $resizedPhoto->destroy();
+        Profile::resizePhoto("{$uploadDirectory}/{$uploadFileName}");
 
         // Remove old photos
         $photoFile = $profile->photoPath . '/' . $profile->photoName;
@@ -1559,8 +1606,8 @@ var_dump($photo->getError());
         $profile->photoName = $uploadFileName;
         $profile->photoPath = $uploadDirectory;
     } elseif ($photo->getError() !== 4) {
-        echo "There was a problem processing the uploaded file";
-        exit;
+        $this->flash->addMessage("fail", "There was a problem processing the uploaded file");
+        return $response->withRedirect($router->pathFor('modifyProfile'));
     }
 
     $profile->save();
