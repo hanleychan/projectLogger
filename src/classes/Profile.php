@@ -8,6 +8,7 @@ class Profile extends DatabaseObject
     public $photoName;
     public $photoPath;
     public $otherInfo;
+    public $username;
 
     protected static $tableName = 'profiles';
     protected static $dbFields = array('id', 'userID', 'name', 'photoName', 'photoPath', 'otherInfo');
@@ -57,6 +58,22 @@ class Profile extends DatabaseObject
     {
         $sql = "SELECT * FROM profiles WHERE userID = " . (int)$userID . " LIMIT 1";
         $result = self::findBySQL($db, $sql);
+
+        if($result) {
+            return $result[0];
+        } else {
+            return false;
+        }
+    }
+
+    public static function getProfileByUsername($db, $username)
+    {
+        $sql = "SELECT profiles.id, userID, name, username, photoName, photoPath, otherInfo FROM profiles ";
+        $sql .= "INNER JOIN users ON userID = users.id ";
+        $sql .= "WHERE username = ? LIMIT 1";
+        $paramArray = array($username);
+
+        $result = self::findBySQL($db, $sql, $paramArray);
 
         if($result) {
             return $result[0];

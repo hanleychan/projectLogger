@@ -178,7 +178,6 @@ $app->post('/login', function ($request, $response) {
         if (password_verify($password, $user->password)) {
             // login user and redirect to main page
             $this->session->login($user);
-            $this->flash->addMessage('success', 'Login success');
 
             return $response->withRedirect($router->pathFor('home'));
         }
@@ -192,10 +191,8 @@ $app->post('/login', function ($request, $response) {
 // Logout route
 $app->get('/logout', function ($request, $response) {
     $this->session->logout();
-    $this->flash->addMessage('success', 'Logout success');
 
     $router = $this->router;
-
     return $response->withRedirect($router->pathFor('login'));
 })->add($redirectToLoginMW)->setName('logout');
 
@@ -1437,6 +1434,19 @@ $app->post('/project/{name}/transferOwnership/{newOwner}', function ($request, $
 
 $app->get('/profile/{username}', function ($request, $response, $args) {
     $user = User::findById($this->db, $this->session->userID);
+    $username = trim(strtolower($args['username']));
+
+    // Fetch profile
+    if(!$profile = Profile::getProfileByUsername($this->db, $username)) {
+        echo "NO SUCH USER";
+        exit;
+    }
+
+    // Fetch projects for the user
+    $projects = Project::findProjectsByUser($this->db, $profile->userID);
+        
+    
+    return $this->view->render($response, 'profile.twig', compact('user', 'profile', 'projects'));
 })->add($redirectToLoginMW)->setName('userProfile');
 
 /*
@@ -1457,7 +1467,7 @@ $app->get('/account/profile', function ($request, $response) {
 
     // Fetch profile if exists
     $profile = Profile::getProfileByUserID($this->db, $user->id);
-        
+
     return $this->view->render($response, 'modifyProfile.twig', compact("user", "maxPhotoSize", "profile"));
 })->add($redirectToLoginMW)->setName('modifyProfile');
 
