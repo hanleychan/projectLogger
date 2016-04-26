@@ -5,13 +5,15 @@ class User extends DatabaseObject
     public $id;
     public $username;
     public $password;
+    public $joinDate;
+
     const USERNAME_MIN_LENGTH = 6;
     const USERNAME_MAX_LENGTH = 12;
     const PASSWORD_MIN_LENGTH = 6;
     const PASSWORD_MAX_LENGTH = 160;
 
     protected static $tableName = 'users';
-    protected static $dbFields = array('id', 'username', 'password');
+    protected static $dbFields = array('id', 'username', 'password', 'joinDate');
 
     public static function isValidUsername($db, $username)
     {

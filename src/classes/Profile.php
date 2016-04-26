@@ -9,6 +9,7 @@ class Profile extends DatabaseObject
     public $photoPath;
     public $otherInfo;
     public $username;
+    public $joinDate;
 
     protected static $tableName = 'profiles';
     protected static $dbFields = array('id', 'userID', 'name', 'photoName', 'photoPath', 'otherInfo');
@@ -53,7 +54,7 @@ class Profile extends DatabaseObject
 
         return $result;
     }
-
+    
     public static function getProfileByUserID($db, $userID)
     {
         $sql = "SELECT * FROM profiles WHERE userID = " . (int)$userID . " LIMIT 1";
@@ -68,7 +69,7 @@ class Profile extends DatabaseObject
 
     public static function getProfileByUsername($db, $username)
     {
-        $sql = "SELECT profiles.id, userID, name, username, photoName, photoPath, otherInfo FROM profiles ";
+        $sql = "SELECT profiles.id, userID, name, username, photoName, photoPath, otherInfo, joinDate FROM profiles ";
         $sql .= "INNER JOIN users ON userID = users.id ";
         $sql .= "WHERE username = ? LIMIT 1";
         $paramArray = array($username);

@@ -7,6 +7,7 @@
 {% endif %}
 <ul>
     <li>Name:<br>{% if profile.name %}{{ profile.name }}{% else %}N/A{% endif %}</li>
+    <li>Member since:<br> {{ profile.joinDate }}</li>
     <li>Other Info:<br>{% if profile.otherInfo %}{{ profile.otherInfo | nl2br }}{% else %}N/A{% endif %}</li>
 </ul>
 

@@ -147,11 +147,18 @@ $app->post('/register', function ($request, $response) {
 
         return $response->withRedirect($router->pathFor('register'));
     } else {
+        // Create a new user
         $user = new User($this->db);
         $user->username = $username;
         $user->password = User::encryptPassword($password);
+        $user->joinDate = date('Y-m-d');
         $user->save();
         $this->flash->addMessage('success', 'You have successfully registered');
+
+        // Create a new profile for the user
+        $profile = new Profile($this->db);
+        $profile->userID = $user->id;
+        $profile->save();
 
         // redirect to login page
         return $response->withRedirect($router->pathFor('login'));
@@ -1441,6 +1448,7 @@ $app->get('/profile/{username}', function ($request, $response, $args) {
         echo "NO SUCH USER";
         exit;
     }
+    $profile->joinDate = ProjectLog::formatDateFromSQL($profile->joinDate);
 
     // Fetch projects for the user
     $projects = Project::findProjectsByUser($this->db, $profile->userID);
