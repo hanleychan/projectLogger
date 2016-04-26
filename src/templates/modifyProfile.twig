@@ -21,10 +21,10 @@
 
 
     <label for="name">Name:</label><br>
-    <input type="text" name="name" id="name" {% if profile.name %} value="{{ profile.name }}"{% endif %}><br>
+    <input type="text" name="name" id="name" {% if postData.name %} value="{{ postData.name}}"{% elseif profile.name %} value="{{ profile.name }}"{% endif %} maxlength="100"><br>
 
     <label for="otherInfo">Other Info:</label><br>
-    <textarea id="otherInfo" name="otherInfo" maxlength="255">{% if profile.otherInfo %}{{ profile.otherInfo }}{% endif %}</textarea><br>
+    <textarea id="otherInfo" name="otherInfo" maxlength="255">{% if postData.otherInfo %}{{ postData.otherInfo }}{% elseif profile.otherInfo %}{{ profile.otherInfo }}{% endif %}</textarea><br>
     
     <button type="submit" name="action" value="save">Save</button>
     <button type="submit" name="action" value="cancel">Cancel</button>

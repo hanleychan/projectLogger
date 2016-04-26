@@ -11,8 +11,28 @@ class Profile extends DatabaseObject
     public $username;
     public $joinDate;
 
+    const NAME_MAX_LENGTH = 100;
+    const OTHERINFO_MAX_LENGTH = 255;
     protected static $tableName = 'profiles';
     protected static $dbFields = array('id', 'userID', 'name', 'photoName', 'photoPath', 'otherInfo');
+
+    public static function isValidName($name)
+    {
+        if (strlen($name) <= self::NAME_MAX_LENGTH) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static function isValidOtherInfo($otherInfo)
+    {
+        if (strlen($otherInfo) <= self::OTHERINFO_MAX_LENGTH) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     public static function isValidImageFile($photo)
     {

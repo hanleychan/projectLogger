@@ -12,7 +12,7 @@ $app->get('/', function ($request, $response) {
 
     // Fetch pending project requests
     $pendingProjects = RequestJoinProject::getAllRequestsForUser($this->db, $user->id);
-echo BASE_URL . "uploads";
+
     return $this->view->render($response, 'index.twig', compact('user', 'notifications', 'pendingProjectActions', 'pendingProjects'));
 })->add($redirectToLoginMW)->setName('home');
 
@@ -157,15 +157,27 @@ $app->post('/register', function ($request, $response) {
         $user->username = $username;
         $user->password = User::encryptPassword($password);
         $user->joinDate = date('Y-m-d');
-        $user->save();
-        $this->flash->addMessage('success', 'You have successfully registered');
 
         // Create a new profile for the user
         $profile = new Profile($this->db);
         $profile->userID = $user->id;
         $profile->name = (!empty($name)) ? $name : null;
         $profile->otherInfo = (!empty($otherInfo)) ? $otherInfo : null;
+        $profileError = false;
 
+        if(!Profile::isValidName($name)) {
+            $this->flash->addMessage("fail", "Name field must be " . Profile::NAME_MAX_LENGTH  . " characters or less");
+            $profileError = true;
+        }
+        if(!Profile::isValidOtherInfo($otherInfo)) {
+            $this->flash->addMessage("fail", "Other info field must be " . Profile::OTHERINFO_MAX_LENGTH  . " characters or less");
+            $profileError = true;
+        }
+        if($profileError) {
+            $this->session->setPostData($_POST);
+            return $response->withRedirect($router->pathFor('register'));
+        }
+        
         if ($photo->getError() === 0) {
             // Check if uploaded file is a valid photo
             if(!Profile::isValidImageFile($photo)) {
@@ -210,7 +222,11 @@ $app->post('/register', function ($request, $response) {
             return $response->withRedirect($router->pathFor('modifyProfile'));
         }
 
+        $user->save();
+
+        $profile->userID = $user->id;
         $profile->save();
+        $this->flash->addMessage('success', 'You have successfully registered');
 
         // redirect to login page
         return $response->withRedirect($router->pathFor('login'));
@@ -1526,13 +1542,13 @@ $app->get('/account', function ($request, $response) {
 
 $app->get('/account/profile', function ($request, $response) {
     $user = User::findById($this->db, $this->session->userID);
-
     $maxPhotoSize = Profile::getMaxPhotoAllowedFileSizeInBytes();
+    $postData = $this->session->getPostData();
 
     // Fetch profile if exists
     $profile = Profile::getProfileByUserID($this->db, $user->id);
 
-    return $this->view->render($response, 'modifyProfile.twig', compact("user", "maxPhotoSize", "profile"));
+    return $this->view->render($response, 'modifyProfile.twig', compact('user', 'maxPhotoSize', 'profile', 'postData'));
 })->add($redirectToLoginMW)->setName('modifyProfile');
 
 $app->post('/account/profile/', function ($request, $response) {
@@ -1544,6 +1560,21 @@ $app->post('/account/profile/', function ($request, $response) {
     $otherInfo = trim($this->request->getParam("otherInfo"));
     $removePhoto = $this->request->getParam("removePhoto");
     $photo = $request->getUploadedFiles()['photo'];
+
+    $profileError = false;
+
+    if(!Profile::isValidName($name)) {
+        $this->flash->addMessage("fail", "Name field must be " . Profile::NAME_MAX_LENGTH  . " characters or less");
+        $profileError = true;
+    }
+    if(!Profile::isValidOtherInfo($otherInfo)) {
+        $this->flash->addMessage("fail", "Other info field is must be " . Profile::OTHERINFO_MAX_LENGTH  . " characters or less");
+        $profileError = true;
+    }
+    if($profileError) {
+        $this->session->setPostData($_POST);
+        return $response->withRedirect($router->pathFor('modifyProfile'));
+    }
 
     // Fetch profile if it exists otherwise create a new profile
     if($profile = Profile::getProfileByUserID($this->db, $user->id)) {
