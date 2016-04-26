@@ -4,6 +4,8 @@
 <h2>Profile: {{ profile.username }}</h2>
 {% if profile.photoPath and profile.photoName %}
 <img src="{{ path_for('home') ~ profile.photoPath ~ '/' ~ profile.photoName }}" alt="profile_photo">
+{% else %}
+<img src="{{ path_for('home') ~ "images/noPhoto.png" }}" alt="profile_photo">
 {% endif %}
 <ul>
     <li>Name:<br>{% if profile.name %}{{ profile.name }}{% else %}N/A{% endif %}</li>

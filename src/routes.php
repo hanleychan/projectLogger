@@ -1543,7 +1543,7 @@ var_dump($photo->getError());
 
         // Resize photo
         $resizedPhoto = new Imagick("{$uploadDirectory}/{$uploadFileName}");
-        $resizedPhoto->resizeImage(400,400, Imagick::FILTER_UNDEFINED, 1, true);
+        $resizedPhoto->resizeImage(200,200, Imagick::FILTER_UNDEFINED, 1, true);
         $resizedPhoto->writeImage("{$uploadDirectory}/{$uploadFileName}");
         $resizedPhoto->destroy();
 

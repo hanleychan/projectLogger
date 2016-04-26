@@ -10,6 +10,8 @@
 
     {% if profile.photoName and profile.photoPath %}
         <img src="{{ path_for('home') ~ profile.photoPath ~ '/' ~ profile.photoName  }}" alt="profilePhoto"><br>
+    {% else %}
+        <img src="{{ path_for('home') ~ "images/noPhoto.png" }}" alt="profilePhoto"><br>
     {% endif %}
 
     <label for="photo">Photo:</label>
