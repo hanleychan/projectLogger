@@ -5,16 +5,19 @@ form#toggleAdminForm, form#removeMemberForm {
  * Main Styles
  */
 body {
-  font-family: 'Cuprum', sans-serif; }
+  font-family: 'Cuprum', sans-serif;
+  background-color: #f2f2f2; }
+
+h2 {
+  font-size: 1.6em; }
 
 div#wrapper {
   min-width: 320px;
   max-width: 940px;
-  margin: 0 auto;
-  border: solid; }
+  margin: 0 auto; }
 
 section {
-  margin: 1%; }
+  margin: 2.5%; }
 
 footer {
   text-align: center; }
@@ -45,10 +48,31 @@ header {
         display: block;
         text-decoration: none;
         color: #f2f2f2;
-        padding: 10px; }
+        padding: 10px;
+        font-weight: bold; }
       header nav ul li a:hover {
         color: #abcdef; }
 
 /**
  * Login Page Styles
  */
+form#loginForm label {
+  display: block;
+  text-align: left;
+  font-weight: bold; }
+form#loginForm input[type="text"], form#loginForm input[type="password"] {
+  padding: 0 1%;
+  width: 97%;
+  font-size: 1.2em;
+  border-radius: 2.5px;
+  margin-left: 1%;
+  margin-bottom: 10px; }
+form#loginForm input[type="submit"] {
+  margin-top: 10px;
+  padding: 1.5% 5%;
+  border-radius: 10px;
+  background-color: #003380;
+  color: #f2f2f2;
+  font-weight: bold; }
+form#loginForm input:focus {
+  border: solid; }

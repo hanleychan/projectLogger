@@ -1,16 +1,24 @@
 @media screen and (min-width: 500px) {
-  body {
-    background-color: yellow; }
-
+  /**
+   * Navigation styles
+   */
   header h1 {
     font-size: 2.5em; }
   header nav ul li {
     display: inline-block;
-    font-size: 1.6em; } }
-@media screen and (min-width: 660px) {
-  body {
-    background-color: pink; }
+    font-size: 1.6em; }
 
+  /**
+   * Login Page Styles
+   */
+  form#loginForm {
+    text-align: center; }
+    form#loginForm label {
+      display: inline-block;
+      width: 100px; }
+    form#loginForm input[type="text"], form#loginForm input[type="password"] {
+      width: 40%; } }
+@media screen and (min-width: 660px) {
   /**
    * Navigation Styles
    */
