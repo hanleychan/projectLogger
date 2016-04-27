@@ -1,7 +1,74 @@
-body {
-    background-color: yellow;
-}
+$headerBackgroundColor: #003380;
+$headerTextColor: #f2f2f2;
+$headerLinkHoverColor: #abcdef;
 
 form#toggleAdminForm, form#removeMemberForm {
     display: inline;
 }
+
+/**
+ * Main Styles
+ */
+body {
+    font-family: 'Cuprum', sans-serif;
+}
+div#wrapper {
+    min-width: 320px;
+    max-width: 940px;
+    margin: 0 auto;
+    border: solid;
+}
+
+section {
+    margin: 1%;
+}
+
+footer {
+    text-align: center;
+}
+
+/**
+ * Navigation Styles
+ */
+header {
+    h1 {
+        a {
+            text-decoration: none;
+            color: $headerTextColor;
+            font-weight: bold;
+        }
+        a:hover {
+            color: $headerLinkHoverColor;
+        }
+        margin: 0;
+        padding: 10px;
+        border-bottom: solid 2px #001f4d;
+    }
+
+    nav  {
+        ul {
+            li {
+                a {
+                    display: block;
+                    text-decoration: none;
+                    color: $headerTextColor;
+                    padding: 10px;
+                }
+                a:hover {
+                    color: $headerLinkHoverColor;
+                }
+                list-style-type: none;
+            }
+            padding: 0;
+            margin: 0;
+        }
+    }
+    color: $headerTextColor;
+    background-color: $headerBackgroundColor;
+    margin: 1%;
+}
+
+/**
+ * Login Page Styles
+ */
+

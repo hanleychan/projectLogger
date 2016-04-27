@@ -13,7 +13,8 @@ $app->get('/', function ($request, $response) {
     // Fetch pending project requests
     $pendingProjects = RequestJoinProject::getAllRequestsForUser($this->db, $user->id);
 
-    return $this->view->render($response, 'index.twig', compact('user', 'notifications', 'pendingProjectActions', 'pendingProjects'));
+    return $this->view->render($response, 'index.twig', compact('user', 'notifications', 
+                                                                'pendingProjectActions', 'pendingProjects'));
 })->add($redirectToLoginMW)->setName('home');
 
 $app->post('/deleteAllNotifications', function ($request, $response) {
@@ -1510,6 +1511,10 @@ $app->post('/project/{name}/transferOwnership/{newOwner}', function ($request, $
 
         return $response->withRedirect($router->pathFor('projectActions', compact('name')));
 })->add($redirectToLoginMW)->setName('processTransferOwnership');
+
+$app->get('/project/{name}/history', function ($request, $response, $args) {
+    return "HISTORY";
+})->add($redirectToLoginMW)->setName('fetchProjectHistory');
 
 $app->get('/profile/{username}', function ($request, $response, $args) {
     $user = User::findById($this->db, $this->session->userID);

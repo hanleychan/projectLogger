@@ -1,0 +1,28 @@
+@media screen and (min-width: 500px) {
+  body {
+    background-color: yellow; }
+
+  header h1 {
+    font-size: 2.5em; }
+  header nav ul li {
+    display: inline-block;
+    font-size: 1.6em; } }
+@media screen and (min-width: 660px) {
+  body {
+    background-color: pink; }
+
+  /**
+   * Navigation Styles
+   */
+  header {
+    overflow: auto;
+    position: relative; }
+    header h1 {
+      border: none;
+      display: inline-block;
+      float: left; }
+    header nav ul {
+      float: right;
+      position: absolute;
+      bottom: 0;
+      right: 0; } }

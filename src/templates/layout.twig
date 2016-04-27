@@ -4,32 +4,42 @@
     <title>Project Logger</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ path_for('home') }}stylesheets/normalize.css">
+    <link href='https://fonts.googleapis.com/css?family=Cuprum:400,700' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="{{ path_for('home') }}stylesheets/main.css">
+    <link rel="stylesheet" href="{{ path_for('home') }}stylesheets/responsive.css">
     {% block head %}
     {% endblock %}
 </head>
 <body>
-    <header>
-        <h1>Project Logger</h1>
+    <div id="wrapper">
+        <header>
+            
+            <h1><a href="{{ path_for('home') }}">Project Logger</a></h1>
+            <nav>
+            {% if user %}
+                <ul>
+                    <li><a href="{{ path_for('home') }}">Home</a></li>
+                    <li><a href="{{ path_for('projects') }}">Projects</a></li>
+                    <li><a href="{{ path_for('account') }}">Account</a></li>
+                    <li><a href="{{ path_for('logout') }}">Logout</a></li>
+                </ul>
+            {% else %}
+                <ul>
+                    <li><a href="{{ path_for("login") }}">Login</a></li>
+                    <li><a href="{{ path_for("register") }}">Register</a></li>
+                </ul>
+           {% endif %}
+           </nav>
+        </header>
+
        {% if user %}
             <p>Hello {{ user.username }}</p>
-            <ul>
-                <li><a href="{{ path_for('home') }}">Home</a></li>
-                <li><a href="{{ path_for('projects') }}">Projects</a></li>
-                <li><a href="{{ path_for('account') }}">Account</a></li>
-                <li><a href="{{ path_for('logout') }}">Logout</a></li>
-            </ul>
-        {% else %}
-            <ul>
-                <li><a href="{{ path_for("login") }}">Login</a></li>
-                <li><a href="{{ path_for("register") }}">Register</a></li>
-            </ul>
        {% endif %}
-    </header>
+       {% block content %}
+       {% endblock %}
 
-   {% block content %}
-   {% endblock %}
-
+    </div>
     <footer>
         <p>&copy;{{ "now"|date("Y") }} Hanley Chan</p>
     </footer>

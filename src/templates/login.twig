@@ -2,16 +2,17 @@
 {% import "macros.twig" as macros %}
 
 {% block content %}
-    
-    <p>Login Page</p>
-    {{ macros.displayFlashMessages(flash.message("fail"), flash.message("success")) }}
-    <form action="{{ path_for("processLogin") }}" method="post">
-        <label for="username">Username:</label><br>
-        <input type="text" id="username" name="username"><br>
+    <section id="loginSection"> 
+        <h2>Login:</h2>
+        {{ macros.displayFlashMessages(flash.message("fail"), flash.message("success")) }}
+        <form action="{{ path_for("processLogin") }}" method="post">
+            <label for="username">Username:</label><br>
+            <input type="text" id="username" name="username"><br>
 
-        <label for="password">Password:</label><br>
-        <input type="password" id="password" name="password"><br>
+            <label for="password">Password:</label><br>
+            <input type="password" id="password" name="password"><br>
 
-        <input type="submit" value="Login">
-    </form>
+            <input type="submit" value="Login">
+        </form>
+    </section>
 {% endblock %}

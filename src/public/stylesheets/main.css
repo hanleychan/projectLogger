@@ -1,5 +1,54 @@
-body {
-  background-color: yellow; }
-
 form#toggleAdminForm, form#removeMemberForm {
   display: inline; }
+
+/**
+ * Main Styles
+ */
+body {
+  font-family: 'Cuprum', sans-serif; }
+
+div#wrapper {
+  min-width: 320px;
+  max-width: 940px;
+  margin: 0 auto;
+  border: solid; }
+
+section {
+  margin: 1%; }
+
+footer {
+  text-align: center; }
+
+/**
+ * Navigation Styles
+ */
+header {
+  color: #f2f2f2;
+  background-color: #003380;
+  margin: 1%; }
+  header h1 {
+    margin: 0;
+    padding: 10px;
+    border-bottom: solid 2px #001f4d; }
+    header h1 a {
+      text-decoration: none;
+      color: #f2f2f2;
+      font-weight: bold; }
+    header h1 a:hover {
+      color: #abcdef; }
+  header nav ul {
+    padding: 0;
+    margin: 0; }
+    header nav ul li {
+      list-style-type: none; }
+      header nav ul li a {
+        display: block;
+        text-decoration: none;
+        color: #f2f2f2;
+        padding: 10px; }
+      header nav ul li a:hover {
+        color: #abcdef; }
+
+/**
+ * Login Page Styles
+ */
