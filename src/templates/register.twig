@@ -2,34 +2,36 @@
 {% import "macros.twig" as macros %}
 
 {% block content %}
-    <h2>Register Page</h2>
-    {{ macros.displayFlashMessages(flash.message("fail"), flash.message("success")) }}
+    <section id="registerSection">
+        <h2>Register here:</h2>
+        {{ macros.displayFlashMessages(flash.message("fail"), flash.message("success")) }}
 
-    <form action="{{ path_for('processRegister') }}" method="post" enctype="multipart/form-data">
-        <fieldset>
-        <legend>Login Details</legend>
-        <label for="username">Username: *</label><br>
-        <input type="text" id="username" name="username"{% if postData %} value="{{ postData.username }}" {% endif %}><br>
+        <form id="registerForm" action="{{ path_for('processRegister') }}" method="post" enctype="multipart/form-data">
+            <fieldset>
+                <legend>Login Details</legend>
+                <label for="username">Username: <span class="requiredField">*</span></label>
+                <input type="text" id="username" name="username"{% if postData %} value="{{ postData.username }}" {% endif %} maxlength="12"><br>
 
-        <label for="password">Password: *</label><br>
-        <input type="password" id="password" name="password"><br>
+                <label for="password">Password: <span class="requiredField">*</span></label>
+                <input type="password" id="password" name="password"><br>
 
-        <label for="confirmPassword">Confirm Password: *</label><br>
-        <input type="password" id="password2" name="password2"><br>
-        </fieldset>
+                <label for="confirmPassword">Confirm Password: <span class="requiredField">*</span></label>
+                <input type="password" id="password2" name="password2"><br>
+            </fieldset>
 
-        <fieldset>
-            <legend>Profile</legend>
-            <label for="name">Name:</label><br>
-            <input type="text" id="name" name="name" maxlength="100"{% if postData.name %} value="{{ postData.name }}"{% endif %}><br>
+            <fieldset>
+                <legend>Profile Details</legend>
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" maxlength="100"{% if postData.name %} value="{{ postData.name }}"{% endif %}><br>
 
-            <label for="photo">Photo:</label><br>
-            <input type="file" id="photo" name="photo" accept="image/gif, image/jpeg, image/png"><br>
+                <label for="photo">Photo:</label>
+                <input type="file" id="photo" name="photo" accept="image/gif, image/jpeg, image/png"><br>
 
-            <label for="otherInfo">Other Info:</label><br>
-            <textarea id="otherInfo" name="otherInfo" maxlength="255">{% if postData.otherInfo %}{{ postData.otherInfo }}{% endif %}</textarea><br>
-        </fieldset>
-        
-        <input type="submit" value="Register">
-    </form>
+                <label for="otherInfo">Other Info:</label>
+                <textarea id="otherInfo" name="otherInfo" maxlength="255">{% if postData.otherInfo %}{{ postData.otherInfo }}{% endif %}</textarea>
+            </fieldset>
+            
+            <input type="submit" value="Register">
+        </form>
+    </section>
 {% endblock %}

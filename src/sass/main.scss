@@ -90,7 +90,6 @@ form#loginForm {
     input[type="text"], input[type="password"] {
         padding: 0 1%;
         width: 97%;
-        font-size: 1.2em;
         border-radius: 2.5px;
         margin-left: 1%;
         margin-bottom: 10px;
@@ -107,5 +106,31 @@ form#loginForm {
 
     input:focus {
         border: solid;
+    }
+}
+
+/**
+ * Register Page Styles
+ */
+form#registerForm {
+    @extend #loginForm;
+
+    textarea {
+        @extend input[type="text"];
+        height: 100px;
+    }
+
+    input[type="file"] {
+        @extend input[type="text"];
+        width: initial;
+        margin-bottom: 10px;
+    }
+
+    fieldset {
+        margin-bottom: 10px;
+    }
+
+    span.requiredField {
+        color: red;
     }
 }

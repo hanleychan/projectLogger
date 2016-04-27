@@ -56,23 +56,35 @@ header {
 /**
  * Login Page Styles
  */
-form#loginForm label {
+form#loginForm label, form#registerForm label {
   display: block;
   text-align: left;
   font-weight: bold; }
-form#loginForm input[type="text"], form#loginForm input[type="password"] {
+form#loginForm input[type="text"], form#registerForm input[type="text"], form#registerForm textarea, form#registerForm input[type="file"], form#loginForm input[type="password"], form#registerForm input[type="password"] {
   padding: 0 1%;
   width: 97%;
-  font-size: 1.2em;
   border-radius: 2.5px;
   margin-left: 1%;
   margin-bottom: 10px; }
-form#loginForm input[type="submit"] {
+form#loginForm input[type="submit"], form#registerForm input[type="submit"] {
   margin-top: 10px;
   padding: 1.5% 5%;
   border-radius: 10px;
   background-color: #003380;
   color: #f2f2f2;
   font-weight: bold; }
-form#loginForm input:focus {
+form#loginForm input:focus, form#registerForm input:focus {
   border: solid; }
+
+/**
+ * Register Page Styles
+ */
+form#registerForm textarea {
+  height: 100px; }
+form#registerForm input[type="file"] {
+  width: initial;
+  margin-bottom: 10px; }
+form#registerForm fieldset {
+  margin-bottom: 10px; }
+form#registerForm span.requiredField {
+  color: red; }

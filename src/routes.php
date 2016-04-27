@@ -139,7 +139,9 @@ $app->post('/register', function ($request, $response) {
         return $response->withRedirect($router->pathFor('register'));
     } elseif (!User::isValidPassword($password)) {
         $this->flash->addMessage('fail',
-                                 'Passwords must be at least '.USER::PASSWORD_MIN_LENGTH.' characters long');
+                                 'Passwords must be at between '.
+                                 User::PASSWORD_MIN_LENGTH.' & '.User::PASSWORD_MAX_LENGTH.
+                                 ' characters long');
 
         // Store form data in session variable
         $this->session->setPostData($_POST);

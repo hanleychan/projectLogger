@@ -6,12 +6,14 @@
         <h2>Log in here:</h2>
         {{ macros.displayFlashMessages(flash.message("fail"), flash.message("success")) }}
         <form id="loginForm" action="{{ path_for("processLogin") }}" method="post">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username"><br>
+            <fieldset>
+                <legend>Login</legend>
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username"><br>
 
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password"><br>
-
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password"><br>
+            </fieldset>
             <input type="submit" value="Login">
         </form>
     </section>

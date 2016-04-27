@@ -34,6 +34,25 @@
 
         text-align: center;
     }
+
+    /**
+     * Register Page Styles
+     */
+    form#registerForm {
+        @extend #loginForm;
+
+        input[type="file"] {
+            width: 40%;
+        }
+
+        textarea {
+            @extend input[type="text"];
+        }
+
+        label {
+            vertical-align: top;
+        }
+    }
 }
 
 @media screen and (min-width: 660px) {

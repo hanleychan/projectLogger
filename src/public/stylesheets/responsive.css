@@ -11,13 +11,21 @@
   /**
    * Login Page Styles
    */
-  form#loginForm {
+  form#loginForm, form#registerForm {
     text-align: center; }
-    form#loginForm label {
+    form#loginForm label, form#registerForm label {
       display: inline-block;
       width: 100px; }
-    form#loginForm input[type="text"], form#loginForm input[type="password"] {
-      width: 40%; } }
+    form#loginForm input[type="text"], form#registerForm input[type="text"], form#registerForm textarea, form#loginForm input[type="password"], form#registerForm input[type="password"] {
+      width: 40%; }
+
+  /**
+   * Register Page Styles
+   */
+  form#registerForm input[type="file"] {
+    width: 40%; }
+  form#registerForm label {
+    vertical-align: top; } }
 @media screen and (min-width: 660px) {
   /**
    * Navigation Styles
