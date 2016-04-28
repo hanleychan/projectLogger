@@ -2,11 +2,12 @@
 {% import "macros.twig" as macros %}
 
 {% block content %}
-<h2>Account</h2>
-{{ macros.displayFlashMessages(flash.message("fail"), flash.message("success")) }}
-<ul>
-    <li><a href="{{ path_for('modifyProfile') }}">Update Profile</a></li>
-    <li><a href="{{ path_for('changePassword') }}">Change Password</a></li>
-</ul>
-
+<section id="accountSection">
+    <h2>Account</h2>
+    {{ macros.displayFlashMessages(flash.message("fail"), flash.message("success")) }}
+    <ul>
+        <li><a href="{{ path_for('modifyProfile') }}">Update Profile</a></li>
+        <li><a href="{{ path_for('changePassword') }}">Change Password</a></li>
+    </ul>
+</section>
 {% endblock %}

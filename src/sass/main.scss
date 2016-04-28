@@ -4,6 +4,8 @@ $headerTextColor: $bodyBackgroundColor;
 $headerLinkHoverColor: #abcdef;
 $submitButtonBackgroundColor: $headerBackgroundColor;
 $submitButtonColor: $headerTextColor;
+$linkColor: #003399;
+$linkColorHover: #80aaff;
 
 form#toggleAdminForm, form#removeMemberForm {
     display: inline;
@@ -28,6 +30,13 @@ div#wrapper {
 }
 
 section {
+    a {
+        color: $linkColor;
+    }
+    
+    a:hover {
+        color: $linkColorHover;
+    }
     margin: 2.5%;
 }
 
@@ -154,10 +163,6 @@ section#homePageSection {
         text-decoration: underline;
     }
 
-    a {
-        color: blue;
-    }
-
     section#notifications {
         ul {
             li {
@@ -184,5 +189,23 @@ section#homePageSection {
             }
         }
     }
+}
 
+
+/**
+ * Account Page Styles
+ */
+section#accountSection {
+    ul {
+        li {
+            a {
+                text-decoration: none;
+                font-weight: bold;
+                font-size: 1.1em;
+            }
+
+            margin-bottom: 10px;
+        }
+        list-style-type: none;
+    }
 }
