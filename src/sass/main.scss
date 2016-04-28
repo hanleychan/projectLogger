@@ -44,6 +44,9 @@ footer {
     text-align: center;
 }
 
+p#greeting {
+    margin: 2.5%;
+}
 
 /**
  * Navigation Styles
@@ -60,13 +63,7 @@ header {
         }
         margin: 0;
         padding: 10px;
-    }
-    div#heading {
         border-bottom: solid 2px;
-    }
-
-    p#headerGreeting {
-        display: none;
     }
 
     nav  {

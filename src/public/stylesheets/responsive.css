@@ -3,14 +3,7 @@
    * Navigation styles
    */
   header h1 {
-    font-size: 2.5em;
-    display: inline-block;
-    border: none; }
-  header p#headerGreeting {
-    display: inline-block;
-    float: right;
-    padding-bottom: 5%;
-    padding-right: 2.5%; }
+    font-size: 2.5em; }
   header nav {
     clear: both; }
     header nav ul li {
@@ -40,16 +33,11 @@
    * Navigation Styles
    */
   header {
-    overflow: auto;
-    position: relative; }
+    display: block;
+    overflow: auto; }
     header h1 {
-      border: none;
       display: inline-block;
-      float: left;
-      position: absolute;
-      bottom: 0; }
+      border: none; }
     header nav ul {
-      float: right;
-      position: absolute;
-      bottom: 0;
-      right: 0; } }
+      margin-top: 2.5%;
+      float: right; } }

@@ -5,16 +5,8 @@
     header {
         h1 { 
             font-size: 2.5em;
-            display: inline-block;
-            border: none;
         }
 
-        p#headerGreeting {
-            display: inline-block;
-            float: right;
-            padding-bottom: 5%;
-            padding-right: 2.5%;
-        }
         nav {
             clear: both;
             ul {
@@ -71,23 +63,16 @@
      */
     header {
         h1 {
+            display: inline-block;
             border: none;
-            display: inline-block; 
-            float: left; 
-            position: absolute;
-            bottom: 0;
         }
         nav {
             ul {
-                li {
-                }
+                margin-top: 2.5%;
                 float: right;
-                position: absolute;
-                bottom: 0;
-                right: 0;
             }
         }
+        display: block;
         overflow: auto;
-        position: relative;
     }
 }

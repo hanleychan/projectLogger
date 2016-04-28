@@ -14,13 +14,8 @@
 <body>
     <div id="wrapper">
         <header>
-            <div id="heading">
-                <h1><a href="{{ path_for('home') }}">Project Logger</a></h1>
-                {% if user %}
-                    <p id="headerGreeting">Hello, hanleychan</p>
-                {% endif %}
-            </div>
             <nav>
+            <h1><a href="{{ path_for('home') }}">Project Logger</a></h1>
             {% if user %}
                 <ul>
                     <li><a href="{{ path_for('home') }}">Home</a></li>
@@ -36,6 +31,10 @@
            {% endif %}
            </nav>
         </header>
+        
+        {% if user %}
+            <p id="greeting">Hello, hanleychan</p>
+        {% endif %}
 
        {% block content %}
        {% endblock %}
