@@ -5,8 +5,18 @@
     header {
         h1 { 
             font-size: 2.5em;
+            display: inline-block;
+            border: none;
+        }
+
+        p#headerGreeting {
+            display: inline-block;
+            float: right;
+            padding-bottom: 5%;
+            padding-right: 2.5%;
         }
         nav {
+            clear: both;
             ul {
                 li {
                     display: inline-block;
@@ -64,6 +74,8 @@
             border: none;
             display: inline-block; 
             float: left; 
+            position: absolute;
+            bottom: 0;
         }
         nav {
             ul {

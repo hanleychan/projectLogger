@@ -31,14 +31,17 @@ header {
   margin: 1%; }
   header h1 {
     margin: 0;
-    padding: 10px;
-    border-bottom: solid 2px #001f4d; }
+    padding: 10px; }
     header h1 a {
       text-decoration: none;
       color: #f2f2f2;
       font-weight: bold; }
     header h1 a:hover {
       color: #abcdef; }
+  header div#heading {
+    border-bottom: solid 2px; }
+  header p#headerGreeting {
+    display: none; }
   header nav ul {
     padding: 0;
     margin: 0; }
@@ -73,7 +76,7 @@ form#loginForm input[type="submit"], form#registerForm input[type="submit"] {
   background-color: #003380;
   color: #f2f2f2;
   font-weight: bold; }
-form#loginForm input:focus, form#registerForm input:focus {
+form#loginForm input:focus, form#registerForm input:focus, form#registerForm textarea:focus {
   border: solid; }
 
 /**
@@ -88,3 +91,26 @@ form#registerForm fieldset {
   margin-bottom: 10px; }
 form#registerForm span.requiredField {
   color: red; }
+
+/**
+ * Main Page Styles
+ */
+section#homePageSection h3 {
+  text-decoration: underline; }
+section#homePageSection a {
+  color: blue; }
+section#homePageSection section#notifications ul {
+  padding: 0;
+  margin: 0; }
+  section#homePageSection section#notifications ul li {
+    list-style-type: none;
+    margin-bottom: 5px; }
+section#homePageSection section#notifications form#clearNotificationsForm {
+  margin-bottom: 10px; }
+section#homePageSection section#notifications form.deleteNotificationForm span.notificationText {
+  display: inline-block;
+  margin-left: 1.5%; }
+section#homePageSection section#notifications form.deleteNotificationForm button {
+  border: none;
+  color: red;
+  background-color: #f2f2f2; }

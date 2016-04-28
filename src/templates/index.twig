@@ -2,68 +2,70 @@
 {% import "macros.twig" as macros %}
 
 {% block content %}
-    <h2>Main Page</h2>
-    {{ macros.displayFlashMessages(flash.message("fail"), flash.message("success")) }}
+    <section id="homePageSection">
+        <h2>Home</h2>
+        {{ macros.displayFlashMessages(flash.message("fail"), flash.message("success")) }}
 
-    <section id="notifications">
-        <h3>Notifications:</h3>
-        <div id="notificationMessage"></div>
+        <section id="notifications">
+            <h3>Notifications:</h3>
+            <div id="notificationMessage"></div>
 
-        {% if notifications %}
-            <form action="{{ path_for('deleteAllNotifications') }}" method="post" id="clearNotificationsForm">
-                <button type="submit">Clear All Notifications</button>
-            </form>
-            <ul id="notificationsList">
-            {% for notification in notifications %}
-                <li>
-                    <form action="{{ path_for('deleteNotification') }}" method="post">
-                        {{ notification.date  }}: {{ notification.notification | raw }}
-                        <input type="hidden" name="notificationID" value="{{ notification.id }}">
-                        <button class="deleteNotification">x</button>
-                    </form>
-                </li> 
-            {% endfor %}
-            </ul>
-        {% else %}
-            <p>You have no notifications at this time</p>
-        {% endif %}
-    </section>
-
-    <section id="pendingActions">
-        <h3>Pending Actions</h3>
-        {% if pendingProjectActions %}
-            <ul>
-                {% for pendingProjectAction in pendingProjectActions %}
-                <li>
-                    There are user requests to join project:
-                    <a href="{{ path_for('fetchProjectMembers', {'name':pendingProjectAction.projectName})  }}">
-                        {{ pendingProjectAction.projectName }}
-                    </a>
-                </li>
+            {% if notifications %}
+                <form action="{{ path_for('deleteAllNotifications') }}" method="post" id="clearNotificationsForm">
+                    <button type="submit">Clear All Notifications</button>
+                </form>
+                <ul id="notificationsList">
+                {% for notification in notifications %}
+                    <li>
+                        <form class="deleteNotificationForm" action="{{ path_for('deleteNotification') }}" method="post">
+                            <input type="hidden" name="notificationID" value="{{ notification.id }}">
+                            {{ notification.date  }}: <button class="deleteNotification">(Remove)</button><br> 
+                            <span class="notificationText">{{ notification.notification | raw }}</span>
+                        </form>
+                    </li> 
                 {% endfor %}
-            </ul>
-        {% endif %}
-        {% if not pendingProjectActions %}
-        <p>You have no pending actions at this time</p>
-        {% endif %}
-    </section>
+                </ul>
+            {% else %}
+                <p>You have no notifications at this time</p>
+            {% endif %}
+        </section>
 
-    <section id="pendingJoinRequests">
-        <h3>Pending Project Join Requests</h3>
-        {% if pendingProjects %}
-            <p>You are awaiting acceptance to the below projects</p>
-            <ul>
-                {% for pendingProject in pendingProjects %}
-                <li>
-                    <a href="{{ path_for('fetchProjectLogs', {'name': pendingProject.projectName}) }}">
-                    {{ pendingProject.projectName }}
-                    </a>
-                </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-        <p>You have no pending project requests at this time</p>
-        {% endif %}
+        <section id="pendingActions">
+            <h3>Pending Actions:</h3>
+            {% if pendingProjectActions %}
+                <ul>
+                    {% for pendingProjectAction in pendingProjectActions %}
+                    <li>
+                        There are pending user requests to join project:
+                        <a href="{{ path_for('fetchProjectMembers', {'name':pendingProjectAction.projectName})  }}">
+                            {{ pendingProjectAction.projectName }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            {% if not pendingProjectActions %}
+            <p>You have no pending actions at this time</p>
+            {% endif %}
+        </section>
+
+        <section id="pendingJoinRequests">
+            <h3>Pending Project Join Requests:</h3>
+            {% if pendingProjects %}
+                <p>You are awaiting acceptance to join the below projects</p>
+                <ul>
+                    {% for pendingProject in pendingProjects %}
+                    <li>
+                        <a href="{{ path_for('fetchProjectLogs', {'name': pendingProject.projectName}) }}">
+                        {{ pendingProject.projectName }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+            <p>You have no pending project requests at this time</p>
+            {% endif %}
+        </section>
     </section>
 {% endblock %}
 

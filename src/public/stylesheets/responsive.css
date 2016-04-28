@@ -3,10 +3,19 @@
    * Navigation styles
    */
   header h1 {
-    font-size: 2.5em; }
-  header nav ul li {
+    font-size: 2.5em;
     display: inline-block;
-    font-size: 1.6em; }
+    border: none; }
+  header p#headerGreeting {
+    display: inline-block;
+    float: right;
+    padding-bottom: 5%;
+    padding-right: 2.5%; }
+  header nav {
+    clear: both; }
+    header nav ul li {
+      display: inline-block;
+      font-size: 1.6em; }
 
   /**
    * Login Page Styles
@@ -36,7 +45,9 @@
     header h1 {
       border: none;
       display: inline-block;
-      float: left; }
+      float: left;
+      position: absolute;
+      bottom: 0; }
     header nav ul {
       float: right;
       position: absolute;
