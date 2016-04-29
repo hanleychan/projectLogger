@@ -2,19 +2,22 @@
 {% import "macros.twig" as macros %}
 
 {% block content %}
-<h2>Projects</h2>
-{{ macros.displayFlashMessages(flash.message("fail"), flash.message("success")) }}
+<section id="projectsPage">
+    <h2>Projects</h2>
+    {{ macros.displayFlashMessages(flash.message("fail"), flash.message("success")) }}
 
-<p><a href="{{ path_for('allProjects') }}">Browse all projects</a></p>
-<h3>My Projects</h3>
-<p><a href="{{ path_for("addProject") }}">+ Add New Project</a></p>
-{% if projects %}
-    <ul>
-    {% for project in projects %}
-        <li><a href="{{ path_for('project', {'name': project.projectName}) }}">{{ project.projectName }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-<p>You are not a member of any project groups</p>
-{% endif %}
+    <p><a href="{{ path_for('allProjects') }}">Browse all projects</a></p>
+    <h3>My Projects</h3>
+    <p>You are a member of the below projects:</p>
+    <p id="addProject"><a href="{{ path_for("addProject") }}">+ Add New Project</a></p>
+    {% if projects %}
+        <ul>
+        {% for project in projects %}
+            <li><a href="{{ path_for('project', {'name': project.projectName}) }}">{{ project.projectName }}</a></li>
+        {% endfor %}
+        </ul>
+    {% else %}
+    <p>You are not a member of any project groups</p>
+    {% endif %}
+</section>
 {% endblock %}

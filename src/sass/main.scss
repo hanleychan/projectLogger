@@ -253,3 +253,22 @@ form#updateProfileForm {
 form#changePasswordForm {
     @extend #registerForm;
 }
+
+
+/**
+ * Projects Page Styles
+ */
+section#projectsPage {
+    a {
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    p#addProject {
+        text-decoration: underline;
+    }
+
+    p, ul {
+        margin: 2.5%;
+    }
+}
