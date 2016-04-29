@@ -2,14 +2,18 @@
 {% import "macros.twig" as macros %}
 
 {% block content %}
+<section id="allProjectsSection">
     <h2>All Projects</h2>
     {{ macros.displayFlashMessages(flash.message("fail"), flash.message("success")) }}
 
-    <form action="{{ path_for('allProjects') }}" method="get">
-        <label for="search">Search Projects</label>
+    <form id="searchProjectsForm" action="{{ path_for('allProjects') }}" method="get">
+        <label for="search">Search Projects:</label>
         <input type="text" id="search" name="search"{% if search %} value="{{ search }}"{% endif %}>
-        <input type="submit" value="Search">
-        <button id="clearSearch">Clear</button>
+
+        <div id="searchButtonsDiv">
+            <button type="submit">Search</button>
+            <button id="clearSearch">Clear</button>
+        </div>
     </form>
 
     {% if not projects %}
@@ -17,6 +21,7 @@
     {% else %}
         <div id="projectsList">
             {% if pagination.getNumPages() > 1 %}
+            <div id="paginationDiv">
                 {% set url = path_for('allProjects') %}
                 {% if search %}
                     {% set url = url ~ '?search=' ~ search ~ "&" %}
@@ -24,7 +29,7 @@
                     {% set url = url ~ '?' %}
                 {% endif %}
 
-                <form action="{{ path_for('allProjects') }}" method="get">
+                <form id="pageSelectForm" action="{{ path_for('allProjects') }}" method="get">
                     {% if pagination.hasPrevPage() %}
                         <a href="{{ url ~ "page=" ~ (pagination.currentPage - 1) }}">prev</a>
                     {% endif %}
@@ -43,6 +48,7 @@
                         <a href="{{ url ~ "page=" ~ (pagination.currentPage + 1) }}">next</a> 
                     {% endif %}
                 </form>
+            </div>
             {% endif %}
             <ul>
             {% for project in projects %}
@@ -51,6 +57,7 @@
             </ul>
         </div>
     {% endif %}
+</section>
 {% endblock %}
 
 {% block scripts %}

@@ -70,6 +70,33 @@
     form#changePasswordForm {
         @extend #registerForm;
     }
+
+    /**
+     * All Projects Page Styles
+     */
+    section#allProjectsSection {
+        form#searchProjectsForm {
+            input {
+                width: 40%;
+            }
+            div#searchButtonsDiv {
+                margin: 0;
+                display: inline;
+            }
+            
+        }
+    }
+
+    /**
+     * All Projects Page Styles
+     */
+    section#allProjectsSection {
+        ul {
+            -webkit-column-count: 2;
+            -moz-column-count: 2;
+            column-count: 2;
+        }
+    }
 }
 
 @media screen and (min-width: 768px) {
@@ -115,6 +142,28 @@
             clear: both;
         }
     }
+
+    /**
+     * All Projects Page Styles
+     */
+    section#allProjectsSection {
+        form#searchProjectsForm {
+            input {
+                width: 25%;
+            }
+        }
+    }
+
+    /**
+     * All Projects Page Styles
+     */
+    section#allProjectsSection {
+        ul {
+            -webkit-column-count: 3;
+            -moz-column-count: 3;
+            column-count: 3;
+        }
+    }
 }
 
 @media screen and (min-width: 900px) {
@@ -124,6 +173,17 @@
     form#updateProfileForm {
         img {
             width: 300px;
+        }
+    }
+
+    /**
+     * All Projects Page Styles
+     */
+    section#allProjectsSection {
+        form#searchProjectsForm {
+            input {
+                width: 20%;
+            }
         }
     }
 }

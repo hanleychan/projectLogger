@@ -272,3 +272,37 @@ section#projectsPage {
         margin: 2.5%;
     }
 }
+
+/**
+ * All Projects Page Styles
+ */
+section#allProjectsSection {
+    form#searchProjectsForm {
+        label {
+            display: inline-block;
+            width: 100px;
+        }
+        input {
+            width: 50%;
+        }
+        div#searchButtonsDiv {
+            margin: 2%;
+        }
+    }
+    
+    a {
+        text-decoration: none;
+    }
+
+    ul {
+        list-style-type: none;
+    }
+
+    div#paginationDiv {
+        form#pageSelectForm {
+            font-size: 1.2em;
+        }
+        text-align: center;
+        margin-top: 5%;
+    }
+}

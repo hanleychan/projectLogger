@@ -37,7 +37,23 @@
 
   /**
    * Change Password Page Styles
-   */ }
+   */
+  /**
+   * All Projects Page Styles
+   */
+  section#allProjectsSection form#searchProjectsForm input {
+    width: 40%; }
+  section#allProjectsSection form#searchProjectsForm div#searchButtonsDiv {
+    margin: 0;
+    display: inline; }
+
+  /**
+   * All Projects Page Styles
+   */
+  section#allProjectsSection ul {
+    -webkit-column-count: 2;
+    -moz-column-count: 2;
+    column-count: 2; } }
 @media screen and (min-width: 768px) {
   /**
    * Navigation Styles
@@ -65,10 +81,30 @@
     form#updateProfileForm div#editPhotoDiv label {
       text-align: left; }
   form#updateProfileForm div#editProfileDiv {
-    clear: both; } }
+    clear: both; }
+
+  /**
+   * All Projects Page Styles
+   */
+  section#allProjectsSection form#searchProjectsForm input {
+    width: 25%; }
+
+  /**
+   * All Projects Page Styles
+   */
+  section#allProjectsSection ul {
+    -webkit-column-count: 3;
+    -moz-column-count: 3;
+    column-count: 3; } }
 @media screen and (min-width: 900px) {
   /**
    * Update profile page styles
    */
   form#updateProfileForm img {
-    width: 300px; } }
+    width: 300px; }
+
+  /**
+   * All Projects Page Styles
+   */
+  section#allProjectsSection form#searchProjectsForm input {
+    width: 20%; } }

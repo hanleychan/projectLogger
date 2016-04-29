@@ -162,3 +162,23 @@ section#projectsPage p#addProject {
   text-decoration: underline; }
 section#projectsPage p, section#projectsPage ul {
   margin: 2.5%; }
+
+/**
+ * All Projects Page Styles
+ */
+section#allProjectsSection form#searchProjectsForm label {
+  display: inline-block;
+  width: 100px; }
+section#allProjectsSection form#searchProjectsForm input {
+  width: 50%; }
+section#allProjectsSection form#searchProjectsForm div#searchButtonsDiv {
+  margin: 2%; }
+section#allProjectsSection a {
+  text-decoration: none; }
+section#allProjectsSection ul {
+  list-style-type: none; }
+section#allProjectsSection div#paginationDiv {
+  text-align: center;
+  margin-top: 5%; }
+  section#allProjectsSection div#paginationDiv form#pageSelectForm {
+    font-size: 1.2em; }
