@@ -63,37 +63,39 @@ header {
 /**
  * Login Page Styles
  */
-form#loginForm label, form#registerForm label {
+form#loginForm label, form#registerForm label, form#updateProfileForm label {
   display: block;
   text-align: left;
   font-weight: bold; }
-form#loginForm input[type="text"], form#registerForm input[type="text"], form#registerForm textarea, form#registerForm input[type="file"], form#loginForm input[type="password"], form#registerForm input[type="password"] {
+form#loginForm input[type="text"], form#registerForm input[type="text"], form#updateProfileForm input[type="text"], form#registerForm textarea, form#updateProfileForm textarea, form#registerForm input[type="file"], form#updateProfileForm input[type="file"], form#loginForm input[type="password"], form#registerForm input[type="password"], form#updateProfileForm input[type="password"] {
   padding: 0 1%;
   width: 97%;
   border-radius: 2.5px;
   margin-left: 1%;
   margin-bottom: 10px; }
-form#loginForm input[type="submit"], form#registerForm input[type="submit"] {
+form#loginForm input[type="submit"], form#registerForm input[type="submit"], form#updateProfileForm input[type="submit"], form#updateProfileForm button {
   margin-top: 10px;
   padding: 1.5% 5%;
   border-radius: 10px;
   background-color: #003380;
   color: #f2f2f2;
   font-weight: bold; }
-form#loginForm input:focus, form#registerForm input:focus, form#registerForm textarea:focus {
+form#loginForm input:focus, form#registerForm input:focus, form#updateProfileForm input:focus, form#registerForm textarea:focus, form#updateProfileForm textarea:focus {
   border: solid; }
+form#loginForm input[type="submit"]:focus, form#registerForm input[type="submit"]:focus, form#updateProfileForm input[type="submit"]:focus, form#registerForm textarea[type="submit"]:focus, form#updateProfileForm textarea[type="submit"]:focus, form#updateProfileForm button:focus {
+  border: solid 5px #000; }
 
 /**
  * Register Page Styles
  */
-form#registerForm textarea {
+form#registerForm textarea, form#updateProfileForm textarea {
   height: 100px; }
-form#registerForm input[type="file"] {
+form#registerForm input[type="file"], form#updateProfileForm input[type="file"] {
   width: initial;
   margin-bottom: 10px; }
-form#registerForm fieldset {
+form#registerForm fieldset, form#updateProfileForm fieldset {
   margin-bottom: 10px; }
-form#registerForm span.requiredField {
+form#registerForm span.requiredField, form#updateProfileForm span.requiredField {
   color: red; }
 
 /**
@@ -128,3 +130,18 @@ section#accountSection ul {
       text-decoration: none;
       font-weight: bold;
       font-size: 1.1em; }
+
+/**
+ * Update Profile Page Styles
+ */
+form#updateProfileForm img {
+  display: block;
+  margin: 20px auto;
+  width: 200px; }
+form#updateProfileForm label#removePhotoLabel {
+  display: inline-block;
+  margin-bottom: 10px; }
+form#updateProfileForm input[type="checkbox"] {
+  margin-left: 2%; }
+form#updateProfileForm button:focus {
+  border: solid 5px #000; }

@@ -2,32 +2,42 @@
 {% import "macros.twig" as macros %}
 
 {% block content %}
-<h2>Update Profile</h2>
-{{ macros.displayFlashMessages(flash.message("fail"), flash.message("success")) }}
+<section id="updateProfileSection">
+    <h2>Update Profile</h2>
+    {{ macros.displayFlashMessages(flash.message("fail"), flash.message("success")) }}
 
-<form action="{{ path_for('processModifyProfile') }}" method="post" enctype="multipart/form-data">
-    <input type="hidden" name="MAX_FILE_SIZE" value="{{ maxPhotoSize }}">
+    <form id="updateProfileForm" action="{{ path_for('processModifyProfile') }}" method="post" enctype="multipart/form-data">
+        <fieldset>
+            <input type="hidden" name="MAX_FILE_SIZE" value="{{ maxPhotoSize }}">
 
-    {% if profile.photoName and profile.photoPath %}
-        <img src="{{ path_for('home') ~ profile.photoPath ~ '/' ~ profile.photoName  }}" alt="profilePhoto"><br>
-    {% else %}
-        <img src="{{ path_for('home') ~ "images/noPhoto.png" }}" alt="profilePhoto"><br>
-    {% endif %}
+            <div id="photoDiv">
+                <label id="yourPhoto">Your Photo:</label>
+                {% if profile.photoName and profile.photoPath %}
+                    <img src="{{ path_for('home') ~ profile.photoPath ~ '/' ~ profile.photoName  }}" alt="profilePhoto">
+                {% else %}
+                    <img src="{{ path_for('home') ~ "images/noPhoto.png" }}" alt="profilePhoto">
+                {% endif %}
+            </div>
 
-    <label for="photo">Photo:</label>
-    <input type="file" id="photo" name="photo" accept="image/gif, image/jpeg, image/png"><br>
-    <label for="removePhoto">Remove Photo</label>
-    <input type="checkbox" id="removePhoto" name="removePhoto" value="removePhoto"><br>
+            <div id="editPhotoDiv">
+                <label for="photo">Upload Photo:</label>
+                <input type="file" id="photo" name="photo" accept="image/gif, image/jpeg, image/png"><br>
+                {% if profile.photoName and profile.photoPath %}
+                    <label for="removePhoto" id="removePhotoLabel">Reset Photo:</label>
+                    <input type="checkbox" id="removePhoto" name="removePhoto" value="removePhoto"><br>
+                {% endif %}
+            </div>
 
+            <div id="editProfileDiv">
+                <label for="name">Name:</label>
+                <input type="text" name="name" id="name" {% if postData.name %} value="{{ postData.name}}"{% elseif profile.name %} value="{{ profile.name }}"{% endif %} maxlength="100"><br>
 
-    <label for="name">Name:</label><br>
-    <input type="text" name="name" id="name" {% if postData.name %} value="{{ postData.name}}"{% elseif profile.name %} value="{{ profile.name }}"{% endif %} maxlength="100"><br>
-
-    <label for="otherInfo">Other Info:</label><br>
-    <textarea id="otherInfo" name="otherInfo" maxlength="255">{% if postData.otherInfo %}{{ postData.otherInfo }}{% elseif profile.otherInfo %}{{ profile.otherInfo }}{% endif %}</textarea><br>
-    
-    <button type="submit" name="action" value="save">Save</button>
-    <button type="submit" name="action" value="cancel">Cancel</button>
-
-</form>
+                <label for="otherInfo">Other Info:</label>
+                <textarea id="otherInfo" name="otherInfo" maxlength="255">{% if postData.otherInfo %}{{ postData.otherInfo }}{% elseif profile.otherInfo %}{{ profile.otherInfo }}{% endif %}</textarea><br>
+            </div>
+        </fieldset>
+        <button type="submit" name="action" value="save">Save</button>
+        <button type="submit" name="action" value="cancel">Cancel</button>
+    </form>
+</section>
 {% endblock %}

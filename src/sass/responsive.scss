@@ -1,4 +1,4 @@
-@media screen and (min-width:500px) {
+@media screen and (min-width:550px) {
     /**
      * Navigation styles
      */
@@ -15,7 +15,6 @@
                     font-size: 1.6em;
                 }
             }
-
         }
     }
 
@@ -25,16 +24,16 @@
     form#loginForm {
         label {
             display: inline-block;
-            width: 100px;
+            width: 150px;
+            text-align: right;
         }
 
         input[type="text"], input[type="password"] {
-            width: 40%;
+            width: 60%;
         }
         input[type="submit"] {
         }
 
-        text-align: center;
     }
 
     /**
@@ -44,7 +43,7 @@
         @extend #loginForm;
 
         input[type="file"] {
-            width: 40%;
+            width: 60%;
         }
 
         textarea {
@@ -55,9 +54,20 @@
             vertical-align: top;
         }
     }
+
+    form#updateProfileForm {
+        @extend #registerForm;
+
+        label {
+            text-align: right;
+            display: inline-block;
+            width: 150px;
+        }
+
+    }
 }
 
-@media screen and (min-width: 660px) {
+@media screen and (min-width: 768px) {
     /**
      * Navigation Styles
      */
@@ -74,5 +84,41 @@
         }
         display: block;
         overflow: auto;
+    }
+
+    /**
+     * Update Profile Page Styles
+     */
+    form#updateProfileForm {
+        div#photoDiv {
+            margin-left: 5%;
+            float: left;
+        }
+
+        div#editPhotoDiv {
+            label{
+                text-align: left;
+            }
+
+            margin-left: 2%;
+            display: inline-block;
+            margin-top: 5%;
+        }
+
+
+        div#editProfileDiv {
+            clear: both;
+        }
+    }
+}
+
+@media screen and (min-width: 900px) {
+    /**
+     * Update profile page styles
+     */
+    form#updateProfileForm {
+        img {
+            width: 300px;
+        }
     }
 }

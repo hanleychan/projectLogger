@@ -56,7 +56,7 @@ class Profile extends DatabaseObject
     public static function resizePhoto($photo)
     {
         $resizedPhoto = new Imagick($photo);
-        $resizedPhoto->resizeImage(200,200, Imagick::FILTER_UNDEFINED, 1, true);
+        $resizedPhoto->resizeImage(300,300, Imagick::FILTER_UNDEFINED, 1, true);
         $resizedPhoto->writeImage($photo);
         $resizedPhoto->destroy();
     }

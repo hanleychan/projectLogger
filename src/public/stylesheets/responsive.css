@@ -1,4 +1,4 @@
-@media screen and (min-width: 500px) {
+@media screen and (min-width: 550px) {
   /**
    * Navigation styles
    */
@@ -13,22 +13,26 @@
   /**
    * Login Page Styles
    */
-  form#loginForm, form#registerForm {
-    text-align: center; }
-    form#loginForm label, form#registerForm label {
-      display: inline-block;
-      width: 100px; }
-    form#loginForm input[type="text"], form#registerForm input[type="text"], form#registerForm textarea, form#loginForm input[type="password"], form#registerForm input[type="password"] {
-      width: 40%; }
+  form#loginForm label, form#registerForm label, form#updateProfileForm label {
+    display: inline-block;
+    width: 150px;
+    text-align: right; }
+  form#loginForm input[type="text"], form#registerForm input[type="text"], form#updateProfileForm input[type="text"], form#registerForm textarea, form#updateProfileForm textarea, form#loginForm input[type="password"], form#registerForm input[type="password"], form#updateProfileForm input[type="password"] {
+    width: 60%; }
 
   /**
    * Register Page Styles
    */
-  form#registerForm input[type="file"] {
-    width: 40%; }
-  form#registerForm label {
-    vertical-align: top; } }
-@media screen and (min-width: 660px) {
+  form#registerForm input[type="file"], form#updateProfileForm input[type="file"] {
+    width: 60%; }
+  form#registerForm label, form#updateProfileForm label {
+    vertical-align: top; }
+
+  form#updateProfileForm label {
+    text-align: right;
+    display: inline-block;
+    width: 150px; } }
+@media screen and (min-width: 768px) {
   /**
    * Navigation Styles
    */
@@ -40,4 +44,25 @@
       border: none; }
     header nav ul {
       margin-top: 2.5%;
-      float: right; } }
+      float: right; }
+
+  /**
+   * Update Profile Page Styles
+   */
+  form#updateProfileForm div#photoDiv {
+    margin-left: 5%;
+    float: left; }
+  form#updateProfileForm div#editPhotoDiv {
+    margin-left: 2%;
+    display: inline-block;
+    margin-top: 5%; }
+    form#updateProfileForm div#editPhotoDiv label {
+      text-align: left; }
+  form#updateProfileForm div#editProfileDiv {
+    clear: both; } }
+@media screen and (min-width: 900px) {
+  /**
+   * Update profile page styles
+   */
+  form#updateProfileForm img {
+    width: 300px; } }

@@ -120,6 +120,11 @@ form#loginForm {
     input:focus {
         border: solid;
     }
+
+    input[type="submit"]:focus {
+        border: solid 5px #000;
+    }
+
 }
 
 /**
@@ -205,4 +210,35 @@ section#accountSection {
         }
         list-style-type: none;
     }
+}
+
+/**
+ * Update Profile Page Styles
+ */
+form#updateProfileForm {
+    @extend #registerForm;
+    img {
+        display: block;
+        margin: 20px auto;
+        width: 200px;
+    }
+
+
+    label#removePhotoLabel {
+        display: inline-block;
+        margin-bottom: 10px;
+    }
+
+    input[type="checkbox"] {
+        margin-left: 2%;
+    }
+
+    button {
+        @extend input[type="submit"];
+    }
+
+    button:focus {
+        border: solid 5px #000;
+    }
+
 }
