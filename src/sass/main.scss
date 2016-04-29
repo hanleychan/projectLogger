@@ -216,6 +216,43 @@ section#accountSection {
     }
 }
 
+
+/**
+ * Profile Page Styles
+ */
+section#profileSection {
+    p {
+        text-align: center;
+        margin-bottom: 3%;
+    }
+
+    a {
+        text-decoration: none;
+    }
+
+    span.profileHeading {
+        display: block;
+        font-weight: bold;
+    }
+
+    span.profileContent {
+        display: inline-block;
+        margin-left: 5%;
+        max-width: 90%;
+        word-wrap: break-word;
+    }
+
+    ul {
+        li {
+            margin-bottom: 10px;
+        }
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+    }
+}
+
+
 /**
  * Update Profile Page Styles
  */
@@ -317,3 +354,4 @@ section#allProjectsSection {
 form#addProjectForm {
     @extend #loginForm;
 }
+

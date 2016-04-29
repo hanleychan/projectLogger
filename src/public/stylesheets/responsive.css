@@ -29,6 +29,21 @@
     vertical-align: top; }
 
   /**
+   * Profile Page Styles
+   */
+  section#profileSection span.profileHeading {
+    display: inline-block;
+    width: 100px;
+    vertical-align: top; }
+  section#profileSection span.profileContent {
+    margin-left: 1%;
+    max-width: 70%; }
+  section#profileSection ul#projectsList {
+    -webkit-column-count: 2;
+    -moz-column-count: 2;
+    column-count: 2; }
+
+  /**
    * Update Profile Page Styles
    */
   form#updateProfileForm label {
@@ -77,6 +92,14 @@
       float: right; }
 
   /**
+   * Profile Page Styles
+   */
+  section#profileSection ul#projectsList {
+    -webkit-column-count: 3;
+    -moz-column-count: 3;
+    column-count: 3; }
+
+  /**
    * Update Profile Page Styles
    */
   form#updateProfileForm div#photoDiv {
@@ -109,6 +132,14 @@
     -moz-column-count: 3;
     column-count: 3; } }
 @media screen and (min-width: 900px) {
+  /**
+   * Profile Page Styles
+   */
+  section#profileSection ul#projectsList {
+    -webkit-column-count: 4;
+    -moz-column-count: 4;
+    column-count: 4; }
+
   /**
    * Update profile page styles
    */

@@ -135,6 +135,33 @@ section#accountSection ul {
       font-size: 1.1em; }
 
 /**
+ * Profile Page Styles
+ */
+section#profileSection p {
+  text-align: center;
+  margin-bottom: 3%; }
+section#profileSection a {
+  text-decoration: none; }
+section#profileSection span.profileHeading {
+  display: block;
+  font-weight: bold; }
+section#profileSection span.profileContent {
+  display: inline-block;
+  margin-left: 5%;
+  max-width: 90%;
+  word-wrap: break-word;
+  -webkit-hyphens: auto;
+  -moz-hyphens: auto;
+  -ms-hyphens: auto;
+  hyphens: auto; }
+section#profileSection ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0; }
+  section#profileSection ul li {
+    margin-bottom: 10px; }
+
+/**
  * Update Profile Page Styles
  */
 form#updateProfileForm img {

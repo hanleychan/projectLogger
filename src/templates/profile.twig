@@ -1,27 +1,37 @@
 {% extends 'layout.twig' %}
 
 {% block content %}
-<h2>Profile: {{ profile.username }}</h2>
-{% if profile.photoPath and profile.photoName %}
-<img src="{{ path_for('home') ~ profile.photoPath ~ '/' ~ profile.photoName }}" alt="profile_photo">
-{% else %}
-<img src="{{ path_for('home') ~ "images/noPhoto.png" }}" alt="profile_photo">
-{% endif %}
-<ul>
-    <li>Name:<br>{% if profile.name %}{{ profile.name }}{% else %}N/A{% endif %}</li>
-    <li>Member since:<br> {{ profile.joinDate }}</li>
-    <li>Other Info:<br>{% if profile.otherInfo %}{{ profile.otherInfo | nl2br }}{% else %}N/A{% endif %}</li>
-</ul>
-
-{% if projects %}
-<h3>{{ profile.username }} is a member of the following projects:</h3>
+<section id="profileSection">
+    <h2>Profile: {{ profile.username }}</h2>
+    {% if profile.photoPath and profile.photoName %}
+    <p><img src="{{ path_for('home') ~ profile.photoPath ~ '/' ~ profile.photoName }}" alt="profile_photo"></p>
+    {% else %}
+    <p><img src="{{ path_for('home') ~ "images/noPhoto.png" }}" alt="profile_photo"></p>
+    {% endif %}
     <ul>
-    {% for project in projects %}
-       <li><a href="{{ path_for('project', {'name':project.projectName}) }}">{{ project.projectName }}</a></li>
-    {% endfor %}
+        <li>
+            <span class="profileHeading">Name:</span>
+            <span class="profileContent">{% if profile.name %}{{ profile.name }}{% else %}N/A{% endif %}</span>
+        </li>
+        <li>
+            <span class="profileHeading">Member since:</span>
+            <span class="profileContent">{{ profile.joinDate }}</span>
+        </li>
+        <li>
+            <span class="profileHeading">Other Info:</span>
+            <span class="profileContent">{% if profile.otherInfo %}{{ profile.otherInfo | nl2br }}{% else %}N/A{% endif %}</span>
+        </li>
     </ul>
-{% else %}
-<p>{{ profile.username }} is not a member of any projects</p>
-{% endif %}
 
+    {% if projects %}
+    <h3>{{ profile.username }} is a member of the following projects:</h3>
+        <ul id="projectsList">
+        {% for project in projects %}
+           <li><a href="{{ path_for('project', {'name':project.projectName}) }}">{{ project.projectName }}</a></li>
+        {% endfor %}
+        </ul>
+    {% else %}
+    <p>{{ profile.username }} is not a member of any projects</p>
+    {% endif %}
+</section>
 {% endblock %}
