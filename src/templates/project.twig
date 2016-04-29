@@ -7,10 +7,15 @@
 
 {% block content %}
 <section id="projectSection">
-    <h2>Project: {{ project.projectName }}</h2>
+    <h2>
+        Project: {{ project.projectName }}
+        <span id="projectActionsHeading"><a href="{{ path_for('projectActions', {'name': project.projectName}) }}">(Project Actions)</a></span>
+    </h2>
     {{ macros.displayFlashMessages(flash.message("fail"), flash.message("success")) }}
 
-    <p><a href="{{ path_for('projectActions', {'name': project.projectName})  }}">Project Actions</a></p>
+    <p id="projectActionsParagraph">
+        <a id="projectActionsLink"href="{{ path_for('projectActions', {'name': project.projectName}) }}">Project Actions</a>
+    </p>
 
     {% if not projectMember %}
             {% if userHasJoinRequest %}
@@ -33,7 +38,9 @@
         {% endif %}
         
     </ul>
-    <ul>
+
+    <h3 id="viewHeading">Select View:</h3>
+    <ul id="selectViewList">
         <li id="log"><a href="{{ path_for('fetchProjectLogs', {'name': project.projectName}) }}">View Log Entries</a></li>
         <li id="members"><a href="{{ path_for('fetchProjectMembers', {'name': project.projectName}) }}">View Members</a></li>
         {% if projectMember %}

@@ -76,7 +76,24 @@
 
   /**
    * Add Project Page Styles
-   */ }
+   */
+  /**
+   * Project Page Styles
+   */
+  section#projectSection h3#viewHeading {
+    display: inline-block;
+    margin-top: 10px; }
+  section#projectSection ul#selectViewList {
+    margin-top: 10px; }
+    section#projectSection ul#selectViewList li {
+      display: inline-block;
+      width: 150px; }
+  section#projectSection p#projectActionsParagraph {
+    display: none; }
+  section#projectSection h2 {
+    font-size: 1.2em; }
+  section#projectSection span#projectActionsHeading {
+    display: initial; } }
 @media screen and (min-width: 768px) {
   /**
    * Navigation Styles

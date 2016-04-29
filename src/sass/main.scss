@@ -245,6 +245,7 @@ section#profileSection {
     ul {
         li {
             margin-bottom: 10px;
+            margin-left: 10px;
         }
         list-style-type: none;
         margin: 0;
@@ -355,3 +356,38 @@ form#addProjectForm {
     @extend #loginForm;
 }
 
+
+/**
+ * Project Page Styles
+ */
+section#projectSection {
+    h3 {
+        padding: 0;
+        margin: 0;
+    }
+
+    a {
+        text-decoration: none;
+    }
+
+    a#projectActionsLink {
+        font-weight: bold;
+        font-size: 1.2em;
+    }
+
+    ul {
+        list-style-type: none;
+        margin-left: 1%;
+        padding: 0;
+    }
+
+    ul#selectViewList {
+        font-size: 1.2em;
+        padding-top: 0;
+        margin-top: 0;
+    }
+
+    span#projectActionsHeading {
+        display: none;
+    }
+}
