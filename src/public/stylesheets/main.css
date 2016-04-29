@@ -162,6 +162,8 @@ section#projectsPage p#addProject {
   text-decoration: underline; }
 section#projectsPage p, section#projectsPage ul {
   margin: 2.5%; }
+section#projectsPage ul {
+  list-style-type: none; }
 
 /**
  * All Projects Page Styles

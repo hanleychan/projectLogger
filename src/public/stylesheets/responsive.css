@@ -39,6 +39,14 @@
    * Change Password Page Styles
    */
   /**
+   * Projects Page Styles
+   */
+  section#projectsPage ul {
+    -webkit-column-count: 2;
+    -moz-column-count: 2;
+    column-count: 2; }
+
+  /**
    * All Projects Page Styles
    */
   section#allProjectsSection form#searchProjectsForm input {
@@ -46,10 +54,6 @@
   section#allProjectsSection form#searchProjectsForm div#searchButtonsDiv {
     margin: 0;
     display: inline; }
-
-  /**
-   * All Projects Page Styles
-   */
   section#allProjectsSection ul {
     -webkit-column-count: 2;
     -moz-column-count: 2;
@@ -84,14 +88,18 @@
     clear: both; }
 
   /**
-   * All Projects Page Styles
+   * Projects Page Styles
    */
-  section#allProjectsSection form#searchProjectsForm input {
-    width: 25%; }
+  section#projectsPage ul {
+    -webkit-column-count: 3;
+    -moz-column-count: 3;
+    column-count: 3; }
 
   /**
    * All Projects Page Styles
    */
+  section#allProjectsSection form#searchProjectsForm input {
+    width: 25%; }
   section#allProjectsSection ul {
     -webkit-column-count: 3;
     -moz-column-count: 3;
@@ -104,7 +112,19 @@
     width: 300px; }
 
   /**
+   * Projects Page Styles
+   */
+  section#projectsPage ul {
+    -webkit-column-count: 4;
+    -moz-column-count: 4;
+    column-count: 4; }
+
+  /**
    * All Projects Page Styles
    */
   section#allProjectsSection form#searchProjectsForm input {
-    width: 20%; } }
+    width: 20%; }
+  section#allProjectsSection ul {
+    -webkit-column-count: 4;
+    -moz-column-count: 4;
+    column-count: 4; } }
