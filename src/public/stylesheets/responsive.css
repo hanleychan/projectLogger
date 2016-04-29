@@ -13,11 +13,11 @@
   /**
    * Login Page Styles
    */
-  form#loginForm label, form#registerForm label, form#updateProfileForm label, form#changePasswordForm label {
+  form#loginForm label, form#registerForm label, form#updateProfileForm label, form#changePasswordForm label, form#addProjectForm label {
     display: inline-block;
     width: 200px;
     text-align: right; }
-  form#loginForm input[type="text"], form#registerForm input[type="text"], form#updateProfileForm input[type="text"], form#changePasswordForm input[type="text"], form#registerForm textarea, form#updateProfileForm textarea, form#changePasswordForm textarea, form#loginForm input[type="password"], form#registerForm input[type="password"], form#updateProfileForm input[type="password"], form#changePasswordForm input[type="password"] {
+  form#loginForm input[type="text"], form#registerForm input[type="text"], form#updateProfileForm input[type="text"], form#changePasswordForm input[type="text"], form#addProjectForm input[type="text"], form#registerForm textarea, form#updateProfileForm textarea, form#changePasswordForm textarea, form#loginForm input[type="password"], form#registerForm input[type="password"], form#updateProfileForm input[type="password"], form#changePasswordForm input[type="password"], form#addProjectForm input[type="password"] {
     width: 55%; }
 
   /**
@@ -57,7 +57,11 @@
   section#allProjectsSection ul {
     -webkit-column-count: 2;
     -moz-column-count: 2;
-    column-count: 2; } }
+    column-count: 2; }
+
+  /**
+   * Add Project Page Styles
+   */ }
 @media screen and (min-width: 768px) {
   /**
    * Navigation Styles

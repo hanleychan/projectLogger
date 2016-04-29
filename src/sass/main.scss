@@ -310,3 +310,10 @@ section#allProjectsSection {
         margin-top: 5%;
     }
 }
+
+/**
+ * Add Project Page Styles
+ */
+form#addProjectForm {
+    @extend #loginForm;
+}

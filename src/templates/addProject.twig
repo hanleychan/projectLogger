@@ -3,11 +3,16 @@
 
 {% block content %}
 <h2>Add project</h2>
-{{ macros.displayFlashMessages(flash.message("fail"), flash.message("success")) }}
-<form action="{{ path_for('processAddProject') }}" method="post">
-    <label for="projectName">Project Name:</label><br>
-    <input type="text" id="projectName" name="projectName"><br>
-    <input type="submit" value="Create">
-</form>
-<p><a>Return</a></p>
+<section id="addProjectSection">
+    {{ macros.displayFlashMessages(flash.message("fail"), flash.message("success")) }}
+    <form id="addProjectForm" action="{{ path_for('processAddProject') }}" method="post">
+        <fieldset>
+            <label for="projectName">Project Name:</label>
+            <input type="text" id="projectName" name="projectName"><br>
+        </fieldset>
+        <div id="submitButtons">
+            <input type="submit" value="Create">
+        </div>
+    </form>
+</section>
 {% endblock %}
