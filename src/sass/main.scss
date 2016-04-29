@@ -46,6 +46,7 @@ footer {
 
 p#greeting {
     margin: 2.5%;
+    text-align: right;
 }
 
 /**
@@ -125,6 +126,9 @@ form#loginForm {
         border: solid 5px #000;
     }
 
+    div#submitButtons {
+        text-align: center;
+    }
 }
 
 /**
@@ -241,4 +245,11 @@ form#updateProfileForm {
         border: solid 5px #000;
     }
 
+}
+
+/**
+ * Change Password Page Styles
+ */
+form#changePasswordForm {
+    @extend #registerForm;
 }

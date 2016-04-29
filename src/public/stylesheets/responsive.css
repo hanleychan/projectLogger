@@ -13,25 +13,31 @@
   /**
    * Login Page Styles
    */
-  form#loginForm label, form#registerForm label, form#updateProfileForm label {
+  form#loginForm label, form#registerForm label, form#updateProfileForm label, form#changePasswordForm label {
     display: inline-block;
-    width: 150px;
+    width: 200px;
     text-align: right; }
-  form#loginForm input[type="text"], form#registerForm input[type="text"], form#updateProfileForm input[type="text"], form#registerForm textarea, form#updateProfileForm textarea, form#loginForm input[type="password"], form#registerForm input[type="password"], form#updateProfileForm input[type="password"] {
-    width: 60%; }
+  form#loginForm input[type="text"], form#registerForm input[type="text"], form#updateProfileForm input[type="text"], form#changePasswordForm input[type="text"], form#registerForm textarea, form#updateProfileForm textarea, form#changePasswordForm textarea, form#loginForm input[type="password"], form#registerForm input[type="password"], form#updateProfileForm input[type="password"], form#changePasswordForm input[type="password"] {
+    width: 55%; }
 
   /**
    * Register Page Styles
    */
-  form#registerForm input[type="file"], form#updateProfileForm input[type="file"] {
-    width: 60%; }
-  form#registerForm label, form#updateProfileForm label {
+  form#registerForm input[type="file"], form#updateProfileForm input[type="file"], form#changePasswordForm input[type="file"] {
+    width: 55%; }
+  form#registerForm label, form#updateProfileForm label, form#changePasswordForm label {
     vertical-align: top; }
 
+  /**
+   * Update Profile Page Styles
+   */
   form#updateProfileForm label {
-    text-align: right;
     display: inline-block;
-    width: 150px; } }
+    width: 150px; }
+
+  /**
+   * Change Password Page Styles
+   */ }
 @media screen and (min-width: 768px) {
   /**
    * Navigation Styles

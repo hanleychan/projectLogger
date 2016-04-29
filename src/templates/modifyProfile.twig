@@ -36,8 +36,11 @@
                 <textarea id="otherInfo" name="otherInfo" maxlength="255">{% if postData.otherInfo %}{{ postData.otherInfo }}{% elseif profile.otherInfo %}{{ profile.otherInfo }}{% endif %}</textarea><br>
             </div>
         </fieldset>
-        <button type="submit" name="action" value="save">Save</button>
-        <button type="submit" name="action" value="cancel">Cancel</button>
+        
+        <div id="submitButtons">
+            <button type="submit" name="action" value="save">Save</button>
+            <button type="submit" name="action" value="cancel">Cancel</button>
+        </div>
     </form>
 </section>
 {% endblock %}

@@ -31,7 +31,9 @@
                 <textarea id="otherInfo" name="otherInfo" maxlength="255">{% if postData.otherInfo %}{{ postData.otherInfo }}{% endif %}</textarea>
             </fieldset>
             
-            <input type="submit" value="Register">
+            <div id="submitButtons">
+                <input type="submit" value="Register">
+            </div>
         </form>
     </section>
 {% endblock %}
