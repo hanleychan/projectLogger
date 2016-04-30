@@ -289,7 +289,7 @@ form#updateProfileForm {
  * Change Password Page Styles
  */
 form#changePasswordForm {
-    @extend #registerForm;
+    @extend #updateProfileForm;
 }
 
 

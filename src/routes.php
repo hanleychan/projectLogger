@@ -1667,7 +1667,15 @@ $app->post('/account/password', function ($request, $response) {
     $password = $this->request->getParam("currentPassword");
     $newPassword = $this->request->getParam("newPassword");
     $newPassword2 = $this->request->getParam("newPassword2");
- 
+    $action = trim(strtolower($this->request->getParam("action")));
+
+    if($action === "cancel") {
+        return $response->withRedirect($router->pathFor('account'));
+    } elseif ($action !== "save") {
+        $this->flash->addMessage("fail", "There was an error processing your request");
+        return $response->withRedirect($router->pathFor('account'));
+    }
+    
     // Check if current password is correct
     if (!password_verify($password, $user->password)) {
         $this->flash->addMessage('fail', 'Current password was entered incorrectly');

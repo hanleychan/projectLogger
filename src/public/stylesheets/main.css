@@ -74,7 +74,7 @@ form#loginForm input[type="text"], form#registerForm input[type="text"], form#up
   border-radius: 2.5px;
   margin-left: 1%;
   margin-bottom: 10px; }
-form#loginForm input[type="submit"], form#registerForm input[type="submit"], form#updateProfileForm input[type="submit"], form#changePasswordForm input[type="submit"], form#addProjectForm input[type="submit"], form#updateProfileForm button {
+form#loginForm input[type="submit"], form#registerForm input[type="submit"], form#updateProfileForm input[type="submit"], form#changePasswordForm input[type="submit"], form#addProjectForm input[type="submit"], form#updateProfileForm button, form#changePasswordForm button {
   margin-top: 10px;
   padding: 1.5% 5%;
   border-radius: 10px;
@@ -83,7 +83,7 @@ form#loginForm input[type="submit"], form#registerForm input[type="submit"], for
   font-weight: bold; }
 form#loginForm input:focus, form#registerForm input:focus, form#updateProfileForm input:focus, form#changePasswordForm input:focus, form#addProjectForm input:focus, form#registerForm textarea:focus, form#updateProfileForm textarea:focus, form#changePasswordForm textarea:focus {
   border: solid; }
-form#loginForm input[type="submit"]:focus, form#registerForm input[type="submit"]:focus, form#updateProfileForm input[type="submit"]:focus, form#changePasswordForm input[type="submit"]:focus, form#addProjectForm input[type="submit"]:focus, form#registerForm textarea[type="submit"]:focus, form#updateProfileForm textarea[type="submit"]:focus, form#changePasswordForm textarea[type="submit"]:focus, form#updateProfileForm button:focus {
+form#loginForm input[type="submit"]:focus, form#registerForm input[type="submit"]:focus, form#updateProfileForm input[type="submit"]:focus, form#changePasswordForm input[type="submit"]:focus, form#addProjectForm input[type="submit"]:focus, form#registerForm textarea[type="submit"]:focus, form#updateProfileForm textarea[type="submit"]:focus, form#changePasswordForm textarea[type="submit"]:focus, form#updateProfileForm button:focus, form#changePasswordForm button:focus {
   border: solid 5px #000; }
 form#loginForm div#submitButtons, form#registerForm div#submitButtons, form#updateProfileForm div#submitButtons, form#changePasswordForm div#submitButtons, form#addProjectForm div#submitButtons {
   text-align: center; }
@@ -161,16 +161,16 @@ section#profileSection ul {
 /**
  * Update Profile Page Styles
  */
-form#updateProfileForm img {
+form#updateProfileForm img, form#changePasswordForm img {
   display: block;
   margin: 20px auto;
   width: 200px; }
-form#updateProfileForm label#removePhotoLabel {
+form#updateProfileForm label#removePhotoLabel, form#changePasswordForm label#removePhotoLabel {
   display: inline-block;
   margin-bottom: 10px; }
-form#updateProfileForm input[type="checkbox"] {
+form#updateProfileForm input[type="checkbox"], form#changePasswordForm input[type="checkbox"] {
   margin-left: 2%; }
-form#updateProfileForm button:focus {
+form#updateProfileForm button:focus, form#changePasswordForm button:focus {
   border: solid 5px #000; }
 
 /**
