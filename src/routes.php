@@ -8,7 +8,7 @@ $app->get('/', function ($request, $response) {
     $notifications = Notification::getNotifications($this->db, $user->id);
 
     // Fetch pending actions
-    $pendingProjectActions = RequestJoinProject::getAllRequestsForOwner($this->db, $user->id);
+    $pendingProjectActions = RequestJoinProject::getProjectsWithPendingRequestsForOwner($this->db, $user->id);
 
     // Fetch pending project requests
     $pendingProjects = RequestJoinProject::getAllRequestsForUser($this->db, $user->id);

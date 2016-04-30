@@ -65,9 +65,9 @@ class RequestJoinProject extends DatabaseObject
         }
     }
 
-    public static function getAllRequestsForOwner($db, $userID)
+    public static function getProjectsWithPendingRequestsForOwner($db, $userID)
     {
-        $sql = "SELECT projectName ";
+        $sql = "SELECT DISTINCT projectName ";
         $sql .= "FROM requestjoinproject INNER JOIN projects ON projectID = projects.id ";
         $sql .= "WHERE ownerID = " . (int)$userID;
         $result = self::findBySQL($db, $sql);
