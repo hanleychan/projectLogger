@@ -1110,6 +1110,7 @@ $app->get('/project/{name}/actions', function ($request, $response, $args) {
     $isOwner = $project->ownerID === $user->id;
     $isAdmin = ProjectMember::isProjectAdmin($this->db, $name, $user->id);
     $projectMember = true;
+    $project->dateAdded = ProjectLog::formatDateFromSQL($project->dateAdded);
 
     // Get combined minutes of all users for this project
     $totalMinutes = ProjectLog::getTotalTimeByProjectName($this->db, $name);

@@ -526,3 +526,14 @@ section#addEditLogSection {
     }
     margin: 0;
 }
+
+
+/**
+ * Project Actions Page Styles
+ */
+section#projectActionsSection {
+    ul#selectProjectActionList {
+        @extend #selectViewList;
+    }
+    margin-left: 0;
+}
