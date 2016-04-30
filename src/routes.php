@@ -1317,6 +1317,7 @@ $app->get('/project/{name}/rename', function ($request, $response, $args) {
 
     // Get form session data if available
     $postData = $this->session->getPostData();
+    $project->dateAdded = ProjectLog::formatDateFromSQL($project->dateAdded);
 
     // Get combined minutes of all users for this project
     $totalMinutes = ProjectLog::getTotalTimeByProjectName($this->db, $name);
@@ -1446,7 +1447,15 @@ $app->post('/project/{name}/transferOwnership/confirm', function ($request, $res
     $page = 'confirmTransferOwnership';
     $name = trim($args['name']);
     $newOwner = trim($request->getParam('newOwner'));
+    $action = trim(strtolower($request->getParam('action')));
     $user = User::findById($this->db, $this->session->userID);
+
+    if($action === 'cancel') {
+        return $response->withRedirect($router->pathFor('projectActions', compact('name')));
+    } elseif ($action !== 'transfer') {
+        $this->flash->addMessage('fail', 'There was an error processing your request');
+        return $response->withRedirect($router->pathFor('projectActions', compact('name')));
+    }
 
     // Fetch project
     if (!$project = Project::findProjectByName($this->db, $name)) {

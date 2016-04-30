@@ -1,6 +1,6 @@
 <section id="renameProjectSection">
     <h2>Rename project</h2>
-    <form id="renameProjectForm" action="" method="post">
+    <form id="renameProjectForm" action="{{ path_for('processRenameProject', {'name':project.projectName})  }}" method="post">
         <fieldset>
             <label for="projectName">Project Name:</label>
             <input type="text" id="projectName" name="projectName"{% if postData %} value="{{ postData.projectName }}"{% endif %} maxlength="20" required><br>

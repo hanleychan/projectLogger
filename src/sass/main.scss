@@ -532,6 +532,9 @@ section#addEditLogSection {
  * Project Actions Page Styles
  */
 section#projectActionsSection {
+    h3 {
+        margin-bottom: 10px;
+    }
     ul#selectProjectActionList {
         @extend #selectViewList;
     }
@@ -545,6 +548,24 @@ section#projectActionsSection {
 section#renameProjectSection {
     form#renameProjectForm {
         @extend #updateProfileForm;
+    }
+    margin: 0;
+}
+
+
+/**
+ * Transfer Project Ownership Page Styles
+ */
+section#transferOwnershipSection {
+    form#transferOwnershipForm {
+        @extend #updateProfileForm;
+        label {
+            display: initial;
+            font-weight: normal;
+        }
+    }
+    p#noMembersWarning {
+        margin-left: 20px;
     }
     margin: 0;
 }
