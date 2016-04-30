@@ -1568,6 +1568,13 @@ $app->post('/account/profile/', function ($request, $response) {
     $removePhoto = $this->request->getParam("removePhoto");
     $photo = $request->getUploadedFiles()['photo'];
 
+    if($action === "cancel") {
+        return $response->withRedirect($router->pathFor('account'));
+    } elseif ($action !== "save") {
+        $this->flash->addMessage("fail", "There was an error processing your request");
+        return $response->withRedirect($router->pathFor('account'));
+    }
+
     $profileError = false;
 
     if(!Profile::isValidName($name)) {
