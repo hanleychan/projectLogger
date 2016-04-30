@@ -511,6 +511,10 @@ section#addEditLogSection {
     h3 {
         margin-bottom: 20px;
     }
+
+    div#submitButtons {
+        margin-bottom: 20px;
+    }
     
     form#addLogForm, form#editLogForm, form#deleteLogForm {
         @extend #updateProfileForm;

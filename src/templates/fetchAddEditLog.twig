@@ -30,9 +30,12 @@
 
 {% if page == "editLog" %}
 <h3>Delete Log Entry:</h3>
+<p>Warning: This cannot be recovered</p>
 <form id="deleteLogForm" action="{{ path_for('deleteLog', {'name': project.projectName, 'logID':projectLog.id}) }}" method="post">
-    <button type="submit" name="action" value="delete">Delete</button>
-    <button type="submit" name="action" value="cancel">Cancel</button>
+    <div id="submitButtons">
+        <button type="submit" name="action" value="delete">Delete</button>
+        <button type="submit" name="action" value="cancel">Cancel</button>
+    </div>
 </form>
 {% endif %}
 </section>

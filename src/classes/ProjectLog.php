@@ -141,7 +141,7 @@ class ProjectLog extends DatabaseObject
             $sql .= "AND username = ? ";
         }
 
-        $sql .= "ORDER BY date DESC, id ASC";
+        $sql .= "ORDER BY date DESC, id DESC";
 
         if(!empty($limit)) {
             $sql .= " LIMIT " . (int)$offset . ", " . (int)$limit;
