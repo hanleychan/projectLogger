@@ -1,5 +1,10 @@
+<section id="viewLogsSection">
 <h3>Logs</h3>
-<form action="" method="get">
+
+{% if not projectLogs %}
+<p>No logs found</p>
+{% else %}
+<form id="filterResultsForm" action="{{ path_for('fetchProjectLogs', {'name':project.projectName}) }}" method="get">
     <label for="show">Display:</label> 
     <select id="show" name="show">
         <option value="all"{% if not displayLogsUsername %} selected {% endif %}>All</option>
@@ -20,9 +25,6 @@
         <input type="submit" value="Go">
     </noscript>
 </form>
-{% if not projectLogs %}
-<p>No logs found</p>
-{% else %}
 
 {% if pagination.getNumPages() > 1 %}
     {% set url = path_for('fetchProjectLogs', {'name':project.projectName}) %}
@@ -32,7 +34,7 @@
         {% set url = url ~ '?' %}
     {% endif %}
 
-    <form action="{{ path_for('fetchProjectLogs', {'name':project.projectName}) }}" method="get">
+    <form id="paginationForm" action="{{ path_for('fetchProjectLogs', {'name':project.projectName}) }}" method="get">
         {% if pagination.hasPrevPage() %}
             <a href="{{ url ~ "page=" ~ (pagination.currentPage - 1) }}">prev</a>
         {% endif %}
@@ -58,27 +60,57 @@
         {% endif %}
     </form>
 {% endif %}
-
-    <table>
+    <table id="smallResultsTable">
+        {% for projectLog in projectLogs %}
         <tr>
-            <th>Date</th>
-            <th>Time</th>
+            <th>Date:</th>
+            <td>{{ projectLog.date }}</td>
+        </tr>
+        <tr>
+            <th>Time:</th>
+            <td>{{ projectLog.projectTime }}</td>
+        </tr>
+        <tr>
             <th>Comment</th>
+            <td>{{ projectLog.comment }}</td>
+        </tr>
+        <tr>
             <th>User</th>
+            <td><a href="{{ path_for('userProfile', {'username':projectLog.username}) }}">{{ projectLog.username }}</a></td>
+        </tr>
+        {% if isAdmin or projectLog.canEdit %}
+        <tr>
+            <td class="editLogButton" colspan="2">
+                <form action="{{ path_for('editLog', {'name':project.projectName, 'logID':projectLog.id}) }}" method="get">
+                    <button type="submit">^ Edit ^</button>
+                </form>
+            </td>
+        </tr>
+        {% endif %}
+        <tr class="emptyRow"><td colspan="2"></td></tr>
+        {% endfor %}
+    </table>
+
+    <table id="bigResultsTable">
+        <tr>
+            <th class="date">Date</th>
+            <th class="time">Time</th>
+            <th class="comment">Comment</th>
+            <th class="username">User</th>
             {% if isAdmin or projectLog.canEdit %}
-            <th></th>
+            <th class="edit"></th>
             {% endif %}
         </tr>
     {% for projectLog in projectLogs %}
         <tr>
-            <td>{{ projectLog.date }}</td>
-            <td>
+            <td class="date">{{ projectLog.date }}</td>
+            <td class="time">
                 {{ projectLog.projectTime }}
             </td>
-            <td>{{ projectLog.comment }}</td>
-            <td><a href="{{ path_for('userProfile', {'username':projectLog.username}) }}">{{ projectLog.username }}</a></td>
+            <td class="comment">{{ projectLog.comment }}</td>
+            <td class="username"><a href="{{ path_for('userProfile', {'username':projectLog.username}) }}">{{ projectLog.username }}</a></td>
             {% if isAdmin or projectLog.canEdit %}
-            <td>
+            <td class="edit">
                 <form action="{{ path_for('editLog', {'name':project.projectName, 'logID':projectLog.id}) }}" method="get">
                     <button type="submit">Edit</button>
                 </form>
@@ -88,3 +120,4 @@
     {% endfor %}
     </table>
 {% endif %}
+</section>

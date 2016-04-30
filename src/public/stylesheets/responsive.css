@@ -147,7 +147,15 @@
   section#allProjectsSection ul {
     -webkit-column-count: 3;
     -moz-column-count: 3;
-    column-count: 3; } }
+    column-count: 3; }
+
+  /**
+   * View Log Entries Page Styles
+   */
+  section#viewLogsSection table#smallResultsTable {
+    display: none; }
+  section#viewLogsSection table#bigResultsTable {
+    display: table; } }
 @media screen and (min-width: 900px) {
   /**
    * Profile Page Styles

@@ -361,6 +361,10 @@ form#addProjectForm {
  * Project Page Styles
  */
 section#projectSection {
+    h2 {
+        word-wrap: break-word;
+        font-size: 1.2em;
+    }
     h3 {
         padding: 0;
         margin: 0;
@@ -390,4 +394,88 @@ section#projectSection {
     span#projectActionsHeading {
         display: none;
     }
+}
+
+/**
+ * View Log Entries Page Styles
+ */
+section#viewLogsSection {
+    form#filterResultsForm, form#paginationForm {
+        text-align: center;
+        font-size: 1.2em;
+        margin-bottom: 10px;
+    }
+
+    table#smallResultsTable {
+        td, th {
+            border: solid 1px;
+            text-align: left;
+            padding: 5px;
+        }
+
+        td {
+            word-wrap: break-word;
+        }
+
+        th {
+            width: 25%;
+        }
+
+        td.editLogButton {
+            border: none;
+        }
+
+        tr.emptyRow {
+            td {
+                border: none;
+                height: 20px;
+            }
+        }
+        margin: 0 auto;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    table#bigResultsTable {
+        display: none;
+
+        tr:nth-child(even) td {
+            background-color: #ffff66;
+        }
+
+        td, th {
+            text-align: left;
+            padding: 5px;
+        }
+
+        th {
+            text-decoration: underline;
+        }
+
+        td {
+            word-wrap: break-word;
+            vertical-align: top;
+        }
+
+
+        .date {
+            width: 10%;
+        }
+        .time {
+            width: 20%;
+        }
+        .username {
+            width: 20%;
+        }
+        .edit {
+            width: 10%;
+        }
+
+        margin: 0 auto;
+        width: 100%;
+        table-layout: fixed;
+        text-align: center;
+    }
+
+    margin: 0;
 }

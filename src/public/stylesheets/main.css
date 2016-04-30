@@ -215,6 +215,9 @@ section#allProjectsSection div#paginationDiv {
 /**
  * Project Page Styles
  */
+section#projectSection h2 {
+  word-wrap: break-word;
+  font-size: 1.2em; }
 section#projectSection h3 {
   padding: 0;
   margin: 0; }
@@ -233,3 +236,54 @@ section#projectSection ul#selectViewList {
   margin-top: 0; }
 section#projectSection span#projectActionsHeading {
   display: none; }
+
+/**
+ * View Log Entries Page Styles
+ */
+section#viewLogsSection {
+  margin: 0; }
+  section#viewLogsSection form#filterResultsForm, section#viewLogsSection form#paginationForm {
+    text-align: center;
+    font-size: 1.2em;
+    margin-bottom: 10px; }
+  section#viewLogsSection table#smallResultsTable {
+    margin: 0 auto;
+    width: 100%;
+    table-layout: fixed; }
+    section#viewLogsSection table#smallResultsTable td, section#viewLogsSection table#smallResultsTable th {
+      border: solid 1px;
+      text-align: left;
+      padding: 5px; }
+    section#viewLogsSection table#smallResultsTable td {
+      word-wrap: break-word; }
+    section#viewLogsSection table#smallResultsTable th {
+      width: 25%; }
+    section#viewLogsSection table#smallResultsTable td.editLogButton {
+      border: none; }
+    section#viewLogsSection table#smallResultsTable tr.emptyRow td {
+      border: none;
+      height: 20px; }
+  section#viewLogsSection table#bigResultsTable {
+    display: none;
+    margin: 0 auto;
+    width: 100%;
+    table-layout: fixed;
+    text-align: center; }
+    section#viewLogsSection table#bigResultsTable tr:nth-child(even) td {
+      background-color: #ffff66; }
+    section#viewLogsSection table#bigResultsTable td, section#viewLogsSection table#bigResultsTable th {
+      text-align: left;
+      padding: 5px; }
+    section#viewLogsSection table#bigResultsTable th {
+      text-decoration: underline; }
+    section#viewLogsSection table#bigResultsTable td {
+      word-wrap: break-word;
+      vertical-align: top; }
+    section#viewLogsSection table#bigResultsTable .date {
+      width: 10%; }
+    section#viewLogsSection table#bigResultsTable .time {
+      width: 20%; }
+    section#viewLogsSection table#bigResultsTable .username {
+      width: 20%; }
+    section#viewLogsSection table#bigResultsTable .edit {
+      width: 10%; }

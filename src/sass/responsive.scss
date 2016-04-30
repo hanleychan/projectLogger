@@ -244,6 +244,18 @@
             column-count: 3;
         }
     }
+
+    /**
+     * View Log Entries Page Styles
+     */
+    section#viewLogsSection {
+        table#smallResultsTable {
+            display: none;
+        }
+        table#bigResultsTable {
+            display: table;
+        }
+    }
 }
 
 @media screen and (min-width: 900px) {
