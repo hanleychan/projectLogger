@@ -283,7 +283,7 @@ section#viewLogsSection {
       word-wrap: break-word;
       vertical-align: top; }
     section#viewLogsSection table#bigResultsTable .date {
-      width: 10%; }
+      width: 15%; }
     section#viewLogsSection table#bigResultsTable .time {
       width: 20%; }
     section#viewLogsSection table#bigResultsTable .username {
