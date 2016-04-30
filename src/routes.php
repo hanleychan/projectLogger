@@ -401,7 +401,15 @@ $app->post('/project/{name}', function ($request, $response, $args) {
     $minutes = (int) trim($request->getParam('minutes'));
     $date = $request->getParam('datePicker');
     $comment = trim($request->getParam('comment'));
+    $action = trim(strtolower($request->getParam('action')));
     $inputError = false;
+
+    if($action === "cancel") {
+        return $response->withRedirect($router->pathFor('project', compact("name")));
+    } elseif ($action !== "save") {
+        $this->flash->addMessage("fail", "There was an error processing your request");
+        return $response->withRedirect($router->pathFor('fetchAddNewLog', compact("name")));
+    }
 
     if (!$date = ProjectLog::formatDateToSQL($date)) {
         $this->flash->addMessage('fail', 'Invalid date entered');

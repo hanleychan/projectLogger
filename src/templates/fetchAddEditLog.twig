@@ -1,3 +1,4 @@
+<section id="addEditLogSection">
 {% if page == "addNewLog" %}
 <h3>Add New Log Entry</h3>
 {% elseif page == "editLog" %}
@@ -5,10 +6,11 @@
 {% endif %}
 
 {% if page == "addNewLog" %}
-<form action="{{ path_for("addProjectLog", {'name': project.projectName})  }}" method="post">
+<form id="addLogForm" action="{{ path_for("addProjectLog", {'name': project.projectName})  }}" method="post">
 {% else %}
-<form action="{{ path_for("editLog", {'name': project.projectName, 'logID':projectLog.id}) }}" method="post">
+<form id="editLogForm" action="{{ path_for("editLog", {'name': project.projectName, 'logID':projectLog.id}) }}" method="post">
 {% endif %}
+    <fieldset>
     <label for="datePicker">Date</label>
     <input type="text" id="datePicker" name="datePicker" placeholder="mm/dd/yyyy"
            value="{% if postData %}{{ postData.datePicker }}{% elseif projectLog %}{{ projectLog.date }}{% else %}{{ "now" | date("m/d/Y") }}{% endif %}"><br>
@@ -18,15 +20,19 @@
     <input type="number" id="minutes" name="minutes" min="0" max="59"{% if postData or projectLog %} value="{% if postData %}{{postData.minutes }}{% else %}{{ projectLog.minutes }}{% endif %}"{% endif %}><br>
     <label for="comment">Comment</label>
     <input type="text" id="comment" name="comment"{% if postData or projectLog %} value="{% if postData %}{{ postData.comment }}{% else %}{{ projectLog.comment }}{% endif %}"{% endif %}><br>
+    </fieldset>
 
-    <button type="submit" name="action" value="save">Save</button>
-    <button type="submit" name="action" value="cancel">Cancel</button>
+    <div id="submitButtons">
+        <button type="submit" name="action" value="save">Save</button>
+        <button type="submit" name="action" value="cancel">Cancel</button>
+    </div>
 </form>
 
 {% if page == "editLog" %}
 <h3>Delete Log Entry:</h3>
-<form action="{{ path_for('deleteLog', {'name': project.projectName, 'logID':projectLog.id}) }}" method="post">
+<form id="deleteLogForm" action="{{ path_for('deleteLog', {'name': project.projectName, 'logID':projectLog.id}) }}" method="post">
     <button type="submit" name="action" value="delete">Delete</button>
     <button type="submit" name="action" value="cancel">Cancel</button>
 </form>
 {% endif %}
+</section>

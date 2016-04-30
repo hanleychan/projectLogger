@@ -503,3 +503,22 @@ section#viewProjectMembersSection {
 
     margin: 0;
 }
+
+/**
+ * Add/Edit Log Entry Page Styles
+ */
+section#addEditLogSection {
+    h3 {
+        margin-bottom: 20px;
+    }
+    
+    form#addLogForm, form#editLogForm, form#deleteLogForm {
+        @extend #updateProfileForm;
+
+        input[type="number"] {
+            @extend input[type="text"];
+        }
+
+    }
+    margin: 0;
+}

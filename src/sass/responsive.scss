@@ -177,6 +177,20 @@
 
         margin: 0;
     }
+
+    /**
+     * Add/Edit Log Entry Page Styles
+     */
+    section#addEditLogSection {
+        form#addLogForm, form#editLogForm, form#deleteLogForm {
+            @extend #registerForm;
+
+            input[type="number"] {
+                @extend input[type="text"];
+            }
+
+        }
+    }
 }
 
 @media screen and (min-width: 768px) {
