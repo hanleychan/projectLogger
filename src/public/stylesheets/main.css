@@ -14,7 +14,8 @@ h2 {
 div#wrapper {
   min-width: 320px;
   max-width: 940px;
-  margin: 0 auto; }
+  margin: 0 auto;
+  border: solid 1px; }
 
 section {
   margin: 2.5%; }
@@ -68,22 +69,22 @@ form#loginForm label, form#registerForm label, form#updateProfileForm label, for
   display: block;
   text-align: left;
   font-weight: bold; }
-form#loginForm input[type="text"], form#registerForm input[type="text"], form#updateProfileForm input[type="text"], form#changePasswordForm input[type="text"], form#addProjectForm input[type="text"], form#registerForm textarea, form#updateProfileForm textarea, form#changePasswordForm textarea, form#registerForm input[type="file"], form#updateProfileForm input[type="file"], form#changePasswordForm input[type="file"], form#loginForm input[type="password"], form#registerForm input[type="password"], form#updateProfileForm input[type="password"], form#changePasswordForm input[type="password"], form#addProjectForm input[type="password"] {
+form#loginForm input[type="text"], form#registerForm input[type="text"], form#updateProfileForm input[type="text"], form#changePasswordForm input[type="text"], form#addProjectForm input[type="text"], form#registerForm textarea, form#updateProfileForm textarea, form#changePasswordForm textarea, form#addProjectForm textarea, form#registerForm input[type="file"], form#updateProfileForm input[type="file"], form#changePasswordForm input[type="file"], form#addProjectForm input[type="file"], form#loginForm input[type="password"], form#registerForm input[type="password"], form#updateProfileForm input[type="password"], form#changePasswordForm input[type="password"], form#addProjectForm input[type="password"] {
   padding: 0 1%;
   width: 97%;
   border-radius: 2.5px;
   margin-left: 1%;
   margin-bottom: 10px; }
-form#loginForm input[type="submit"], form#registerForm input[type="submit"], form#updateProfileForm input[type="submit"], form#changePasswordForm input[type="submit"], form#addProjectForm input[type="submit"], form#updateProfileForm button, form#changePasswordForm button {
+form#loginForm input[type="submit"], form#registerForm input[type="submit"], form#updateProfileForm input[type="submit"], form#changePasswordForm input[type="submit"], form#addProjectForm input[type="submit"], form#updateProfileForm button, form#changePasswordForm button, form#addProjectForm button {
   margin-top: 10px;
   padding: 1.5% 5%;
   border-radius: 10px;
   background-color: #003380;
   color: #f2f2f2;
   font-weight: bold; }
-form#loginForm input:focus, form#registerForm input:focus, form#updateProfileForm input:focus, form#changePasswordForm input:focus, form#addProjectForm input:focus, form#registerForm textarea:focus, form#updateProfileForm textarea:focus, form#changePasswordForm textarea:focus {
+form#loginForm input:focus, form#registerForm input:focus, form#updateProfileForm input:focus, form#changePasswordForm input:focus, form#addProjectForm input:focus, form#registerForm textarea:focus, form#updateProfileForm textarea:focus, form#changePasswordForm textarea:focus, form#addProjectForm textarea:focus {
   border: solid; }
-form#loginForm input[type="submit"]:focus, form#registerForm input[type="submit"]:focus, form#updateProfileForm input[type="submit"]:focus, form#changePasswordForm input[type="submit"]:focus, form#addProjectForm input[type="submit"]:focus, form#registerForm textarea[type="submit"]:focus, form#updateProfileForm textarea[type="submit"]:focus, form#changePasswordForm textarea[type="submit"]:focus, form#updateProfileForm button:focus, form#changePasswordForm button:focus {
+form#loginForm input[type="submit"]:focus, form#registerForm input[type="submit"]:focus, form#updateProfileForm input[type="submit"]:focus, form#changePasswordForm input[type="submit"]:focus, form#addProjectForm input[type="submit"]:focus, form#registerForm textarea[type="submit"]:focus, form#updateProfileForm textarea[type="submit"]:focus, form#changePasswordForm textarea[type="submit"]:focus, form#addProjectForm textarea[type="submit"]:focus, form#updateProfileForm button:focus, form#changePasswordForm button:focus, form#addProjectForm button:focus {
   border: solid 5px #000; }
 form#loginForm div#submitButtons, form#registerForm div#submitButtons, form#updateProfileForm div#submitButtons, form#changePasswordForm div#submitButtons, form#addProjectForm div#submitButtons {
   text-align: center; }
@@ -91,14 +92,14 @@ form#loginForm div#submitButtons, form#registerForm div#submitButtons, form#upda
 /**
  * Register Page Styles
  */
-form#registerForm textarea, form#updateProfileForm textarea, form#changePasswordForm textarea {
+form#registerForm textarea, form#updateProfileForm textarea, form#changePasswordForm textarea, form#addProjectForm textarea {
   height: 100px; }
-form#registerForm input[type="file"], form#updateProfileForm input[type="file"], form#changePasswordForm input[type="file"] {
+form#registerForm input[type="file"], form#updateProfileForm input[type="file"], form#changePasswordForm input[type="file"], form#addProjectForm input[type="file"] {
   width: initial;
   margin-bottom: 10px; }
-form#registerForm fieldset, form#updateProfileForm fieldset, form#changePasswordForm fieldset {
+form#registerForm fieldset, form#updateProfileForm fieldset, form#changePasswordForm fieldset, form#addProjectForm fieldset {
   margin-bottom: 10px; }
-form#registerForm span.requiredField, form#updateProfileForm span.requiredField, form#changePasswordForm span.requiredField {
+form#registerForm span.requiredField, form#updateProfileForm span.requiredField, form#changePasswordForm span.requiredField, form#addProjectForm span.requiredField {
   color: red; }
 
 /**
@@ -161,16 +162,16 @@ section#profileSection ul {
 /**
  * Update Profile Page Styles
  */
-form#updateProfileForm img, form#changePasswordForm img {
+form#updateProfileForm img, form#changePasswordForm img, form#addProjectForm img {
   display: block;
   margin: 20px auto;
   width: 200px; }
-form#updateProfileForm label#removePhotoLabel, form#changePasswordForm label#removePhotoLabel {
+form#updateProfileForm label#removePhotoLabel, form#changePasswordForm label#removePhotoLabel, form#addProjectForm label#removePhotoLabel {
   display: inline-block;
   margin-bottom: 10px; }
-form#updateProfileForm input[type="checkbox"], form#changePasswordForm input[type="checkbox"] {
+form#updateProfileForm input[type="checkbox"], form#changePasswordForm input[type="checkbox"], form#addProjectForm input[type="checkbox"] {
   margin-left: 2%; }
-form#updateProfileForm button:focus, form#changePasswordForm button:focus {
+form#updateProfileForm button:focus, form#changePasswordForm button:focus, form#addProjectForm button:focus {
   border: solid 5px #000; }
 
 /**

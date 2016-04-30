@@ -158,33 +158,13 @@
     display: table; } }
 @media screen and (min-width: 900px) {
   /**
-   * Profile Page Styles
-   */
-  section#profileSection ul#projectsList {
-    -webkit-column-count: 4;
-    -moz-column-count: 4;
-    column-count: 4; }
-
-  /**
    * Update profile page styles
    */
   form#updateProfileForm img {
     width: 300px; }
 
   /**
-   * Projects Page Styles
-   */
-  section#projectsPage ul {
-    -webkit-column-count: 4;
-    -moz-column-count: 4;
-    column-count: 4; }
-
-  /**
    * All Projects Page Styles
    */
   section#allProjectsSection form#searchProjectsForm input {
-    width: 20%; }
-  section#allProjectsSection ul {
-    -webkit-column-count: 4;
-    -moz-column-count: 4;
-    column-count: 4; } }
+    width: 20%; } }

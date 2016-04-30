@@ -328,8 +328,17 @@ $app->get('/projects/add', function ($request, $response) {
 // Process add new project route
 $app->post('/projects/add', function ($request, $response) {
     $router = $this->router;
+
     $user = User::findById($this->db, $this->session->userID);
     $projectName = trim($request->getParam('projectName'));
+    $action = trim(strtolower($request->getParam('action')));
+
+    if($action === "cancel") {
+        return $response->withRedirect($router->pathFor('projects'));
+    } elseif($action !== "create") {
+        $this->flash->addMessage("fail", "There was an error processing your request");
+        return $response->withRedirect($router->pathFor('projects'));
+    }
 
     if (Project::doesProjectExist($this->db, $projectName)) {
         $this->flash->addMessage('fail', 'Project name already exists');

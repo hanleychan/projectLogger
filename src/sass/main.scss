@@ -27,6 +27,7 @@ div#wrapper {
     min-width: 320px;
     max-width: 940px;
     margin: 0 auto;
+    border: solid 1px;
 }
 
 section {
@@ -353,7 +354,7 @@ section#allProjectsSection {
  * Add Project Page Styles
  */
 form#addProjectForm {
-    @extend #loginForm;
+    @extend #updateProfileForm;
 }
 
 

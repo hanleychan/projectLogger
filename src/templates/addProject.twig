@@ -8,10 +8,11 @@
     <form id="addProjectForm" action="{{ path_for('processAddProject') }}" method="post">
         <fieldset>
             <label for="projectName">Project Name:</label>
-            <input type="text" id="projectName" name="projectName"><br>
+            <input type="text" id="projectName" name="projectName" maxlength="20" required><br>
         </fieldset>
         <div id="submitButtons">
-            <input type="submit" value="Create">
+            <button type="submit" name="action" value="create">Create</button>
+            <button type="submit" name="action" value="cancel" formnovalidate>Cancel</button>
         </div>
     </form>
 </section>
