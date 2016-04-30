@@ -31,12 +31,24 @@
             {% endif %}
     {% endif %}
 
-    <ul>
-        <li>Owner: <a href="{{ path_for('userProfile', {'username':project.ownerName}) }}">{{ project.ownerName }}</a></li>
-        <li>Date Created: {{ project.dateAdded }}</li>
-        <li>Total Hours: {{ totalMinutes }}</li>
+    <ul id="projectSummaryList">
+        <li>
+            <span class="summaryHeading">Owner:</span>
+            <span class="summaryContent"><a href="{{ path_for('userProfile', {'username':project.ownerName}) }}">{{ project.ownerName }}</a></span>
+        </li>
+        <li>
+            <span class="summaryHeading">Date Created:</span>
+            <span class="summaryContent">{{ project.dateAdded }}</span>
+        </li>
+        <li>
+            <span class="summaryHeading">Total Hours:</span>
+            <span class="summaryContent">{{ totalMinutes }}</span>
+        </li>
         {% if projectMember %}
-        <li>Total Hours By Me: {{ totalMinutesByMe }}</li>
+        <li>
+            <span class="summaryHeading">Total Hours By Me:</span>
+            <span class="summaryContent">{{ totalMinutesByMe }}</span>
+        </li>
         {% endif %}
         
     </ul>

@@ -395,6 +395,14 @@ section#projectSection {
     span#projectActionsHeading {
         display: none;
     }
+
+    ul#projectSummaryList {
+        span.summaryHeading {
+            display: inline-block;
+            width: 120px;
+        }
+        
+    }
 }
 
 /**
