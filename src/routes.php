@@ -1426,6 +1426,8 @@ $app->get('/project/{name}/transferOwnership', function ($request, $response, $a
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
+    $project->dateAdded = ProjectLog::formatDateFromSQL($project->dateAdded);
+
     // Fetch project members
     $projectMembers = ProjectMember::findProjectMembersByProjectName($this->db, $name);
     $projectMember = true;
@@ -1473,12 +1475,13 @@ $app->post('/project/{name}/transferOwnership/confirm', function ($request, $res
 
     // Fetch new owner
     if (!$owner = ProjectMember::findProjectMemberByProjectNameAndUsername($this->db, $name, $newOwner)) {
-        $this->flash->addMessage('fail', 'There was an error processing your request');
+        $this->flash->addMessage('fail', 'Invalid project member was selected');
 
-        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
+        return $response->withRedirect($router->pathFor('transferOwnership', compact('name')));
     }
 
     $projectMember = true;
+    $project->dateAdded = ProjectLog::formatDateFromSQL($project->dateAdded);
 
     // Get combined minutes of all users for this project
     $totalMinutes = ProjectLog::getTotalTimeByProjectName($this->db, $name);
@@ -1496,8 +1499,15 @@ $app->post('/project/{name}/transferOwnership/{newOwner}', function ($request, $
 
     $name = trim($args['name']);
     $newOwner = trim($args['newOwner']);
-    $action = trim($request->getParam('action'));
+    $action = trim(strtolower($request->getParam('action')));
     $user = User::findById($this->db, $this->session->userID);
+
+    if($action === 'no') {
+        return $response->withRedirect($router->pathFor('transferOwnership', compact('name')));
+    } elseif($action !== 'yes') {
+        $this->flash->addMessage('fail', 'There was an error processing your request');
+        return $response->withRedirect($router->pathFor('transferOwnership', compact('name')));
+    }
 
     // Fetch project
     if (!$project = Project::findProjectByName($this->db, $name)) {
@@ -1515,38 +1525,31 @@ $app->post('/project/{name}/transferOwnership/{newOwner}', function ($request, $
 
     // Fetch new owner
     if (!$projectMember = ProjectMember::findProjectMemberByProjectNameAndUsername($this->db, $name, $newOwner)) {
-        $this->flash->addMessage('fail', 'There was an error processing your request');
+        $this->flash->addMessage('fail', 'There was an error fetching the project member');
 
-        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
+        return $response->withRedirect($router->pathFor('transferOwnership', compact('name')));
     }
 
-    if ($action === 'yes') {
-        $project->ownerID = $projectMember->userID;
-        $project->save();
+    $project->ownerID = $projectMember->userID;
+    $project->save();
 
-        // Make new owner admin
-        if ($projectMember->isAdmin == false) {
-            $projectMember->isAdmin = true;
-            $projectMember->save();
-        }
-
-        // Add notification for new owner
-        $notification = new Notification($this->db);
-        $notification->date = date('Y-m-d');
-        $notification->userID = $projectMember->userID;
-        $notification->notification = "{$project->ownerName} has transferred ownership of project ";
-        $notification->notification .= " <a href=\"{$router->pathFor('fetchProjectLogs', compact('name'))}\">{$name}</a> ";
-        $notification->notification .= 'to you';
-        $notification->save();
-
-        $this->flash->addMessage('success', "Project ownership has been transfered to {$projectMember->username}");
-
-        return $response->withRedirect($router->pathFor('projectActions', compact('name')));
-    } elseif ($action !== 'no') {
-        $this->flash->addMessage('fail', 'There was an error processing your request');
+    // Make new owner admin
+    if ($projectMember->isAdmin == false) {
+        $projectMember->isAdmin = true;
+        $projectMember->save();
     }
 
-        return $response->withRedirect($router->pathFor('projectActions', compact('name')));
+    // Add notification for new owner
+    $notification = new Notification($this->db);
+    $notification->date = date('Y-m-d');
+    $notification->userID = $projectMember->userID;
+    $notification->notification = "{$project->ownerName} has transferred ownership of project ";
+    $notification->notification .= " <a href=\"{$router->pathFor('fetchProjectLogs', compact('name'))}\">{$name}</a> ";
+    $notification->notification .= 'to you';
+    $notification->save();
+
+    $this->flash->addMessage('success', "Project ownership has been transfered to {$projectMember->username}");
+    return $response->withRedirect($router->pathFor('projectActions', compact('name')));
 })->add($redirectToLoginMW)->setName('processTransferOwnership');
 
 $app->get('/project/{name}/history', function ($request, $response, $args) {

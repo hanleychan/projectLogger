@@ -569,3 +569,14 @@ section#transferOwnershipSection {
     }
     margin: 0;
 }
+
+/**
+ * Confirm Transfer Project Ownership Page Styles
+ */
+section#confirmTransferOwnershipSection {
+    form#confirmTransferOwnershipForm {
+        @extend #updateProfileForm;
+        text-align: center;
+    }
+    margin: 0;
+}

@@ -8,7 +8,7 @@
                     {% for projectMember in projectMembers %}
                     {% if projectMember.userID != project.ownerID %}
                     <li>
-                        <input type="radio" id="{{ projectMember.username }}" name="newOwner" value="{{ projectMember.username }}">
+                        <input type="radio" id="{{ projectMember.username }}" name="newOwner" value="{{ projectMember.username }}" required>
                         <label for="{{ projectMember.username }}">
                             {{ projectMember.username }}
                             {% if projectMember.isAdmin %}
@@ -23,7 +23,7 @@
 
             <div id="submitButtons">
                 <button type="submit" name="action" value="transfer">Transfer Ownership</button>
-                <button type="submit" name="action" value="cancel">Cancel</button>
+                <button type="submit" name="action" value="cancel" formnovalidate>Cancel</button>
             </div>
         </form> 
     {% else %}
