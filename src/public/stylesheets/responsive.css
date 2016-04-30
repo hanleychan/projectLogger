@@ -119,9 +119,7 @@
 
   /**
    * Rename Project Styles
-   */
-  form#renameProjectForm input[type="text"], form#renameProjectForm section#addEditLogSection form#addLogForm textarea, section#addEditLogSection form#addLogForm form#renameProjectForm textarea, form#renameProjectForm section#addEditLogSection form#editLogForm textarea, section#addEditLogSection form#editLogForm form#renameProjectForm textarea, form#renameProjectForm section#addEditLogSection form#deleteLogForm textarea, section#addEditLogSection form#deleteLogForm form#renameProjectForm textarea, form#renameProjectForm textarea, form#renameProjectForm section#addEditLogSection form#addLogForm input[type="number"], section#addEditLogSection form#addLogForm form#renameProjectForm input[type="number"], form#renameProjectForm section#addEditLogSection form#editLogForm input[type="number"], section#addEditLogSection form#editLogForm form#renameProjectForm input[type="number"], form#renameProjectForm section#addEditLogSection form#deleteLogForm input[type="number"], section#addEditLogSection form#deleteLogForm form#renameProjectForm input[type="number"] {
-    width: 50%; } }
+   */ }
 @media screen and (min-width: 768px) {
   /**
    * Navigation Styles

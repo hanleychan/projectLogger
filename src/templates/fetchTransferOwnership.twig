@@ -1,22 +1,30 @@
-<h2>Transfer Project Ownership</h2>
-<form action="{{ path_for('confirmTransferOwnership', {'name': project.projectName}) }}" method="post">
+<section id="transferOwnershipSection">
+    <h2>Transfer Project Ownership</h2>
+    <form action="{{ path_for('confirmTransferOwnership', {'name': project.projectName}) }}" method="post">
 
-<ul>
-    {% for projectMember in projectMembers %}
-    {% if projectMember.userID != project.ownerID %}
-    <li>
-        <input type="radio" id="{{ projectMember.username }}" name="newOwner" value="{{ projectMember.username }}">
-        <label for="{{ projectMember.username }}">
-            {{ projectMember.username }}
-            {% if projectMember.isAdmin %}
-            (Admin)
+    {% if projectMembers|length > 1 %}
+        <ul>
+            {% for projectMember in projectMembers %}
+            {% if projectMember.userID != project.ownerID %}
+            <li>
+                <input type="radio" id="{{ projectMember.username }}" name="newOwner" value="{{ projectMember.username }}">
+                <label for="{{ projectMember.username }}">
+                    {{ projectMember.username }}
+                    {% if projectMember.isAdmin %}
+                    (Admin)
+                    {% endif %}
+                </label>
+            </li>
             {% endif %}
-        </label>
-    </li>
-    {% endif %}
-    {% endfor %}
-</ul>
+            {% endfor %}
+        </ul>
 
-<button type="submit" name="action" value="transfer">Transfer Ownership</button>
-<button type="submit" name="action" value="cancel">Cancel</button>
-</form>
+        <div id="submitButtons">
+            <button type="submit" name="action" value="transfer">Transfer Ownership</button>
+            <button type="submit" name="action" value="cancel">Cancel</button>
+        </div>
+    {% else %}
+        <p>There are no project members to trasnfer this project to</p>
+    {% endif %}
+    </form>
+</section>

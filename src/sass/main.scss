@@ -542,6 +542,9 @@ section#projectActionsSection {
 /**
  * Rename Project Styles
  */
-form#renameProjectForm {
-    @extend #updateProfileForm;
+section#renameProjectSection {
+    form#renameProjectForm {
+        @extend #updateProfileForm;
+    }
+    margin: 0;
 }
