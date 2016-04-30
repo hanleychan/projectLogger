@@ -555,6 +555,8 @@ $app->get('/project/{name}/members', function ($request, $response, $args) {
         $requests = RequestJoinProject::getRequestsByProjectName($this->db, $name);
     }
 
+    $project->dateAdded = ProjectLog::formatDateFromSQL($project->dateAdded);
+
     // Get combined minutes of all users for this project
     $totalMinutes = ProjectLog::getTotalTimeByProjectName($this->db, $name);
     $totalMinutes = ProjectLog::formatTimeOutput($totalMinutes);
@@ -828,6 +830,8 @@ $app->get('/project/{name}/newLog', function ($request, $response, $args) {
     // Fetch post data
     $postData = $this->session->getPostData();
 
+    $project->dateAdded = ProjectLog::formatDateFromSQL($project->dateAdded);
+
     // Get combined minutes of all users for this project
     $totalMinutes = ProjectLog::getTotalTimeByProjectName($this->db, $name);
     $totalMinutes = ProjectLog::formatTimeOutput($totalMinutes);
@@ -885,6 +889,8 @@ $app->get('/project/{name}/edit/{logID}', function ($request, $response, $args) 
     $projectLog->hours = floor($projectLog->minutes / 60);
     $projectLog->minutes = $projectLog->minutes % 60;
     $projectMember = true;
+
+    $project->dateAdded = ProjectLog::formatDateFromSQL($project->dateAdded);
 
     // Get combined minutes of all users for this project
     $totalMinutes = ProjectLog::getTotalTimeByProjectName($this->db, $name);

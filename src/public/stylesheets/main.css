@@ -14,8 +14,7 @@ h2 {
 div#wrapper {
   min-width: 320px;
   max-width: 940px;
-  margin: 0 auto;
-  border: solid 1px; }
+  margin: 0 auto; }
 
 section {
   margin: 2.5%; }

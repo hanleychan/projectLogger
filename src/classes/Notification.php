@@ -12,6 +12,7 @@ class Notification extends DatabaseObject
     public static function getNotifications($db, $userID)
     {
         $sql = "SELECT * FROM notifications WHERE userID = " . (int)$userID;
+        $sql .= " ORDER BY id DESC";
 
         $result = self::findBySQL($db, $sql);
 
