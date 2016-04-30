@@ -9,13 +9,15 @@
 <section id="projectSection">
     <h2>
         Project: {{ project.projectName }}
-        <span id="projectActionsHeading"><a href="{{ path_for('projectActions', {'name': project.projectName}) }}">(Project Actions)</a></span>
+        {% if projectMember %}<span id="projectActionsHeading"><a href="{{ path_for('projectActions', {'name': project.projectName}) }}">(Project Actions)</a></span>{% endif %}
     </h2>
     {{ macros.displayFlashMessages(flash.message("fail"), flash.message("success")) }}
 
-    <p id="projectActionsParagraph">
-        <a id="projectActionsLink"href="{{ path_for('projectActions', {'name': project.projectName}) }}">Project Actions</a>
-    </p>
+    {% if projectMember %}
+        <p id="projectActionsParagraph">
+            <a id="projectActionsLink"href="{{ path_for('projectActions', {'name': project.projectName}) }}">Project Actions</a>
+        </p>
+    {% endif %}
 
     {% if not projectMember %}
             {% if userHasJoinRequest %}
