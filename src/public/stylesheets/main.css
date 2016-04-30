@@ -291,3 +291,13 @@ section#viewLogsSection {
       width: 20%; }
     section#viewLogsSection table#bigResultsTable .edit {
       width: 10%; }
+
+/**
+ * View Project Members Page Styles
+ */
+section#viewProjectMembersSection {
+  margin: 0; }
+  section#viewProjectMembersSection span.memberUsername {
+    display: block; }
+  section#viewProjectMembersSection div.adminButtons {
+    margin-left: 20px; }

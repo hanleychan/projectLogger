@@ -33,7 +33,7 @@
         </header>
         
         {% if user %}
-            <p id="greeting">Hello, hanleychan</p>
+            <p id="greeting">Hello, {{ user.username }}</p>
         {% endif %}
 
        {% block content %}

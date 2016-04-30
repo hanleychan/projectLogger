@@ -162,6 +162,21 @@
        }
     }
 
+    /**
+     * View Project Members Page Styles
+     */
+    section#viewProjectMembersSection {
+        span.memberUsername {
+            display: inline-block;
+            width: 200px;
+        }
+
+        div.adminButtons {
+            display: inline;
+        }
+
+        margin: 0;
+    }
 }
 
 @media screen and (min-width: 768px) {

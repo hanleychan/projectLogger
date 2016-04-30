@@ -50,6 +50,7 @@ p#greeting {
     text-align: right;
 }
 
+
 /**
  * Navigation Styles
  */
@@ -484,6 +485,21 @@ section#viewLogsSection {
         width: 100%;
         table-layout: fixed;
         text-align: center;
+    }
+
+    margin: 0;
+}
+
+/**
+ * View Project Members Page Styles
+ */
+section#viewProjectMembersSection {
+    span.memberUsername {
+        display: block;
+    }
+
+    div.adminButtons {
+        margin-left: 20px;
     }
 
     margin: 0;

@@ -93,7 +93,18 @@
   section#projectSection h2 {
     font-size: 1.2em; }
   section#projectSection span#projectActionsHeading {
-    display: initial; } }
+    display: initial; }
+
+  /**
+   * View Project Members Page Styles
+   */
+  section#viewProjectMembersSection {
+    margin: 0; }
+    section#viewProjectMembersSection span.memberUsername {
+      display: inline-block;
+      width: 200px; }
+    section#viewProjectMembersSection div.adminButtons {
+      display: inline; } }
 @media screen and (min-width: 768px) {
   /**
    * Navigation Styles

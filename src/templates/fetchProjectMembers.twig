@@ -1,3 +1,4 @@
+<section id="viewProjectMembersSection"> 
 <h3>Members</h3>
 <ul>
     <li>
@@ -9,13 +10,16 @@
 {% for projectMember in projectMembers %}
     {% if projectMember.userID != projectMember.ownerID %}
         <li>
+            <span class="memberUsername">
             <a href="{{ path_for('userProfile', {'username':projectMember.username})  }}">
             {{ projectMember.username }}
             </a>
             {% if projectMember.isAdmin %} 
             (Admin)
             {% endif %}
+            </span>
             {% if isOwner or isAdmin  %}
+                <div class="adminButtons">
                 {% if projectMember.userID != user.id %}
                     {% if isOwner %}
                         <form id="toggleAdminForm" action="{{ path_for('processToggleAdmin', {'name':project.projectName, 'username': projectMember.username})  }}" method="post">
@@ -32,6 +36,7 @@
                     </form>
                     {% endif %}
                 {% endif %}
+                </div>
             {% endif %}
         {% endif %}
     </li>
@@ -45,11 +50,16 @@
         {% for request in requests %}
             <li>
                 <form action="{{ path_for('processMemberRequest', {'name':project.projectName, 'username':request.username}) }}" method="post">
+                    <span class="memberUsername">
                     <a href="{{ path_for('userProfile',{'username':request.username}) }}">
                         {{ request.username }}
                     </a>
+                    </span>
+
+                    <div class="adminButtons">
                     <button type="submit" name="action" value="accept">Accept</button>
                     <button type="submit" name="action" value="decline">Decline</button>
+                    </div>
                 </form>
             </li>
         {% endfor %}
@@ -58,3 +68,4 @@
         <p>There are no requests at this time</p>
     {% endif %}
 {% endif %}
+</section>
