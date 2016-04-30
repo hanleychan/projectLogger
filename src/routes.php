@@ -1337,6 +1337,13 @@ $app->post('/project/{name}/rename', function ($request, $response, $args) {
     $action = trim($request->getParam('action'));
     $user = User::findById($this->db, $this->session->userID);
 
+    if($action === 'cancel') {
+        return $response->withRedirect($router->pathFor('projectActions', compact("name")));
+    } elseif ($action !== 'rename') {
+        $this->flash->addMessage('fail', 'There was an error processing your request');
+        return $response->withRedirect($router->pathFor('projectActions', compact("name")));
+    }
+
     // Fetch project
     if (!$project = Project::findProjectByName($this->db, $name)) {
         $this->flash->addMessage('fail', 'Project does not exist');
@@ -1375,30 +1382,25 @@ $app->post('/project/{name}/rename', function ($request, $response, $args) {
         return $response->withRedirect($router->pathFor('renameProject', compact('name')));
     }
 
-    if ($action === 'rename') {
-        // Rename project in database
-        $project->projectName = $newName;
-        $project->save();
+    // Rename project in database
+    $project->projectName = $newName;
+    $project->save();
 
-        // Add a notification for all other project members
-        $projectMembers = ProjectMember::findProjectMembersByProjectName($this->db, $newName);
-        foreach ($projectMembers as $projectMember) {
-            if ($projectMember->userID != $user->id) {
-                $notification = new Notification($this->db);
-                $notification->userID = $projectMember->userID;
-                $notification->date = date('Y-m-d');
-                $notification->notification = "Project {$name} has been renamed to ";
-                $notification->notification .= "<a href=\"{$router->pathFor('fetchProjectLogs', ['name' => $newName])}\">{$newName}</a> ";
-                $notification->notification .= "by {$user->username}";
-                $notification->save();
-            }
+    // Add a notification for all other project members
+    $projectMembers = ProjectMember::findProjectMembersByProjectName($this->db, $newName);
+    foreach ($projectMembers as $projectMember) {
+        if ($projectMember->userID != $user->id) {
+            $notification = new Notification($this->db);
+            $notification->userID = $projectMember->userID;
+            $notification->date = date('Y-m-d');
+            $notification->notification = "Project {$name} has been renamed to ";
+            $notification->notification .= "<a href=\"{$router->pathFor('fetchProjectLogs', ['name' => $newName])}\">{$newName}</a> ";
+            $notification->notification .= "by {$user->username}";
+            $notification->save();
         }
-
-        $this->flash->addMessage('success', "Project {$name} has been renamed to {$newName} ");
-    } elseif ($action !== 'cancel') {
-        $this->flash->addMessage('fail', 'There was an error processing your request');
     }
 
+    $this->flash->addMessage('success', "Project {$name} has been renamed to {$newName} ");
     return $response->withRedirect($router->pathFor('projectActions', ['name' => $newName]));
 })->add($redirectToLoginMW)->setName('processRenameProject');
 

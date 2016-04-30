@@ -537,3 +537,11 @@ section#projectActionsSection {
     }
     margin-left: 0;
 }
+
+
+/**
+ * Rename Project Styles
+ */
+form#renameProjectForm {
+    @extend #updateProfileForm;
+}

@@ -203,6 +203,17 @@
             width: 150px;
         }
     }
+
+
+    /**
+     * Rename Project Styles
+     */
+    form#renameProjectForm {
+        @extend #registerForm;
+        input[type="text"] {
+            width: 50%;
+        }
+    }
 }
 
 @media screen and (min-width: 768px) {
