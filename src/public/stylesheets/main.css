@@ -30,6 +30,28 @@ p#greeting {
   margin: 2.5%;
   text-align: right; }
 
+div#flashMessages {
+  margin-bottom: 10px; }
+  div#flashMessages p.successMessage, div#flashMessages p.failMessage {
+    margin: 0;
+    padding: 1.5%;
+    width: 290px;
+    display: inline-block;
+    border: solid 2px;
+    border-radius: 10px;
+    color: #006600;
+    margin-bottom: 5px; }
+    div#flashMessages p.successMessage span.msg, div#flashMessages p.failMessage span.msg {
+      display: inline-block;
+      width: 90%; }
+    div#flashMessages p.successMessage span.dismiss, div#flashMessages p.failMessage span.dismiss {
+      font-size: 0.8em;
+      display: inline-block;
+      width: 10%;
+      vertical-align: top; }
+  div#flashMessages p.failMessage {
+    color: #ff0000; }
+
 /**
  * Navigation Styles
  */
