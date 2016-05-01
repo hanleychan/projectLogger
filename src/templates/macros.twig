@@ -1,10 +1,14 @@
 {% macro displayFlashMessages(failMsgs, successMsgs) %}
     <div id="flashMessages">
     {% for message in failMsgs %}
-        <p class="failMessage"><span class="msg">{{ message}}</span><span class="dismiss"><button>x</button></span></p>
+        <div class="flashMessageContainer">
+            <p class="failMessage"><span class="msg">{{ message}}</span><span class="dismiss"><button class="dismissButton">x</button></span></p><br>
+        </div>
     {% endfor %}
     {% for message in successMsgs %}
-        <p class="successMessage"><span class="msg">{{ message}}</span><span class="dismiss"><button>x</button></span></p>
+        <div class="flashMessageContainer">
+            <p class="successMessage"><span class="msg">{{ message}}</span><span class="dismiss"><button class="dismissButton">x</button></span></p><br>
+        </div>
     {% endfor %}
     </div>
 {% endmacro %}

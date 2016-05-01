@@ -33,5 +33,10 @@
     {% else %}
     <p>{{ profile.username }} is not a member of any projects</p>
     {% endif %}
+
+    
 </section>
+    {% if prevPage %}
+    <p id="prevPage"><a href="{{ prevPage }}">Return to previous page</a></p>
+    {% endif %}
 {% endblock %}
