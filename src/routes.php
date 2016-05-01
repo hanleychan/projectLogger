@@ -1152,6 +1152,8 @@ $app->get('/project/{name}/leave/{username}', function ($request, $response, $ar
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
+    $project->dateAdded = ProjectLog::formatDateFromSQL($project->dateAdded);
+
     // Get combined minutes of all users for this project
     $totalMinutes = ProjectLog::getTotalTimeByProjectName($this->db, $name);
     $totalMinutes = ProjectLog::formatTimeOutput($totalMinutes);
@@ -1172,8 +1174,15 @@ $app->post('/project/{name}/leave/{username}', function ($request, $response, $a
 
     $name = trim($args['name']);
     $username = trim($args['username']);
-    $action = trim($request->getParam('action'));
+    $action = trim(strtolower($request->getParam('action')));
     $user = User::findById($this->db, $this->session->userID);
+
+    if($action === 'no') {
+        return $response->withRedirect($router->pathFor('projectActions', compact('name')));
+    } elseif($action !== 'yes') {
+        $this->flash->addMessage('fail', 'There was an error processing your request');
+        return $response->withRedirect($router->pathFor('projectActions', compact('name')));
+    }
 
     // Check if project exists
     if (!Project::doesProjectExist($this->db, $name)) {
@@ -1192,15 +1201,10 @@ $app->post('/project/{name}/leave/{username}', function ($request, $response, $a
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
-    if ($action === 'yes') {
-        // Remove project member from database
-        $projectMember->delete();
+    // Remove project member from database
+    $projectMember->delete();
 
-        $this->flash->addMessage('success', 'You have left this project');
-    } elseif ($action !== 'no') {
-        $this->flash->addMessage('fail', 'There was an error processing your request');
-    }
-
+    $this->flash->addMessage('success', 'You have left this project');
     return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
 })->add($redirectToLoginMW)->setName('processLeaveProject');
 

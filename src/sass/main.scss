@@ -592,4 +592,16 @@ section#deleteProjectSection {
         }
         text-align: center;
     }
+    margin: 0;
+}
+
+/**
+ * Confirm Leave Project Page Styles
+ */
+section #leaveProjectSection {
+    form#leaveProjectForm {
+        @extend #updateProfileForm;
+        text-align: center;
+    }
+    margin: 0;
 }

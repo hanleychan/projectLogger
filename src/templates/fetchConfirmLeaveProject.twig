@@ -1,8 +1,14 @@
-<h2>Leave Project</h2>
+<section id="leaveProjectSection">
+    <h2>Leave Project</h2>
 
-<form action="{{ path_for('processLeaveProject', {'name':project.projectName, 'username': user.username}) }}" method="post">
-<p>Are you sure you want to leave project {{ project.projectName }}?</p>
-<button type="submit" name="action" value="yes">Yes</button>
-<button type="submit" name="action" value="no">No</button>
-</form>
+    <form id="leaveProjectForm" action="{{ path_for('processLeaveProject', {'name':project.projectName, 'username': user.username}) }}" method="post">
+        <fieldset>
+            <p>Are you sure you want to leave project {{ project.projectName }}?</p>
+        </fieldset>
 
+        <div id="submitButtons">
+            <button type="submit" name="action" value="yes">Yes</button>
+            <button type="submit" name="action" value="no">No</button>
+        </div>
+    </form>
+</section>
