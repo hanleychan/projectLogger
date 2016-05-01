@@ -1226,6 +1226,7 @@ $app->get('/project/{name}/delete', function ($request, $response, $args) {
     }
 
     $projectMember = true;
+    $project->dateAdded = ProjectLog::formatDateFromSQL($project->dateAdded);
 
     // Get combined minutes of all users for this project
     $totalMinutes = ProjectLog::getTotalTimeByProjectName($this->db, $name);
@@ -1246,8 +1247,15 @@ $app->post('/project/{name}/delete', function ($request, $response, $args) {
     $router = $this->router;
 
     $name = trim($args['name']);
-    $action = trim($request->getParam('action'));
+    $action = trim(strtolower($request->getParam('action')));
     $user = User::findById($this->db, $this->session->userID);
+
+    if($action === 'no') {
+        return $response->withRedirect($router->pathFor('projectActions', compact('name')));
+    } elseif ($action !== 'yes') {
+        $this->flash->addMessage('fail', ' There was an error processing your request');
+        return $response->withRedirect($router->pathFor('projectActions', compact('name')));
+    } 
 
     // Fetch project
     if (!$project = Project::findProjectByName($this->db, $name)) {
@@ -1264,31 +1272,25 @@ $app->post('/project/{name}/delete', function ($request, $response, $args) {
     }
 
     $projectMember = true;
-    if ($action === 'yes') {
-        $projectMembers = ProjectMember::findProjectMembersByProjectName($this->db, $name);
 
-        // Delete the project
-        $project->delete();
+    $projectMembers = ProjectMember::findProjectMembersByProjectName($this->db, $name);
 
-        // Add a notification for all other project members
-        foreach ($projectMembers as $projectMember) {
-            if ($projectMember->userID != $user->id) {
-                $notification = new Notification($this->db);
-                $notification->userID = $projectMember->userID;
-                $notification->date = date('Y-m-d');
-                $notification->notification = "Project {$name} has been deleted ";
-                $notification->notification .= "by {$user->username}";
-                $notification->save();
-            }
+    // Delete the project
+    $project->delete();
+
+    // Add a notification for all other project members
+    foreach ($projectMembers as $projectMember) {
+        if ($projectMember->userID != $user->id) {
+            $notification = new Notification($this->db);
+            $notification->userID = $projectMember->userID;
+            $notification->date = date('Y-m-d');
+            $notification->notification = "Project {$name} has been deleted ";
+            $notification->notification .= "by {$user->username}";
+            $notification->save();
         }
-
-        $this->flash->addMessage('success', "Project {$project->projectName} has been deleted successfully");
-    } elseif ($action === 'no') {
-        return $response->withRedirect($router->pathFor('projectActions', compact('name')));
-    } else {
-        $this->flash->addMessage('fail', 'There was an error processing your request');
     }
 
+    $this->flash->addMessage('success', "Project {$project->projectName} has been deleted successfully");
     return $response->withRedirect($router->pathFor('projects'));
 })->add($redirectToLoginMW)->setName('processDeleteProject');
 

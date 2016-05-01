@@ -580,3 +580,16 @@ section#confirmTransferOwnershipSection {
     }
     margin: 0;
 }
+
+/**
+ * Confirm Delete Project Page Styles
+ */
+section#deleteProjectSection {
+    form#deleteProjectForm {
+        @extend #updateProfileForm;
+        p#warning {
+            color: #ff0000;
+        }
+        text-align: center;
+    }
+}
