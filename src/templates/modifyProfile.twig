@@ -7,6 +7,9 @@
     {{ macros.displayFlashMessages(flash.message("fail"), flash.message("success")) }}
 
     <form id="updateProfileForm" action="{{ path_for('processModifyProfile') }}" method="post" enctype="multipart/form-data">
+        <p id="info">
+            * Accepted image formats: png, jpg, gif
+        </p>
         <fieldset>
             <input type="hidden" name="MAX_FILE_SIZE" value="{{ maxPhotoSize }}">
 
