@@ -11,6 +11,9 @@ class RequestJoinProject extends DatabaseObject
     protected static $tableName = 'requestjoinproject';
     protected static $dbFields = array('id', 'userID', 'projectID');
 
+    /**
+     * Returns a project join request for a specified project name
+     */
     public static function getRequestByProjectName($db, $projectName, $userID)
     {
         $sql = 'SELECT requestjoinproject.id as id, userID, projectID ';
@@ -29,6 +32,9 @@ class RequestJoinProject extends DatabaseObject
         }
     }
 
+    /**
+     * Returns a project join request for a specified project name and username
+     */
     public static function getRequestByProjectNameAndUsername($db, $projectName, $username)
     {
         $sql = 'SELECT requestjoinproject.id as id, userID, projectID FROM requestjoinproject ';
@@ -47,6 +53,9 @@ class RequestJoinProject extends DatabaseObject
         }
     }
 
+    /**
+     * Returns all project join requests for a specified project name
+     */
     public static function getRequestsByProjectName($db, $projectName)
     {
         $sql = 'SELECT requestjoinproject.id as id, userID, projectID, username ';
@@ -64,6 +73,9 @@ class RequestJoinProject extends DatabaseObject
         }
     }
 
+    /**
+     * Returns all projects with pending requests for a user where they are the owner
+     */
     public static function getProjectsWithPendingRequestsForOwner($db, $userID)
     {
         $sql = 'SELECT DISTINCT projectName ';
@@ -78,6 +90,9 @@ class RequestJoinProject extends DatabaseObject
         }
     }
 
+    /**
+     * Returns all project join requests for a user
+     */
     public static function getAllRequestsForUser($db, $userID)
     {
         $sql = 'SELECT projectName ';

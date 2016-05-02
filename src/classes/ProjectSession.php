@@ -15,11 +15,17 @@ class ProjectSession extends Session
         }
     }
 
+    /**
+     * Stores a specified value into the postData session variable
+     */
     public function setPostData($postData)
     {
         $this->postData = $_SESSION[self::PROJECT_TITLE]['postData'] = $postData;
     }
 
+    /**
+     * Returns the value stored in the postData session variable
+     */
     public function getPostData()
     {
         $postData = $this->postData;

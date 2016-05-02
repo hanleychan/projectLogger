@@ -10,6 +10,9 @@ class Notification extends DatabaseObject
     protected static $tableName = 'notifications';
     protected static $dbFields = array('id', 'userID', 'notification', 'date');
 
+    /**
+     * Gets all notifications for a user.
+     */
     public static function getNotifications($db, $userID)
     {
         $sql = 'SELECT * FROM notifications WHERE userID = '.(int) $userID;

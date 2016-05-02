@@ -12,6 +12,9 @@ class ProjectMember extends DatabaseObject
     protected static $tableName = 'projectmembers';
     protected static $dbFields = array('id', 'userID', 'projectID', 'isAdmin');
 
+    /**
+     * Returns whether a user is a member of a specified project id
+     */
     public static function isProjectMember($db, $projectID, $userID)
     {
         $sql = 'SELECT * FROM projectmembers ';
@@ -28,6 +31,9 @@ class ProjectMember extends DatabaseObject
         }
     }
 
+    /**
+     * Returns whether a user is a member of a specified project name
+     */
     public static function isProjectMemberByProjectName($db, $projectName, $userID)
     {
         $sql = 'SELECT * FROM projectmembers ';
@@ -46,6 +52,9 @@ class ProjectMember extends DatabaseObject
         }
     }
 
+    /**
+     * Returns whether a user is an admin of a specified project name
+     */
     public static function isProjectAdmin($db, $projectName, $userID)
     {
         $sql = 'SELECT isAdmin ';
@@ -91,6 +100,9 @@ class ProjectMember extends DatabaseObject
         }
     }
 
+    /**
+     * Returns a project member from a specified project name and username
+     */
     public static function findProjectMemberByProjectNameAndUsername($db, $projectName, $username)
     {
         $sql = 'SELECT projectmembers.id as id, userID, projectID, isAdmin, username ';

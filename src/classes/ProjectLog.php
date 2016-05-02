@@ -15,6 +15,9 @@ class ProjectLog extends DatabaseObject
     protected static $tableName = 'projectlogs';
     protected static $dbFields = array('id', 'minutes', 'userID', 'projectID', 'comment', 'date');
 
+    /**
+     * Returns whether the specified hours and minutes is in the range from 1min to 24hrs 
+     */
     public static function isValidTime($hours, $minutes)
     {
         $hours = (int) $hours;
@@ -79,11 +82,17 @@ class ProjectLog extends DatabaseObject
         }
     }
 
+    /**
+     * Returns the total minutes from the specified hours and minutes values
+     */
     public static function calculateTotalMinutes($hours, $minutes)
     {
         return $minutes + ($hours * 60);
     }
 
+    /**
+     * Formats minutes into **hr(s) **min(s) format
+     */
     public static function formatTimeOutput($minutes)
     {
         $output = '';
@@ -99,6 +108,9 @@ class ProjectLog extends DatabaseObject
         return $output;
     }
 
+    /**
+     * Returns the total minutes for a specified project
+     */
     public static function getTotalTimeByProjectName($db, $projectName)
     {
         $sql = 'SELECT SUM(minutes) as totalMinutes FROM projectlogs ';
@@ -114,6 +126,9 @@ class ProjectLog extends DatabaseObject
         }
     }
 
+    /**
+     * Returns the total minutes for a specified project by a specified user
+     */
     public static function getTotalTimeByProjectNameAndUser($db, $projectName, $userID)
     {
         $sql = 'SELECT SUM(minutes) as totalMinutes FROM projectlogs ';
@@ -130,6 +145,9 @@ class ProjectLog extends DatabaseObject
         }
     }
 
+    /**
+     * Returns all log entries for a specified project
+     */
     public static function findLogsByProjectName($db, $projectName, $username = '', $limit = '', $offset = 0)
     {
         $sql = 'SELECT projectlogs.id as id, username, date, comment, minutes, userID ';
@@ -161,6 +179,9 @@ class ProjectLog extends DatabaseObject
         }
     }
 
+    /**
+     * Returns the number of log entries for a specified project
+     */
     public static function getNumLogsByProjectName($db, $projectName, $username = '')
     {
         $sql = 'SELECT COUNT(*) as numLogs ';

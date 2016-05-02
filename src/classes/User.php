@@ -15,6 +15,9 @@ class User extends DatabaseObject
     protected static $tableName = 'users';
     protected static $dbFields = array('id', 'username', 'password', 'joinDate');
 
+    /**
+     * Returns whether a specified username is a valid value
+     */
     public static function isValidUsername($db, $username)
     {
         if (self::isValidFormatUsername && !self::doesUsernameExist($db, $username)) {
@@ -24,6 +27,9 @@ class User extends DatabaseObject
         }
     }
 
+    /**
+     * Returns whether a specified username is in a valid format
+     */
     public static function isValidFormatUsername($username)
     {
         $username = strtolower(trim($username));
@@ -36,6 +42,9 @@ class User extends DatabaseObject
         }
     }
 
+    /**
+     * Returns a user from a specified username
+     */
     public static function fetchUser($db, $username)
     {
         $sql = 'SELECT * FROM '.self::$tableName.' WHERE username = ? LIMIT 1';
@@ -49,6 +58,9 @@ class User extends DatabaseObject
         }
     }
 
+    /**
+     * Returns whether a specified password is in a valid format
+     */
     public static function isValidPassword($password)
     {
         if (strlen($password) >= self::PASSWORD_MIN_LENGTH && strlen($password) <= self::PASSWORD_MAX_LENGTH) {
@@ -58,11 +70,17 @@ class User extends DatabaseObject
         }
     }
 
+    /**
+     * Returns a hashed password for a specified password value
+     */
     public static function encryptPassword($password)
     {
         return password_hash($password, PASSWORD_BCRYPT);
     }
 
+    /**
+     * Returns whether the two specified password values are identical
+     */
     public static function doPasswordsMatch($password1, $password2)
     {
         return $password1 === $password2 ? true : false;

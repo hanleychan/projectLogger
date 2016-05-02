@@ -81,6 +81,9 @@ class Project extends DatabaseObject
         }
     }
 
+    /**
+     * Returns all projects filtered by a search value
+     */
     public static function findProjectsBySearch($db, $search = '', $limit = '', $offset = '0')
     {
         $search = "%{$search}%";
@@ -101,6 +104,9 @@ class Project extends DatabaseObject
         }
     }
 
+    /**
+     * Returns the total number of projects
+     */
     public static function getTotalProjectsBySearch($db, $search = '')
     {
         $search = "%{$search}%";

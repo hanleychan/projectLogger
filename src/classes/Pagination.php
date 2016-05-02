@@ -58,6 +58,9 @@ class Pagination
         }
     }
 
+    /**
+     * Returns the offset value.
+     */
     public function calculateOffset()
     {
         return ($this->numItemsPerPage * $this->currentPage) - $this->numItemsPerPage;

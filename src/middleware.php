@@ -6,6 +6,7 @@ $app->add(function ($request, $response, $next) {
     return $next($request, $response);
 });
 
+// Redirect to login page if not logged in
 $redirectToLoginMW = function ($request, $response, $next) {
     // Check if not from AJAX request
     if (!(!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest')) {
@@ -22,6 +23,7 @@ $redirectToLoginMW = function ($request, $response, $next) {
     return $response;
 };
 
+// Redirect to main page if already logged in
 $redirectToMainPageMW = function ($request, $response, $next) {
     // redirect to main page if already logged in
     if ($this->session->isLoggedIn()) {
