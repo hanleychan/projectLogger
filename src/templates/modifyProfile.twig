@@ -8,7 +8,8 @@
 
     <form id="updateProfileForm" action="{{ path_for('processModifyProfile') }}" method="post" enctype="multipart/form-data">
         <p id="info">
-            * Accepted image formats: png, jpg, gif
+            * Accepted image formats: png, jpg, gif<br>
+            * Image maximum allowed file size: {{ maxPhotoSizeString }} 
         </p>
         <fieldset>
             <input type="hidden" name="MAX_FILE_SIZE" value="{{ maxPhotoSize }}">

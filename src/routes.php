@@ -106,8 +106,9 @@ $app->post('/deleteNotification', function ($request, $response) {
 $app->get('/register', function ($request, $response) {
     // Get form data if available
     $postData = $this->session->getPostData();
+    $maxPhotoSizeString = Profile::getMaxPhotoAllowedFileSizeString();
 
-    return $this->view->render($response, 'register.twig', compact('postData'));
+    return $this->view->render($response, 'register.twig', compact('postData', 'maxPhotoSizeString'));
 })->add($redirectToMainPageMW)->setName('register');
 
 // Process register form 
@@ -162,7 +163,11 @@ $app->post('/register', function ($request, $response) {
 
     if ($photo->getError() !== 0 && $photo->getError() !== 4) {
         $inputError = true;
-        $this->flash->addMessage('fail', 'There was a problem processing the uploaded file');
+        if($photo->getError() === 1 || $photo->getError() === 2) {
+            $this->flash->addMessage('fail', 'Image file is too large');
+        } else {
+            $this->flash->addMessage('fail', 'There was a problem processing the uploaded file');
+        }
     }
 
     if ($photo->getError() === 0) {
@@ -1651,12 +1656,14 @@ $app->get('/account', function ($request, $response) {
 $app->get('/account/profile', function ($request, $response) {
     $user = User::findById($this->db, $this->session->userID);
     $maxPhotoSize = Profile::getMaxPhotoAllowedFileSizeInBytes();
+    $maxPhotoSizeString = Profile::getMaxPhotoAllowedFileSizeString();
     $postData = $this->session->getPostData();
 
     // Fetch profile if exists
     $profile = Profile::getProfileByUserID($this->db, $user->id);
 
-    return $this->view->render($response, 'modifyProfile.twig', compact('user', 'maxPhotoSize', 'profile', 'postData'));
+    return $this->view->render($response, 'modifyProfile.twig', compact('user', 'maxPhotoSize', 'profile', 'postData',
+                                                                        'maxPhotoSizeString'));
 })->add($redirectToLoginMW)->setName('modifyProfile');
 
 // Process update profile form
@@ -1689,7 +1696,11 @@ $app->post('/account/profile/', function ($request, $response) {
     }
     if ($photo->getError() !== 0 && $photo->getError() !== 4) {
         $inputError = true;
-        $this->flash->addMessage('fail', 'There was a problem processing the uploaded file');
+        if($photo->getError() === 1 || $photo->getError() === 3) {
+            $this->flash->addMessage('fail', 'Image file is too large');
+        } else {
+            $this->flash->addMessage('fail', 'There was a problem processing the uploaded file');
+        }
     }
     if ($photo->getError() === 0) {
         // Check if uploaded file is a valid photo
