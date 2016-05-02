@@ -62,6 +62,13 @@ class Profile extends DatabaseObject
         $resizedPhoto->destroy();
     }
 
+    public static function getMaxPhotoAllowedFileSizeString() {
+        $postMaxSize = self::convertPHPSizeToBytes(ini_get('post_max_size'));
+        $uploadMaxFileSize = self::convertPHPSizeToBytes(ini_get('upload_max_filesize'));
+
+        return ($postMaxSize < $uploadMaxFileSize) ? ini_get('post_max_size') : ini_get('upload_max_filesize');
+    }
+
     public static function getMaxPhotoAllowedFileSizeInBytes()
     {
         $postMaxSize = self::convertPHPSizeToBytes(ini_get('post_max_size'));
