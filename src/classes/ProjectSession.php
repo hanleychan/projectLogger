@@ -4,20 +4,20 @@ class ProjectSession extends Session
 {
     private $postData;
 
-    const PROJECT_TITLE = "time";
+    const PROJECT_TITLE = 'time';
 
     public function __construct()
     {
         parent::__construct();
 
-        if(isset($_SESSION[self::PROJECT_TITLE]["postData"])) {
-            $this->postData = $_SESSION[self::PROJECT_TITLE]["postData"];
+        if (isset($_SESSION[self::PROJECT_TITLE]['postData'])) {
+            $this->postData = $_SESSION[self::PROJECT_TITLE]['postData'];
         }
     }
 
     public function setPostData($postData)
     {
-        $this->postData = $_SESSION[self::PROJECT_TITLE]["postData"] = $postData;
+        $this->postData = $_SESSION[self::PROJECT_TITLE]['postData'] = $postData;
     }
 
     public function getPostData()
@@ -25,7 +25,7 @@ class ProjectSession extends Session
         $postData = $this->postData;
 
         // Unset session post data
-        unset($_SESSION[self::PROJECT_TITLE]["postData"]);
+        unset($_SESSION[self::PROJECT_TITLE]['postData']);
         unset($this->postData);
 
         return $postData;

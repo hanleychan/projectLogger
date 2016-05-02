@@ -37,16 +37,17 @@ class Profile extends DatabaseObject
     public static function isValidImageFile($photo)
     {
         $photoInfo = getimagesize($photo->file);
-        if($photoInfo === false) {
+        if ($photoInfo === false) {
             return false;
         }
+
         return true;
     }
 
     public static function isValidImageFormat($photo)
     {
         $photoInfo = getimagesize($photo->file);
-        if($photoInfo[2] !== IMAGETYPE_GIF && $photoInfo[2] !== IMAGETYPE_JPEG && $photoInfo[2] !== IMAGETYPE_PNG) {
+        if ($photoInfo[2] !== IMAGETYPE_GIF && $photoInfo[2] !== IMAGETYPE_JPEG && $photoInfo[2] !== IMAGETYPE_PNG) {
             return false;
         }
 
@@ -56,12 +57,11 @@ class Profile extends DatabaseObject
     public static function resizePhoto($photo)
     {
         $resizedPhoto = new Imagick($photo);
-        $resizedPhoto->resizeImage(300,300, Imagick::FILTER_UNDEFINED, 1, true);
+        $resizedPhoto->resizeImage(300, 300, Imagick::FILTER_UNDEFINED, 1, true);
         $resizedPhoto->writeImage($photo);
         $resizedPhoto->destroy();
     }
 
-    
     public static function getMaxPhotoAllowedFileSizeInBytes()
     {
         $postMaxSize = self::convertPHPSizeToBytes(ini_get('post_max_size'));
@@ -72,17 +72,17 @@ class Profile extends DatabaseObject
 
     private static function convertPHPSizeToBytes($size)
     {
-        if(is_numeric($size)) {
+        if (is_numeric($size)) {
             return $size;
         }
 
-        $result = substr($size, 0, -1); 
+        $result = substr($size, 0, -1);
 
-        if(!is_numeric($result)) {
+        if (!is_numeric($result)) {
             return false;
         }
 
-        switch(strtoupper(substr($size, -1))) {
+        switch (strtoupper(substr($size, -1))) {
             case 'P':
                 $result *= 1125899906842782;
                 break;
@@ -102,13 +102,13 @@ class Profile extends DatabaseObject
 
         return $result;
     }
-    
+
     public static function getProfileByUserID($db, $userID)
     {
-        $sql = "SELECT * FROM profiles WHERE userID = " . (int)$userID . " LIMIT 1";
+        $sql = 'SELECT * FROM profiles WHERE userID = '.(int) $userID.' LIMIT 1';
         $result = self::findBySQL($db, $sql);
 
-        if($result) {
+        if ($result) {
             return $result[0];
         } else {
             return false;
@@ -117,18 +117,17 @@ class Profile extends DatabaseObject
 
     public static function getProfileByUsername($db, $username)
     {
-        $sql = "SELECT profiles.id, userID, name, username, photoName, photoPath, otherInfo, joinDate FROM profiles ";
-        $sql .= "INNER JOIN users ON userID = users.id ";
-        $sql .= "WHERE username = ? LIMIT 1";
+        $sql = 'SELECT profiles.id, userID, name, username, photoName, photoPath, otherInfo, joinDate FROM profiles ';
+        $sql .= 'INNER JOIN users ON userID = users.id ';
+        $sql .= 'WHERE username = ? LIMIT 1';
         $paramArray = array($username);
 
         $result = self::findBySQL($db, $sql, $paramArray);
 
-        if($result) {
+        if ($result) {
             return $result[0];
         } else {
             return false;
         }
     }
 }
-?>

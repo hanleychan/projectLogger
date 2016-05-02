@@ -7,16 +7,22 @@
         {{ macros.displayFlashMessages(flash.message("fail"), flash.message("success")) }}
 
         <form id="registerForm" action="{{ path_for('processRegister') }}" method="post" enctype="multipart/form-data">
+            <p id="info">
+                * Username must be between 6 and 20 characters<br>
+                * Username can contain only letters and numbers<br>
+                * Password must be at least 6 characters
+            </p>
+
             <fieldset>
                 <legend>Login Details</legend>
                 <label for="username">Username: <span class="requiredField">*</span></label>
-                <input type="text" id="username" name="username"{% if postData %} value="{{ postData.username }}" {% endif %} maxlength="12"><br>
+                <input type="text" id="username" name="username"{% if postData %} value="{{ postData.username }}" {% endif %} maxlength="20" required><br>
 
                 <label for="password">Password: <span class="requiredField">*</span></label>
-                <input type="password" id="password" name="password"><br>
+                <input type="password" id="password" name="password" required><br>
 
                 <label for="confirmPassword">Confirm Password: <span class="requiredField">*</span></label>
-                <input type="password" id="password2" name="password2"><br>
+                <input type="password" id="password2" name="password2" required><br>
             </fieldset>
 
             <fieldset>

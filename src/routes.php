@@ -13,10 +13,11 @@ $app->get('/', function ($request, $response) {
     // Fetch pending project requests
     $pendingProjects = RequestJoinProject::getAllRequestsForUser($this->db, $user->id);
 
-    return $this->view->render($response, 'index.twig', compact('user', 'notifications', 
+    return $this->view->render($response, 'index.twig', compact('user', 'notifications',
                                                                 'pendingProjectActions', 'pendingProjects'));
 })->add($redirectToLoginMW)->setName('home');
 
+// Process Deleting all notifications for a user
 $app->post('/deleteAllNotifications', function ($request, $response) {
     $user = User::findById($this->db, $this->session->userID);
 
@@ -31,6 +32,7 @@ $app->post('/deleteAllNotifications', function ($request, $response) {
     return $response->withRedirect($router->pathFor('home'));
 })->add($redirectToLoginMW)->setName('deleteAllNotifications');
 
+// Process Deleting a single notification
 $app->post('/deleteNotification', function ($request, $response) {
     $isAJAX = false;
     $error = false;
@@ -100,7 +102,7 @@ $app->post('/deleteNotification', function ($request, $response) {
  * Register Routes
  */
 
-// Register route
+// Register page 
 $app->get('/register', function ($request, $response) {
     // Get form data if available
     $postData = $this->session->getPostData();
@@ -108,145 +110,136 @@ $app->get('/register', function ($request, $response) {
     return $this->view->render($response, 'register.twig', compact('postData'));
 })->add($redirectToMainPageMW)->setName('register');
 
-// Process register form
+// Process register form 
 $app->post('/register', function ($request, $response) {
     $router = $this->router;
     $username = strtolower(trim($request->getParam('username')));
     $password = $request->getParam('password');
     $password2 = $request->getParam('password2');
 
-    $name = trim(ucwords($this->request->getParam("name")));
-    $otherInfo = trim($this->request->getParam("otherInfo"));
-    $removePhoto = $this->request->getParam("removePhoto");
+    $name = trim(ucwords($this->request->getParam('name')));
+    $otherInfo = trim($this->request->getParam('otherInfo'));
+    $removePhoto = $this->request->getParam('removePhoto');
     $photo = $request->getUploadedFiles()['photo'];
+
+    $inputError = false;
 
     // Check if username is valid 
     if (User::fetchUser($this->db, $username)) {
+        $inputError = true;
         $this->flash->addMessage('fail', "Username {$username} already exists");
+    }
 
-        // Store form data in session variable
-        $this->session->setPostData($_POST);
-
-        return $response->withRedirect($router->pathFor('register'));
-    } elseif (!User::isValidFormatUsername($username)) {
+    if (!User::isValidFormatUsername($username)) {
+        $inputError = true;
         $this->flash->addMessage('fail',
                                  'Username can contain only letters and numbers and be between '.
                                  User::USERNAME_MIN_LENGTH.' & '.User::USERNAME_MAX_LENGTH.
                                  ' characters long');
-        // Store form data in session variable
-        $this->session->setPostData($_POST);
+    }
 
-        return $response->withRedirect($router->pathFor('register'));
-    } elseif (!User::isValidPassword($password)) {
+    if (!User::isValidPassword($password)) {
+        $inputError = true;
         $this->flash->addMessage('fail',
                                  'Passwords must be at between '.
                                  User::PASSWORD_MIN_LENGTH.' & '.User::PASSWORD_MAX_LENGTH.
                                  ' characters long');
-
-        // Store form data in session variable
-        $this->session->setPostData($_POST);
-
-        return $response->withRedirect($router->pathFor('register'));
-    } elseif (!User::doPasswordsMatch($password, $password2)) {
-        $this->flash->addMessage('fail', 'Passwords must match');
-
-        // Store form data in session variable
-        $this->session->setPostData($_POST);
-
-        return $response->withRedirect($router->pathFor('register'));
-    } else {
-        // Create a new user
-        $user = new User($this->db);
-        $user->username = $username;
-        $user->password = User::encryptPassword($password);
-        $user->joinDate = date('Y-m-d');
-
-        // Create a new profile for the user
-        $profile = new Profile($this->db);
-        $profile->userID = $user->id;
-        $profile->name = (!empty($name)) ? $name : null;
-        $profile->otherInfo = (!empty($otherInfo)) ? $otherInfo : null;
-        $profileError = false;
-
-        if(!Profile::isValidName($name)) {
-            $this->flash->addMessage("fail", "Name field must be " . Profile::NAME_MAX_LENGTH  . " characters or less");
-            $profileError = true;
-        }
-        if(!Profile::isValidOtherInfo($otherInfo)) {
-            $this->flash->addMessage("fail", "Other info field must be " . Profile::OTHERINFO_MAX_LENGTH  . " characters or less");
-            $profileError = true;
-        }
-        if($profileError) {
-            $this->session->setPostData($_POST);
-            return $response->withRedirect($router->pathFor('register'));
-        }
-        
-        if ($photo->getError() === 0) {
-            // Check if uploaded file is a valid photo
-            if(!Profile::isValidImageFile($photo)) {
-                $this->flash->addMessage("fail", "Unable to determine image type of the uploaded file");
-                return $response->withRedirect($router->pathFor('modifyProfile'));
-            }
-
-            if(!Profile::isValidImageFormat($photo)) {
-                $this->flash->addMessage("fail", "Image is not a JPG, GIF, or PNG file");
-                return $response->withRedirect($router->pathFor('modifyProfile'));
-            }
-
-            $uploadFileName = $photo->getClientFilename();
-            $uploadMediaType = $photo->getClientMediaType();
-
-            // Create directory if not exists
-            $uploadDirectory = "uploads/";
-            $uploadDirectory .= $user->username[0] . "/";
-            if(isset($user->username[1])) {
-                $uploadDirectory .= $user->username[1] . "/";
-            }
-            $uploadDirectory .= $user->username;
-            if(!file_exists($uploadDirectory)) {
-                mkdir($uploadDirectory, 0777, true);
-            }
-
-            $photo->moveTo("{$uploadDirectory}/{$uploadFileName}");
-
-            // Resize photo
-            Profile::resizePhoto("{$uploadDirectory}/{$uploadFileName}");
-
-            // Remove old photos
-            $photoFile = $profile->photoPath . '/' . $profile->photoName;
-            if(file_exists($photoFile)) {
-                unlink($photoFile);
-            }
-
-            $profile->photoName = $uploadFileName;
-            $profile->photoPath = $uploadDirectory;
-        } elseif ($photo->getError() !== 4) {
-            $this->flash->addMessage("fail", "There was a problem processing the uploaded file");
-            return $response->withRedirect($router->pathFor('modifyProfile'));
-        }
-
-        $user->save();
-
-        $profile->userID = $user->id;
-        $profile->save();
-        $this->flash->addMessage('success', 'You have successfully registered');
-
-        // redirect to login page
-        return $response->withRedirect($router->pathFor('login'));
     }
 
+    if (!User::doPasswordsMatch($password, $password2)) {
+        $inputError = true;
+        $this->flash->addMessage('fail', 'Passwords must match');
+    }
+
+    if (!Profile::isValidName($name)) {
+        $inputError = true;
+        $this->flash->addMessage('fail', 'Name field must be '.Profile::NAME_MAX_LENGTH.' characters or less');
+    }
+    if (!Profile::isValidOtherInfo($otherInfo)) {
+        $inputError = true;
+        $this->flash->addMessage('fail', 'Other info field must be '.Profile::OTHERINFO_MAX_LENGTH.' characters or less');
+    }
+
+    if ($photo->getError() !== 0 && $photo->getError() !== 4) {
+        $inputError = true;
+        $this->flash->addMessage('fail', 'There was a problem processing the uploaded file');
+    }
+
+    if ($photo->getError() === 0) {
+        // Check if uploaded file is a valid photo
+        if (!Profile::isValidImageFile($photo)) {
+            $inputError = true;
+            $this->flash->addMessage('fail', 'Unable to determine image type of the uploaded file');
+        } elseif (!Profile::isValidImageFormat($photo)) {
+            $inputError = true;
+            $this->flash->addMessage('fail', 'Image is not a JPG, GIF, or PNG file');
+        }
+    }
+
+    if ($inputError) {
+        // Store form data in session variable
+        $this->session->setPostData($_POST);
+
+        return $response->withRedirect($router->pathFor('register'));
+    }
+
+    // Create a new user
+    $user = new User($this->db);
+    $user->username = $username;
+    $user->password = User::encryptPassword($password);
+    $user->joinDate = date('Y-m-d');
+
+    // Create a new profile for the user
+    $profile = new Profile($this->db);
+    $profile->userID = $user->id;
+    $profile->name = (!empty($name)) ? $name : null;
+    $profile->otherInfo = (!empty($otherInfo)) ? $otherInfo : null;
+
+    // Process photo upload
+    if ($photo->getError() === 0) {
+        $uploadFileName = $photo->getClientFilename();
+        $uploadMediaType = $photo->getClientMediaType();
+
+        // Create directory if not exists
+        $uploadDirectory = 'uploads/';
+        $uploadDirectory .= $user->username[0].'/';
+        if (isset($user->username[1])) {
+            $uploadDirectory .= $user->username[1].'/';
+        }
+        $uploadDirectory .= $user->username;
+        if (!file_exists($uploadDirectory)) {
+            mkdir($uploadDirectory, 0777, true);
+        }
+
+        // Save photo to server
+        $photo->moveTo("{$uploadDirectory}/{$uploadFileName}");
+
+        // Resize photo
+        Profile::resizePhoto("{$uploadDirectory}/{$uploadFileName}");
+
+        $profile->photoName = $uploadFileName;
+        $profile->photoPath = $uploadDirectory;
+    }
+
+    $user->save();
+
+    $profile->userID = $user->id;
+    $profile->save();
+    $this->flash->addMessage('success', 'You have successfully registered');
+
+    return $response->withRedirect($router->pathFor('login'));
 })->add($redirectToMainPageMW)->setName('processRegister');
 
 /*
  * Login Routes
  */
 
-// Login route
+// Login page
 $app->get('/login', function ($request, $response) {
     return $this->view->render($response, 'login.twig');
 })->add($redirectToMainPageMW)->setName('login');
 
-// Process login form
+// Process login page form
 $app->post('/login', function ($request, $response) {
     $username = strtolower(trim($request->getParam('username')));
     $password = $request->getParam('password');
@@ -259,26 +252,27 @@ $app->post('/login', function ($request, $response) {
 
             return $response->withRedirect($router->pathFor('home'));
         }
+    } else {
+        $this->flash->addMessage('fail', 'Invalid username/password combination');
+
+        return $response->withRedirect($router->pathFor('login'));
     }
-
-    $this->flash->addMessage('fail', 'Username and/or password is incorrect');
-
-    return $response->withRedirect($router->pathFor('login'));
 })->add($redirectToMainPageMW)->setName('processLogin');
 
-// Logout route
+// Process loggin out user 
 $app->get('/logout', function ($request, $response) {
     $this->session->logout();
 
     $router = $this->router;
+
     return $response->withRedirect($router->pathFor('login'));
 })->add($redirectToLoginMW)->setName('logout');
 
 /*
- * Project Routes
+ * Projects Routes
  */
 
-// Projects route
+// User projects page
 $app->get('/projects', function ($request, $response) {
     $user = User::findById($this->db, $this->session->userID);
     $projects = Project::findProjectsByUser($this->db, $user->id);
@@ -286,46 +280,45 @@ $app->get('/projects', function ($request, $response) {
     return $this->view->render($response, 'projects.twig', compact('user', 'projects'));
 })->add($redirectToLoginMW)->setName('projects');
 
+// All projects page
 $app->get('/projects/all', function ($request, $response) {
     $isAJAX = false;
-    $error = false;
-    $loginExpired = false;
-    $search = trim($request->getParam("search"));
+    $search = trim($request->getParam('search'));
 
     // Check if AJAX request
-    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) 
+    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])
         && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-            $isAJAX = true;
+        $isAJAX = true;
     }
 
-    if($this->session->isLoggedIn()) {
+    if ($this->session->isLoggedIn()) {
         $user = User::findById($this->db, $this->session->userID);
     }
 
-
     $numProjects = Project::getTotalProjectsBySearch($this->db, $search);
-    $pageNum = (int)$request->getParam("page");
+    $pageNum = (int) $request->getParam('page');
     $numItemsPerPage = 20;
     $pagination = new Pagination($numProjects, $pageNum, $numItemsPerPage);
     $offset = $pagination->calculateOffset();
-    
+
     $projects = Project::findProjectsBySearch($this->db, $search, $numItemsPerPage, $offset);
 
     if ($isAJAX) {
-        return $this->view->render($response, 'fetchProjectsListByFilter.twig', compact("projects", "pagination", "search"));
+        return $this->view->render($response, 'fetchProjectsListByFilter.twig', compact('projects', 'pagination', 'search'));
     } else {
-        return $this->view->render($response, 'allProjects.twig', compact('user', 'projects', 'search', "pagination"));
+        return $this->view->render($response, 'allProjects.twig', compact('user', 'projects', 'search', 'pagination'));
     }
 })->add($redirectToLoginMW)->setName('allProjects');
 
-// Add new project route
+// Add new project page 
 $app->get('/projects/add', function ($request, $response) {
     $user = User::findById($this->db, $this->session->userID);
+    $postData = $this->session->getPostData();
 
-    return $this->view->render($response, 'addProject.twig', compact('user'));
+    return $this->view->render($response, 'addProject.twig', compact('user', 'postData'));
 })->add($redirectToLoginMW)->setName('addProject');
 
-// Process add new project route
+// Process add new project form 
 $app->post('/projects/add', function ($request, $response) {
     $router = $this->router;
 
@@ -333,43 +326,54 @@ $app->post('/projects/add', function ($request, $response) {
     $projectName = trim($request->getParam('projectName'));
     $action = trim(strtolower($request->getParam('action')));
 
-    if($action === "cancel") {
-        return $response->withRedirect($router->pathFor('projects'));
-    } elseif($action !== "create") {
-        $this->flash->addMessage("fail", "There was an error processing your request");
+    if ($action === 'cancel' || $action !== 'create') {
+        if ($action !== 'cancel') {
+            $this->flash->addMessage('fail', 'There was an error processing your request');
+        }
+
         return $response->withRedirect($router->pathFor('projects'));
     }
+
+    $inputError = false;
 
     if (Project::doesProjectExist($this->db, $projectName)) {
+        $inputError = true;
         $this->flash->addMessage('fail', 'Project name already exists');
-
-        return $response->withRedirect($router->pathFor('addProject'));
     }
 
-    if (Project::isValidProjectName($projectName)) {
-        $project = new Project($this->db);
-        $project->projectName = $projectName;
-        $project->ownerID = $user->id;
-        $project->dateAdded = date("Y-m-d");
-        $project->save();
-
-        $projectMember = new ProjectMember($this->db);
-        $projectMember->userID = $user->id;
-        $projectMember->projectID = $project->id;
-        $projectMember->isAdmin = true;
-        $projectMember->save();
-
-        $this->flash->addMessage('success', 'Project successfully added');
-
-        return $response->withRedirect($router->pathFor('projects'));
-    } else {
+    if (!Project::isValidProjectName($projectName)) {
+        $inputError = true;
         $this->flash->addMessage('fail', 'Project name has an invalid format');
+    }
+
+    if ($inputError) {
+        $this->session->setPostData($_POST);
 
         return $response->withRedirect($router->pathFor('addProject'));
     }
+
+    $project = new Project($this->db);
+    $project->projectName = $projectName;
+    $project->ownerID = $user->id;
+    $project->dateAdded = date('Y-m-d');
+    $project->save();
+
+    $projectMember = new ProjectMember($this->db);
+    $projectMember->userID = $user->id;
+    $projectMember->projectID = $project->id;
+    $projectMember->isAdmin = true;
+    $projectMember->save();
+
+    $this->flash->addMessage('success', 'Project successfully added');
+
+    return $response->withRedirect($router->pathFor('projects'));
 })->add($redirectToLoginMW)->setName('processAddProject');
 
-// Route for a specific project
+/*
+ * Project Routes
+ */
+
+// Load page for a specific project
 $app->get('/project/{name}', function ($request, $response, $args) {
     $name = trim($args['name']);
 
@@ -378,69 +382,7 @@ $app->get('/project/{name}', function ($request, $response, $args) {
     return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
 })->add($redirectToLoginMW)->setName('project');
 
-// Route for adding a project log entry 
-$app->post('/project/{name}', function ($request, $response, $args) {
-    $router = $this->router;
-    $name = trim($args['name']);
-
-    // Fetch project
-    if (!$project = Project::findProjectByName($this->db, $name)) {
-        $this->flash->addMessage('fail', 'Project does not exist');
-
-        return $response->withRedirect($router->pathFor('projects'));
-    }
-
-    // Check if user is a member of this project
-    if (!ProjectMember::isProjectMemberByProjectName($this->db, $name, $this->session->userID)) {
-        $this->flash->addMessage('fail', 'You do not have permission to add a new log to this project');
-
-        return $response->withRedirect($router->pathFor('fetchAddNewLog', compact('name')));
-    }
-
-    $hours = (int) trim($request->getParam('hours'));
-    $minutes = (int) trim($request->getParam('minutes'));
-    $date = $request->getParam('datePicker');
-    $comment = trim($request->getParam('comment'));
-    $action = trim(strtolower($request->getParam('action')));
-    $inputError = false;
-
-    if($action === "cancel") {
-        return $response->withRedirect($router->pathFor('project', compact("name")));
-    } elseif ($action !== "save") {
-        $this->flash->addMessage("fail", "There was an error processing your request");
-        return $response->withRedirect($router->pathFor('fetchAddNewLog', compact("name")));
-    }
-
-    if (!$date = ProjectLog::formatDateToSQL($date)) {
-        $this->flash->addMessage('fail', 'Invalid date entered');
-        $inputError = true;
-    }
-
-    if (!ProjectLog::isValidTime($hours, $minutes)) {
-        $this->flash->addMessage('fail', 'Time must be between 1 minute to 24 hours');
-        $inputError = true;
-    }
-
-    if ($inputError) {
-        $this->session->setPostData($_POST);
-        return $response->withRedirect($router->pathFor('fetchAddNewLog', compact('name')));
-    }
-
-    // Add log to database
-    $projectLog = new ProjectLog($this->db);
-    $projectLog->userID = $this->session->userID;
-    $projectLog->projectID = $project->id;
-    $projectLog->comment = $comment;
-    $projectLog->date = $date;
-    $projectLog->minutes = ProjectLog::calculateTotalMinutes($hours, $minutes);
-    $projectLog->save();
-
-    $this->flash->addMessage('success', 'Log successfully added to project');
-
-    return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
-})->add($redirectToLoginMW)->setName('addProjectLog');
-
-// Route for getting all log entries for a project
+//  View project logs page
 $app->get('/project/{name}/projectLogs', function ($request, $response, $args) {
     $router = $this->router;
     $page = 'viewLogs';
@@ -474,12 +416,12 @@ $app->get('/project/{name}/projectLogs', function ($request, $response, $args) {
     $projectMembers = ProjectMember::findProjectMembersByProjectName($this->db, $name, false);
 
     // Get number of logs
-    $numLogEntries =  ProjectLog::getNumLogsByProjectName($this->db, $name, $displayLogsUsername);
+    $numLogEntries = ProjectLog::getNumLogsByProjectName($this->db, $name, $displayLogsUsername);
 
     // Setup pagination
-    $pageNum = (int)$request->getParam("page");
+    $pageNum = (int) $request->getParam('page');
     $numEntriesPerPage = 20;
-    $pagination = new Pagination($numLogEntries, $pageNum, $numEntriesPerPage); 
+    $pagination = new Pagination($numLogEntries, $pageNum, $numEntriesPerPage);
     $offset = $pagination->calculateOffset();
     $projectLogs = ProjectLog::findLogsByProjectName($this->db, $name, $displayLogsUsername, $numEntriesPerPage, $offset);
 
@@ -515,6 +457,7 @@ $app->get('/project/{name}/projectLogs', function ($request, $response, $args) {
     } else {
         $totalMinutesByMe = false;
     }
+
     return $this->view->render($response, 'project.twig', compact('user', 'project', 'projectLogs',
                                                                   'page', 'projectMember', 'isAdmin',
                                                                   'userHasJoinRequest', 'totalMinutes',
@@ -522,7 +465,7 @@ $app->get('/project/{name}/projectLogs', function ($request, $response, $args) {
                                                                   'displayLogsUsername', 'pagination'));
 })->add($redirectToLoginMW)->setName('fetchProjectLogs');
 
-// Route for fetching members of a project
+// List project members page
 $app->get('/project/{name}/members', function ($request, $response, $args) {
     $router = $this->router;
 
@@ -546,6 +489,8 @@ $app->get('/project/{name}/members', function ($request, $response, $args) {
         $projectMember = true;
     }
 
+    $project->dateAdded = ProjectLog::formatDateFromSQL($project->dateAdded);
+
     // Check if user has requested to join this project if not a project member
     if (!$projectMember && RequestJoinProject::getRequestByProjectName($this->db, $name, $user->id)) {
         $userHasJoinRequest = true;
@@ -562,8 +507,6 @@ $app->get('/project/{name}/members', function ($request, $response, $args) {
     if ($isAdmin) {
         $requests = RequestJoinProject::getRequestsByProjectName($this->db, $name);
     }
-
-    $project->dateAdded = ProjectLog::formatDateFromSQL($project->dateAdded);
 
     // Get combined minutes of all users for this project
     $totalMinutes = ProjectLog::getTotalTimeByProjectName($this->db, $name);
@@ -583,7 +526,7 @@ $app->get('/project/{name}/members', function ($request, $response, $args) {
                                                                   'totalMinutes', 'totalMinutesByMe'));
 })->add($redirectToLoginMW)->setName('fetchProjectMembers');
 
-// Route for accepting and declining project membership
+// Process accepting or declining project membership requests
 $app->post('/project/{name}/members/request/{username}', function ($request, $response, $args) {
     $router = $this->router;
 
@@ -652,7 +595,7 @@ $app->post('/project/{name}/members/request/{username}', function ($request, $re
     return $response->withRedirect($router->pathFor('fetchProjectMembers', compact('name')));
 })->add($redirectToLoginMW)->setName('processMemberRequest');
 
-// Confirm remove user from project route
+// Confirm remove user from project page
 $app->get('/project/{name}/remove/{username}', function ($request, $response, $args) {
     $router = $this->router;
 
@@ -678,10 +621,12 @@ $app->get('/project/{name}/remove/{username}', function ($request, $response, $a
     // Check for permission to remove member
     $isAdmin = ProjectMember::isProjectAdmin($this->db, $name, $user->id);
     if (!(($isAdmin && !$projectMember->isAdmin) || ($project->ownerID === $user->id))) {
-        $this->flash->addMessage('fail', 'You do not have permission to access this page');
+        $this->flash->addMessage('fail', 'You do not have permission to perform this action');
 
         return $response->withRedirect($router->pathFor('fetchProjectMembers', compact('name')));
     }
+
+    $project->dateAdded = ProjectLog::formatDateFromSQL($project->dateAdded);
 
     // Get combined minutes of all users for this project
     $totalMinutes = ProjectLog::getTotalTimeByProjectName($this->db, $name);
@@ -694,7 +639,7 @@ $app->get('/project/{name}/remove/{username}', function ($request, $response, $a
     return $this->view->render($response, 'project.twig', compact('user', 'project', 'page', 'projectMember', 'totalMinutes', 'totalMinutesByMe'));
 })->add($redirectToLoginMW)->setName('confirmRemoveMember');
 
-// Route for processing removing a user from a project
+// Process remove member from a project
 $app->post('/project/{name}/remove/{username}', function ($request, $response, $args) {
     $router = $this->router;
 
@@ -702,6 +647,14 @@ $app->post('/project/{name}/remove/{username}', function ($request, $response, $
     $username = trim($args['username']);
     $user = User::findById($this->db, $this->session->userID);
     $action = $request->getParam('action');
+
+    if ($action === 'no' || $action !== 'yes') {
+        if ($action !== 'no') {
+            $this->flash->addMessage('fail', 'There was an error processing your request');
+        }
+
+        return $response->withRedirect($router->pathFor('fetchProjectMembers', compact('name')));
+    }
 
     // Check if project exists
     if (!$project = Project::findProjectByName($this->db, $name)) {
@@ -725,28 +678,24 @@ $app->post('/project/{name}/remove/{username}', function ($request, $response, $
         return $response->withRedirect($router->pathFor('fetchProjectMembers', compact('name')));
     }
 
-    if ($action === 'Yes') {
-        // Remove user from project database
-        $projectMember->delete();
+    // Remove user from project database
+    $projectMember->delete();
 
-        // Add notification removed user 
-        $notification = new Notification($this->db);
-        $notification->date = date('Y-m-d');
-        $notification->userID = $projectMember->userID;
-        $notification->notification = 'You were removed from project ';
-        $notification->notification .= "<a href=\"{$router->pathFor('fetchProjectLogs', compact('name'))}\">{$name}</a> ";
-        $notification->notification .= "by {$user->username}";
-        $notification->save();
+    // Add notification for removed user 
+    $notification = new Notification($this->db);
+    $notification->date = date('Y-m-d');
+    $notification->userID = $projectMember->userID;
+    $notification->notification = 'You were removed from project ';
+    $notification->notification .= "<a href=\"{$router->pathFor('fetchProjectLogs', compact('name'))}\">{$name}</a> ";
+    $notification->notification .= "by {$user->username}";
+    $notification->save();
 
-        $this->flash->addMessage('success', "{$projectMember->username} has been removed");
-    } elseif ($action !== 'No') {
-        $this->flash->addMessage('fail', 'There was an error processing this request');
-    }
+    $this->flash->addMessage('success', "{$projectMember->username} has been removed");
 
     return $response->withRedirect($router->pathFor('fetchProjectMembers', compact('name')));
 })->add($redirectToLoginMW)->setName('processRemoveMember');
 
-// Route for changing a project member to admin status or removing admin status
+// Process toggle admin status of a user
 $app->post('/project/{name}/rank/{username}', function ($request, $response, $args) {
     $router = $this->router;
 
@@ -783,9 +732,9 @@ $app->post('/project/{name}/rank/{username}', function ($request, $response, $ar
             $notification->notification .= "by {$user->username}";
             $notification->save();
 
-            $this->flash->addMessage('success', "{$username} is now an admin of project {$name}");
+            $this->flash->addMessage('success', "{$username} is now an admin");
         } else {
-            $this->flash->addMessage('fail', "{$username} is already an admin of project {$name}");
+            $this->flash->addMessage('fail', "{$username} is already an admin");
         }
     } elseif ($action === 'demote') {
         if ($projectMember->isAdmin == true) {
@@ -800,9 +749,9 @@ $app->post('/project/{name}/rank/{username}', function ($request, $response, $ar
             $notification->notification .= "<a href=\"{$router->pathFor('fetchProjectLogs', compact('name'))}\">{$name}</a> ";
             $notification->notification .= "by {$user->username}";
             $notification->save();
-            $this->flash->addMessage('success', "{$username} is no longer an admin of project {$name}");
+            $this->flash->addMessage('success', "{$username} is no longer an admin");
         } else {
-            $this->flash->addMessage('fail', "{$username} is already a regular member of project {$name}");
+            $this->flash->addMessage('fail', "{$username} is already a regular member");
         }
     } else {
         $this->flash->addMessage('fail', 'There was an error processing this request');
@@ -811,7 +760,7 @@ $app->post('/project/{name}/rank/{username}', function ($request, $response, $ar
     return $response->withRedirect($router->pathFor('fetchProjectMembers', compact('name')));
 })->add($redirectToLoginMW)->setName('processToggleAdmin');
 
-// Route for adding a new project log entry
+// Add new log page
 $app->get('/project/{name}/newLog', function ($request, $response, $args) {
     $router = $this->router;
 
@@ -852,7 +801,71 @@ $app->get('/project/{name}/newLog', function ($request, $response, $args) {
                                                                   'totalMinutes', 'totalMinutesByMe', 'postData'));
 })->add($redirectToLoginMW)->setName('fetchAddNewLog');
 
-// Route for editing an existing log
+// Process add new log form
+$app->post('/project/{name}/newLog', function ($request, $response, $args) {
+    $router = $this->router;
+    $name = trim($args['name']);
+
+    // Fetch project
+    if (!$project = Project::findProjectByName($this->db, $name)) {
+        $this->flash->addMessage('fail', 'Project does not exist');
+
+        return $response->withRedirect($router->pathFor('projects'));
+    }
+
+    // Check if user is a member of this project
+    if (!ProjectMember::isProjectMemberByProjectName($this->db, $name, $this->session->userID)) {
+        $this->flash->addMessage('fail', 'You do not have permission to add a new log to this project');
+
+        return $response->withRedirect($router->pathFor('fetchAddNewLog', compact('name')));
+    }
+
+    $hours = (int) trim($request->getParam('hours'));
+    $minutes = (int) trim($request->getParam('minutes'));
+    $date = $request->getParam('datePicker');
+    $comment = trim($request->getParam('comment'));
+    $action = trim(strtolower($request->getParam('action')));
+    $inputError = false;
+
+    if ($action === 'cancel' || $action !== 'save') {
+        if ($action !== 'cancel') {
+            $this->flash->addMessage('fail', 'There was an error processing your request');
+        }
+
+        return $response->withRedirect($router->pathFor('project', compact('name')));
+    }
+
+    if (!$date = ProjectLog::formatDateToSQL($date)) {
+        $inputError = true;
+        $this->flash->addMessage('fail', 'Invalid date entered');
+    }
+
+    if (!ProjectLog::isValidTime($hours, $minutes)) {
+        $inputError = true;
+        $this->flash->addMessage('fail', 'Time must be between 1 minute to 24 hours');
+    }
+
+    if ($inputError) {
+        $this->session->setPostData($_POST);
+
+        return $response->withRedirect($router->pathFor('fetchAddNewLog', compact('name')));
+    }
+
+    // Add log to database
+    $projectLog = new ProjectLog($this->db);
+    $projectLog->userID = $this->session->userID;
+    $projectLog->projectID = $project->id;
+    $projectLog->comment = $comment;
+    $projectLog->date = $date;
+    $projectLog->minutes = ProjectLog::calculateTotalMinutes($hours, $minutes);
+    $projectLog->save();
+
+    $this->flash->addMessage('success', 'Log successfully added to project');
+
+    return $response->withRedirect($router->pathFor('fetchAddNewLog', compact('name')));
+})->add($redirectToLoginMW)->setName('addProjectLog');
+
+// Edit existing log page
 $app->get('/project/{name}/edit/{logID}', function ($request, $response, $args) {
     $router = $this->router;
 
@@ -888,6 +901,7 @@ $app->get('/project/{name}/edit/{logID}', function ($request, $response, $args) 
 
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
+    $project->dateAdded = ProjectLog::formatDateFromSQL($project->dateAdded);
 
     // Fetch post data
     $postData = $this->session->getPostData();
@@ -898,8 +912,6 @@ $app->get('/project/{name}/edit/{logID}', function ($request, $response, $args) 
     $projectLog->minutes = $projectLog->minutes % 60;
     $projectMember = true;
 
-    $project->dateAdded = ProjectLog::formatDateFromSQL($project->dateAdded);
-
     // Get combined minutes of all users for this project
     $totalMinutes = ProjectLog::getTotalTimeByProjectName($this->db, $name);
     $totalMinutes = ProjectLog::formatTimeOutput($totalMinutes);
@@ -908,9 +920,12 @@ $app->get('/project/{name}/edit/{logID}', function ($request, $response, $args) 
     $totalMinutesByMe = ProjectLog::getTotalTimeByProjectNameAndUser($this->db, $name, $user->id);
     $totalMinutesByMe = ProjectLog::formatTimeOutput($totalMinutesByMe);
 
-    return $this->view->render($response, 'project.twig', compact('user', 'project', 'projectLog', 'page', 'projectMember', 'totalMinutes', 'totalMinutesByMe', 'postData'));
+    return $this->view->render($response, 'project.twig', compact('user', 'project', 'projectLog', 'page',
+                                                                  'projectMember', 'totalMinutes', 'totalMinutesByMe',
+                                                                  'postData'));
 })->add($redirectToLoginMW)->setName('fetchEditLog');
 
+// Process delete log entry form
 $app->post('/project{name}/deleteLog/{logID}', function ($request, $response, $args) {
     $router = $this->router;
 
@@ -918,6 +933,14 @@ $app->post('/project{name}/deleteLog/{logID}', function ($request, $response, $a
     $logID = (int) ($args['logID']);
     $action = $request->getParam('action');
     $user = User::findById($this->db, $this->session->userID);
+
+    if ($action === 'cancel' || $action !== 'delete') {
+        if ($action !== 'cancel') {
+            $this->flash->addMessage('fail', 'There was an error processing your request');
+        }
+
+        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
+    }
 
     // Check if project exists
     if (!Project::doesProjectExist($this->db, $name)) {
@@ -940,19 +963,15 @@ $app->post('/project{name}/deleteLog/{logID}', function ($request, $response, $a
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
-    if ($action === 'delete') {
-        // Delete log in database
-        $projectLog->delete();
+    // Delete log in database
+    $projectLog->delete();
 
-        $this->flash->addMessage('success', 'Log entry successfully deleted');
-    } elseif ($action !== 'cancel') {
-        $this->flash->addMessage('fail', 'There was an error processing your request');
-    }
+    $this->flash->addMessage('success', 'Log entry successfully deleted');
 
     return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
 })->add($redirectToLoginMW)->setName('deleteLog');
 
-// Route for processing edit log changes
+// Process edit log entry form
 $app->post('/project/{name}/edit/{logID}', function ($request, $response, $args) {
     $router = $this->router;
 
@@ -960,6 +979,14 @@ $app->post('/project/{name}/edit/{logID}', function ($request, $response, $args)
     $logID = (int) ($args['logID']);
     $action = $request->getParam('action');
     $user = User::findById($this->db, $this->session->userID);
+
+    if ($action === 'cancel' || $action !== 'save') {
+        if ($action !== 'cancel') {
+            $this->flash->addMessage('fail', 'There was a problem processing your request');
+        }
+
+        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
+    }
 
     // Check if project exists
     if (!Project::doesProjectExist($this->db, $name)) {
@@ -1000,24 +1027,21 @@ $app->post('/project/{name}/edit/{logID}', function ($request, $response, $args)
 
     if ($inputError) {
         $this->session->setPostData($_POST);
+
         return $response->withRedirect($router->pathFor('fetchEditLog', compact('name', 'logID')));
     }
 
-    if ($action === 'save') {
-        // Update log in database
-        $projectLog->date = $date;
-        $projectLog->projectTime = "{$hours}:{$minutes}:00";
-        $projectLog->comment = $comment;
-        $projectLog->save();
-        $this->flash->addMessage('success', 'Log entry successfully updated');
-    } elseif ($action !== 'cancel') {
-        $this->flash->addMessage('fail', 'There was an error processing your request');
-    }
+    // Update log in database
+    $projectLog->date = $date;
+    $projectLog->minutes = ProjectLog::calculateTotalMinutes($hours, $minutes);
+    $projectLog->comment = $comment;
+    $projectLog->save();
+    $this->flash->addMessage('success', 'Log entry successfully updated');
 
     return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
 })->add($redirectToLoginMW)->setName('editLog');
 
-// Route for requesting to join a project group
+// Process request to join a project form
 $app->post('/project/{name}/request', function ($request, $response, $args) {
     $router = $this->router;
 
@@ -1051,12 +1075,12 @@ $app->post('/project/{name}/request', function ($request, $response, $args) {
     $requestJoinProject->projectID = $project->id;
     $requestJoinProject->save();
 
-    $this->flash->addMessage('success', 'Request to join project sent');
+    $this->flash->addMessage('success', 'Request to join project has been sent');
 
     return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
 })->add($redirectToLoginMW)->setName('requestJoin');
 
-// Route for canceling a request to join a project
+// Process cancellation of a request to join a project
 $app->post('/project/{name}/request/cancel', function ($request, $response, $args) {
     $router = $this->router;
 
@@ -1085,7 +1109,7 @@ $app->post('/project/{name}/request/cancel', function ($request, $response, $arg
     return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
 })->add($redirectToLoginMW)->setName('cancelRequestJoin');
 
-// Route for project actions
+// Project actions page
 $app->get('/project/{name}/actions', function ($request, $response, $args) {
     $router = $this->router;
 
@@ -1107,10 +1131,10 @@ $app->get('/project/{name}/actions', function ($request, $response, $args) {
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
+    $project->dateAdded = ProjectLog::formatDateFromSQL($project->dateAdded);
     $isOwner = $project->ownerID === $user->id;
     $isAdmin = ProjectMember::isProjectAdmin($this->db, $name, $user->id);
     $projectMember = true;
-    $project->dateAdded = ProjectLog::formatDateFromSQL($project->dateAdded);
 
     // Get combined minutes of all users for this project
     $totalMinutes = ProjectLog::getTotalTimeByProjectName($this->db, $name);
@@ -1124,9 +1148,11 @@ $app->get('/project/{name}/actions', function ($request, $response, $args) {
         $totalMinutesByMe = false;
     }
 
-    return $this->view->render($response, 'project.twig', compact('user', 'project', 'isOwner', 'page', 'projectMember', 'isAdmin', 'totalMinutes', 'totalMinutesByMe'));
+    return $this->view->render($response, 'project.twig', compact('user', 'project', 'isOwner', 'page', 'projectMember',
+                                                                  'isAdmin', 'totalMinutes', 'totalMinutesByMe'));
 })->add($redirectToLoginMW)->setName('projectActions');
 
+// Leave project page
 $app->get('/project/{name}/leave/{username}', function ($request, $response, $args) {
     $router = $this->router;
 
@@ -1166,9 +1192,11 @@ $app->get('/project/{name}/leave/{username}', function ($request, $response, $ar
         $totalMinutesByMe = false;
     }
 
-    return $this->view->render($response, 'project.twig', compact('user', 'project', 'page', 'projectMember', 'totalMinutes', 'totalMinutesByMe'));
+    return $this->view->render($response, 'project.twig', compact('user', 'project', 'page', 'projectMember',
+                                                                  'totalMinutes', 'totalMinutesByMe'));
 })->add($redirectToLoginMW)->setName('confirmLeaveProject');
 
+// Process leave project form
 $app->post('/project/{name}/leave/{username}', function ($request, $response, $args) {
     $router = $this->router;
 
@@ -1177,10 +1205,11 @@ $app->post('/project/{name}/leave/{username}', function ($request, $response, $a
     $action = trim(strtolower($request->getParam('action')));
     $user = User::findById($this->db, $this->session->userID);
 
-    if($action === 'no') {
-        return $response->withRedirect($router->pathFor('projectActions', compact('name')));
-    } elseif($action !== 'yes') {
-        $this->flash->addMessage('fail', 'There was an error processing your request');
+    if ($action === 'no' || $action !== 'yes') {
+        if ($action !== 'no') {
+            $this->flash->addMessage('fail', 'There was an error processing your request');
+        }
+
         return $response->withRedirect($router->pathFor('projectActions', compact('name')));
     }
 
@@ -1205,9 +1234,11 @@ $app->post('/project/{name}/leave/{username}', function ($request, $response, $a
     $projectMember->delete();
 
     $this->flash->addMessage('success', 'You have left this project');
+
     return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
 })->add($redirectToLoginMW)->setName('processLeaveProject');
 
+// Delete project page
 $app->get('/project/{name}/delete', function ($request, $response, $args) {
     $router = $this->router;
 
@@ -1244,7 +1275,8 @@ $app->get('/project/{name}/delete', function ($request, $response, $args) {
         $totalMinutesByMe = false;
     }
 
-    return $this->view->render($response, 'project.twig', compact('user', 'project', 'page', 'projectMember', 'totalMinutes', 'totalMinutesByMe'));
+    return $this->view->render($response, 'project.twig', compact('user', 'project', 'page', 'projectMember',
+                                                                  'totalMinutes', 'totalMinutesByMe'));
 })->add($redirectToLoginMW)->setName('confirmDeleteProject');
 
 $app->post('/project/{name}/delete', function ($request, $response, $args) {
@@ -1254,12 +1286,13 @@ $app->post('/project/{name}/delete', function ($request, $response, $args) {
     $action = trim(strtolower($request->getParam('action')));
     $user = User::findById($this->db, $this->session->userID);
 
-    if($action === 'no') {
+    if ($action === 'no' || $action !== 'yes') {
+        if ($action !== 'no') {
+            $this->flash->addMessage('fail', ' There was an error processing your request');
+        }
+
         return $response->withRedirect($router->pathFor('projectActions', compact('name')));
-    } elseif ($action !== 'yes') {
-        $this->flash->addMessage('fail', ' There was an error processing your request');
-        return $response->withRedirect($router->pathFor('projectActions', compact('name')));
-    } 
+    }
 
     // Fetch project
     if (!$project = Project::findProjectByName($this->db, $name)) {
@@ -1276,7 +1309,6 @@ $app->post('/project/{name}/delete', function ($request, $response, $args) {
     }
 
     $projectMember = true;
-
     $projectMembers = ProjectMember::findProjectMembersByProjectName($this->db, $name);
 
     // Delete the project
@@ -1295,9 +1327,11 @@ $app->post('/project/{name}/delete', function ($request, $response, $args) {
     }
 
     $this->flash->addMessage('success', "Project {$project->projectName} has been deleted successfully");
+
     return $response->withRedirect($router->pathFor('projects'));
 })->add($redirectToLoginMW)->setName('processDeleteProject');
 
+// Rename project page
 $app->get('/project/{name}/rename', function ($request, $response, $args) {
     $router = $this->router;
 
@@ -1333,9 +1367,12 @@ $app->get('/project/{name}/rename', function ($request, $response, $args) {
     $totalMinutesByMe = ProjectLog::getTotalTimeByProjectNameAndUser($this->db, $name, $user->id);
     $totalMinutesByMe = ProjectLog::formatTimeOutput($totalMinutesByMe);
 
-    return $this->view->render($response, 'project.twig', compact('user', 'project', 'projectMember', 'page', 'projectMember', 'totalMinutes', 'totalMinutesByMe', 'postData'));
+    return $this->view->render($response, 'project.twig', compact('user', 'project', 'projectMember', 'page',
+                                                                  'projectMember', 'totalMinutes', 'totalMinutesByMe',
+                                                                  'postData'));
 })->add($redirectToLoginMW)->setName('renameProject');
 
+// Process renaming a project
 $app->post('/project/{name}/rename', function ($request, $response, $args) {
     $router = $this->router;
 
@@ -1344,11 +1381,12 @@ $app->post('/project/{name}/rename', function ($request, $response, $args) {
     $action = trim($request->getParam('action'));
     $user = User::findById($this->db, $this->session->userID);
 
-    if($action === 'cancel') {
-        return $response->withRedirect($router->pathFor('projectActions', compact("name")));
-    } elseif ($action !== 'rename') {
-        $this->flash->addMessage('fail', 'There was an error processing your request');
-        return $response->withRedirect($router->pathFor('projectActions', compact("name")));
+    if ($action === 'cancel' || $action !== 'rename') {
+        if ($action !== 'cancel') {
+            $this->flash->addMessage('fail', 'There was an error processing your request');
+        }
+
+        return $response->withRedirect($router->pathFor('projectActions', compact('name')));
     }
 
     // Fetch project
@@ -1408,9 +1446,11 @@ $app->post('/project/{name}/rename', function ($request, $response, $args) {
     }
 
     $this->flash->addMessage('success', "Project {$name} has been renamed to {$newName} ");
+
     return $response->withRedirect($router->pathFor('projectActions', ['name' => $newName]));
 })->add($redirectToLoginMW)->setName('processRenameProject');
 
+// Transfer project ownership page
 $app->get('/project/{name}/transferOwnership', function ($request, $response, $args) {
     $router = $this->router;
 
@@ -1446,9 +1486,11 @@ $app->get('/project/{name}/transferOwnership', function ($request, $response, $a
     $totalMinutesByMe = ProjectLog::getTotalTimeByProjectNameAndUser($this->db, $name, $user->id);
     $totalMinutesByMe = ProjectLog::formatTimeOutput($totalMinutesByMe);
 
-    return $this->view->render($response, 'project.twig', compact('user', 'project', 'page', 'projectMembers', 'projectMember', 'totalMinutes', 'totalMinutesByMe'));
+    return $this->view->render($response, 'project.twig', compact('user', 'project', 'page', 'projectMembers',
+                                                                  'projectMember', 'totalMinutes', 'totalMinutesByMe'));
 })->add($redirectToLoginMW)->setName('transferOwnership');
 
+// Transfer project ownership confirmation page
 $app->post('/project/{name}/transferOwnership/confirm', function ($request, $response, $args) {
     $router = $this->router;
 
@@ -1458,10 +1500,11 @@ $app->post('/project/{name}/transferOwnership/confirm', function ($request, $res
     $action = trim(strtolower($request->getParam('action')));
     $user = User::findById($this->db, $this->session->userID);
 
-    if($action === 'cancel') {
-        return $response->withRedirect($router->pathFor('projectActions', compact('name')));
-    } elseif ($action !== 'transfer') {
-        $this->flash->addMessage('fail', 'There was an error processing your request');
+    if ($action === 'cancel' || $action !== 'transfer') {
+        if ($action !== 'cancel') {
+            $this->flash->addMessage('fail', 'There was an error processing your request');
+        }
+
         return $response->withRedirect($router->pathFor('projectActions', compact('name')));
     }
 
@@ -1497,9 +1540,11 @@ $app->post('/project/{name}/transferOwnership/confirm', function ($request, $res
     $totalMinutesByMe = ProjectLog::getTotalTimeByProjectNameAndUser($this->db, $name, $user->id);
     $totalMinutesByMe = ProjectLog::formatTimeOutput($totalMinutesByMe);
 
-    return $this->view->render($response, 'project.twig', compact('user', 'page', 'project', 'owner', 'projectMember', 'totalMinutes', 'totalMinutesByMe'));
+    return $this->view->render($response, 'project.twig', compact('user', 'page', 'project', 'owner', 'projectMember',
+                                                                  'totalMinutes', 'totalMinutesByMe'));
 })->add($redirectToLoginMW)->setName('confirmTransferOwnership');
 
+// Process confirm transfer ownership
 $app->post('/project/{name}/transferOwnership/{newOwner}', function ($request, $response, $args) {
     $router = $this->router;
 
@@ -1508,10 +1553,11 @@ $app->post('/project/{name}/transferOwnership/{newOwner}', function ($request, $
     $action = trim(strtolower($request->getParam('action')));
     $user = User::findById($this->db, $this->session->userID);
 
-    if($action === 'no') {
-        return $response->withRedirect($router->pathFor('transferOwnership', compact('name')));
-    } elseif($action !== 'yes') {
-        $this->flash->addMessage('fail', 'There was an error processing your request');
+    if ($action === 'no' || $action !== 'yes') {
+        if ($action !== 'no') {
+            $this->flash->addMessage('fail', 'There was an error processing your request');
+        }
+
         return $response->withRedirect($router->pathFor('transferOwnership', compact('name')));
     }
 
@@ -1555,42 +1601,44 @@ $app->post('/project/{name}/transferOwnership/{newOwner}', function ($request, $
     $notification->save();
 
     $this->flash->addMessage('success', "Project ownership has been transfered to {$projectMember->username}");
+
     return $response->withRedirect($router->pathFor('projectActions', compact('name')));
 })->add($redirectToLoginMW)->setName('processTransferOwnership');
 
-$app->get('/project/{name}/history', function ($request, $response, $args) {
-    return "HISTORY";
-})->add($redirectToLoginMW)->setName('fetchProjectHistory');
+/*
+ * Profile Routes
+ */
 
+// User profile page
 $app->get('/profile/{username}', function ($request, $response, $args) {
     $user = User::findById($this->db, $this->session->userID);
     $username = trim(strtolower($args['username']));
+    $prevPage = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : false;
+    $profileNotFound = false;
 
     // Fetch profile
-    if(!$profile = Profile::getProfileByUsername($this->db, $username)) {
-        echo "NO SUCH USER";
-        exit;
-    }
-    $profile->joinDate = ProjectLog::formatDateFromSQL($profile->joinDate);
+    if ($profile = Profile::getProfileByUsername($this->db, $username)) {
+        $profile->joinDate = ProjectLog::formatDateFromSQL($profile->joinDate);
 
-    // Fetch projects for the user
-    $projects = Project::findProjectsByUser($this->db, $profile->userID);
-        
-    
-    return $this->view->render($response, 'profile.twig', compact('user', 'profile', 'projects'));
+        // Fetch projects for the user
+        $projects = Project::findProjectsByUser($this->db, $profile->userID);
+    }
+
+    return $this->view->render($response, 'profile.twig', compact('user', 'profile', 'projects', 'prevPage'));
 })->add($redirectToLoginMW)->setName('userProfile');
 
 /*
  * Account Routes
  */
 
-// Account route
+// Account menu page
 $app->get('/account', function ($request, $response) {
     $user = User::findById($this->db, $this->session->userID);
 
     return $this->view->render($response, 'account.twig', compact('user'));
 })->add($redirectToLoginMW)->setName('account');
 
+// Update profile page
 $app->get('/account/profile', function ($request, $response) {
     $user = User::findById($this->db, $this->session->userID);
     $maxPhotoSize = Profile::getMaxPhotoAllowedFileSizeInBytes();
@@ -1602,40 +1650,58 @@ $app->get('/account/profile', function ($request, $response) {
     return $this->view->render($response, 'modifyProfile.twig', compact('user', 'maxPhotoSize', 'profile', 'postData'));
 })->add($redirectToLoginMW)->setName('modifyProfile');
 
+// Process update profile form
 $app->post('/account/profile/', function ($request, $response) {
     $router = $this->router;
     $user = User::findById($this->db, $this->session->userID);
 
-    $action = trim($this->request->getParam("action"));
-    $name = trim(ucwords($this->request->getParam("name")));
-    $otherInfo = trim($this->request->getParam("otherInfo"));
-    $removePhoto = $this->request->getParam("removePhoto");
+    $action = trim(strtolower($this->request->getParam('action')));
+    $name = trim(ucwords($this->request->getParam('name')));
+    $otherInfo = trim($this->request->getParam('otherInfo'));
+    $removePhoto = $this->request->getParam('removePhoto');
     $photo = $request->getUploadedFiles()['photo'];
 
-    if($action === "cancel") {
-        return $response->withRedirect($router->pathFor('account'));
-    } elseif ($action !== "save") {
-        $this->flash->addMessage("fail", "There was an error processing your request");
+    if ($action === 'cancel' || $action !== 'save') {
+        if ($action !== 'cancel') {
+            $this->flash->addMessage('fail', 'There was an error processing your request');
+        }
+
         return $response->withRedirect($router->pathFor('account'));
     }
 
-    $profileError = false;
+    // Validate form data
+    if (!Profile::isValidName($name)) {
+        $inputError = true;
+        $this->flash->addMessage('fail', 'Name field must be '.Profile::NAME_MAX_LENGTH.' characters or less');
+    }
+    if (!Profile::isValidOtherInfo($otherInfo)) {
+        $inputError = true;
+        $this->flash->addMessage('fail', 'Other info field must be '.Profile::OTHERINFO_MAX_LENGTH.' characters or less');
+    }
+    if ($photo->getError() !== 0 && $photo->getError() !== 4) {
+        $inputError = true;
+        $this->flash->addMessage('fail', 'There was a problem processing the uploaded file');
+    }
+    if ($photo->getError() === 0) {
+        // Check if uploaded file is a valid photo
+        if (!Profile::isValidImageFile($photo)) {
+            $inputError = true;
+            $this->flash->addMessage('fail', 'Unable to determine image type of the uploaded file');
+        } elseif (!Profile::isValidImageFormat($photo)) {
+            $inputError = true;
+            $this->flash->addMessage('fail', 'Image is not a JPG, GIF, or PNG file');
+        }
+    }
 
-    if(!Profile::isValidName($name)) {
-        $this->flash->addMessage("fail", "Name field must be " . Profile::NAME_MAX_LENGTH  . " characters or less");
-        $profileError = true;
-    }
-    if(!Profile::isValidOtherInfo($otherInfo)) {
-        $this->flash->addMessage("fail", "Other info field is must be " . Profile::OTHERINFO_MAX_LENGTH  . " characters or less");
-        $profileError = true;
-    }
-    if($profileError) {
+    if ($inputError) {
+        // Store form data in session variable
         $this->session->setPostData($_POST);
+
         return $response->withRedirect($router->pathFor('modifyProfile'));
     }
 
     // Fetch profile if it exists otherwise create a new profile
-    if($profile = Profile::getProfileByUserID($this->db, $user->id)) {
+    if ($profile = Profile::getProfileByUserID($this->db, $user->id)) {
         $newProfile = false;
     } else {
         $profile = new Profile($this->db);
@@ -1645,39 +1711,28 @@ $app->post('/account/profile/', function ($request, $response) {
     $profile->name = (!empty($name)) ? $name : null;
     $profile->otherInfo = (!empty($otherInfo)) ? $otherInfo : null;
 
-    if($removePhoto === "removePhoto") { 
+    if ($removePhoto === 'removePhoto') {
         // Remove old photo
-        if(!$newProfile) {
-            $photoFile = $profile->photoPath . '/' . $profile->photoName;
-            if(file_exists($photoFile)) {
+        if (!$newProfile) {
+            $photoFile = $profile->photoPath.'/'.$profile->photoName;
+            if (file_exists($photoFile)) {
                 unlink($photoFile);
                 $profile->photoName = null;
                 $profile->photoPath = null;
             }
         }
     } elseif ($photo->getError() === 0) {
-        // Check if uploaded file is a valid photo
-        if(!Profile::isValidImageFile($photo)) {
-            $this->flash->addMessage("fail", "Unable to determine image type of the uploaded file");
-            return $response->withRedirect($router->pathFor('modifyProfile'));
-        }
-
-        if(!Profile::isValidImageFormat($photo)) {
-            $this->flash->addMessage("fail", "Image is not a JPG, GIF, or PNG file");
-            return $response->withRedirect($router->pathFor('modifyProfile'));
-        }
-
         $uploadFileName = $photo->getClientFilename();
         $uploadMediaType = $photo->getClientMediaType();
 
         // Create directory if not exists
-        $uploadDirectory = "uploads/";
-        $uploadDirectory .= $user->username[0] . "/";
-        if(isset($user->username[1])) {
-            $uploadDirectory .= $user->username[1] . "/";
+        $uploadDirectory = 'uploads/';
+        $uploadDirectory .= $user->username[0].'/';
+        if (isset($user->username[1])) {
+            $uploadDirectory .= $user->username[1].'/';
         }
         $uploadDirectory .= $user->username;
-        if(!file_exists($uploadDirectory)) {
+        if (!file_exists($uploadDirectory)) {
             mkdir($uploadDirectory, 0777, true);
         }
 
@@ -1686,68 +1741,74 @@ $app->post('/account/profile/', function ($request, $response) {
         // Resize photo
         Profile::resizePhoto("{$uploadDirectory}/{$uploadFileName}");
 
-        // Remove old photos
-        $photoFile = $profile->photoPath . '/' . $profile->photoName;
-        if(file_exists($photoFile)) {
+        // Remove old photo if exists
+        $photoFile = $profile->photoPath.'/'.$profile->photoName;
+        if (file_exists($photoFile)) {
             unlink($photoFile);
         }
 
         $profile->photoName = $uploadFileName;
         $profile->photoPath = $uploadDirectory;
-    } elseif ($photo->getError() !== 4) {
-        $this->flash->addMessage("fail", "There was a problem processing the uploaded file");
-        return $response->withRedirect($router->pathFor('modifyProfile'));
     }
 
     $profile->save();
-    $this->flash->addMessage("success", "Profile has been successfully updated");
+
+    $this->flash->addMessage('success', 'Profile has been successfully updated');
+
     return $response->withRedirect($router->pathFor('account'));
-    
+
 })->add($redirectToLoginMW)->setName('processModifyProfile');
 
+// Change password page
 $app->get('/account/password', function ($request, $response) {
     $user = User::findById($this->db, $this->session->userID);
 
-    return $this->view->render($response, 'changePassword.twig', compact("user"));
+    return $this->view->render($response, 'changePassword.twig', compact('user'));
 })->add($redirectToLoginMW)->setName('changePassword');
 
+// Process change password form
 $app->post('/account/password', function ($request, $response) {
     $router = $this->router;
     $user = User::findById($this->db, $this->session->userID);
 
-    $password = $this->request->getParam("currentPassword");
-    $newPassword = $this->request->getParam("newPassword");
-    $newPassword2 = $this->request->getParam("newPassword2");
-    $action = trim(strtolower($this->request->getParam("action")));
+    $password = $this->request->getParam('currentPassword');
+    $newPassword = $this->request->getParam('newPassword');
+    $newPassword2 = $this->request->getParam('newPassword2');
+    $action = trim(strtolower($this->request->getParam('action')));
 
-    if($action === "cancel") {
-        return $response->withRedirect($router->pathFor('account'));
-    } elseif ($action !== "save") {
-        $this->flash->addMessage("fail", "There was an error processing your request");
+    if ($action === 'cancel' || $action !== 'save') {
+        if ($action !== 'cancel') {
+            $this->flash->addMessage('fail', 'There was an error processing your request');
+        }
+
         return $response->withRedirect($router->pathFor('account'));
     }
-    
+
     // Check if current password is correct
     if (!password_verify($password, $user->password)) {
         $this->flash->addMessage('fail', 'Current password was entered incorrectly');
+
         return $response->withRedirect($router->pathFor('changePassword'));
     }
 
     // Check if new password is valid
     if (!User::isValidPassword($newPassword)) {
         $this->flash->addMessage('fail', 'Invalid formatted password');
+
         return $response->withRedirect($router->pathFor('changePassword'));
     }
 
     // Check if new passwords match
     if (!User::doPasswordsMatch($newPassword, $newPassword2)) {
         $this->flash->addMessage('fail', 'Passwords do not match');
+
         return $response->withRedirect($router->pathFor('changePassword'));
     }
 
     $user->password = User::encryptPassword($newPassword);
     $user->save();
 
-    $this->flash->addMessage("success", "Password has been changed successfully");
+    $this->flash->addMessage('success', 'Password has been changed successfully');
+
     return $response->withRedirect($router->pathFor('account'));
 })->add($redirectToLoginMW)->setName('processChangePassword');

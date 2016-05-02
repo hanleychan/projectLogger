@@ -6,9 +6,13 @@
     <h2>Add project</h2>
     {{ macros.displayFlashMessages(flash.message("fail"), flash.message("success")) }}
     <form id="addProjectForm" action="{{ path_for('processAddProject') }}" method="post">
+        <p id="info">
+            * Project name must be between 6 and 20 characters<br>
+            * Project name can contain only letters and numbers
+        </p>
         <fieldset>
             <label for="projectName">Project Name:</label>
-            <input type="text" id="projectName" name="projectName" maxlength="20" required><br>
+            <input type="text" id="projectName" name="projectName" maxlength="20"{% if postData.projectName %} value="{{postData.projectName }}"{% endif %}required><br>
         </fieldset>
         <div id="submitButtons">
             <button type="submit" name="action" value="create">Create</button>
@@ -18,7 +22,3 @@
 </section>
 {% endblock %}
 
-{% block scripts %}
-    <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
-    <script src="{{ path_for('home') ~ "js/dismissMessages.js"  }}"></script>
-{% endblock %}

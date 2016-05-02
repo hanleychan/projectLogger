@@ -12,17 +12,16 @@ class ProjectMember extends DatabaseObject
     protected static $tableName = 'projectmembers';
     protected static $dbFields = array('id', 'userID', 'projectID', 'isAdmin');
 
-
     public static function isProjectMember($db, $projectID, $userID)
     {
-        $sql = "SELECT * FROM projectmembers ";
-        $sql .= "WHERE projectID = " . (int)$projectID . " ";
-        $sql .= "AND userID = " . (int)$userID . " ";
-        $sql .= "LIMIT 1";
-        
+        $sql = 'SELECT * FROM projectmembers ';
+        $sql .= 'WHERE projectID = '.(int) $projectID.' ';
+        $sql .= 'AND userID = '.(int) $userID.' ';
+        $sql .= 'LIMIT 1';
+
         $result = self::findBySQL($db, $sql);
 
-        if($result) {
+        if ($result) {
             return true;
         } else {
             return false;
@@ -31,16 +30,16 @@ class ProjectMember extends DatabaseObject
 
     public static function isProjectMemberByProjectName($db, $projectName, $userID)
     {
-        $sql = "SELECT * FROM projectmembers ";
-        $sql .= "INNER JOIN projects ON projectID = projects.id ";
-        $sql .= "WHERE projectName = ? AND userID = " . (int)$userID . " ";
-        $sql .= "LIMIT 1";
+        $sql = 'SELECT * FROM projectmembers ';
+        $sql .= 'INNER JOIN projects ON projectID = projects.id ';
+        $sql .= 'WHERE projectName = ? AND userID = '.(int) $userID.' ';
+        $sql .= 'LIMIT 1';
 
         $paramArray = array($projectName);
 
         $result = self::findBySQL($db, $sql, $paramArray);
 
-        if($result) {
+        if ($result) {
             return true;
         } else {
             return false;
@@ -49,14 +48,14 @@ class ProjectMember extends DatabaseObject
 
     public static function isProjectAdmin($db, $projectName, $userID)
     {
-        $sql = "SELECT isAdmin ";
-        $sql .= "FROM projectmembers INNER JOIN projects ON projectID = projects.id ";
-        $sql .= "WHERE projectName = ? AND userID = " . (int)$userID . " ";
-        $sql .= "LIMIT 1";
+        $sql = 'SELECT isAdmin ';
+        $sql .= 'FROM projectmembers INNER JOIN projects ON projectID = projects.id ';
+        $sql .= 'WHERE projectName = ? AND userID = '.(int) $userID.' ';
+        $sql .= 'LIMIT 1';
         $paramArray = array($projectName);
-        $result = self::findBySQL($db, $sql, $paramArray); 
-        if($result) {
-            if($result[0]->isAdmin == true) {
+        $result = self::findBySQL($db, $sql, $paramArray);
+        if ($result) {
+            if ($result[0]->isAdmin == true) {
                 return true;
             } else {
                 return false;
@@ -66,27 +65,26 @@ class ProjectMember extends DatabaseObject
         }
     }
 
-
     /**
-     * Returns all project members for a project from a specified project name
+     * Returns all project members for a project from a specified project name.
      */
     public static function findProjectMembersByProjectName($db, $projectName, $adminFirst = true)
     {
-        $sql = "SELECT ownerID, userID, username, isAdmin ";
-        $sql .= "FROM projectmembers INNER JOIN projects ON projects.id = projectID ";
-        $sql .= "INNER JOIN users ON userID = users.id ";
-        $sql .= "WHERE projectName = ? ";
-        $sql .= "ORDER BY ";
+        $sql = 'SELECT ownerID, userID, username, isAdmin ';
+        $sql .= 'FROM projectmembers INNER JOIN projects ON projects.id = projectID ';
+        $sql .= 'INNER JOIN users ON userID = users.id ';
+        $sql .= 'WHERE projectName = ? ';
+        $sql .= 'ORDER BY ';
 
-        if($adminFirst) {
-            $sql .= "isAdmin DESC,";
+        if ($adminFirst) {
+            $sql .= 'isAdmin DESC,';
         }
 
-        $sql .= " username ASC";
+        $sql .= ' username ASC';
 
         $paramArray = array($projectName);
         $results = self::findBySQL($db, $sql, $paramArray);
-        if($results) {
+        if ($results) {
             return $results;
         } else {
             return false;
@@ -95,14 +93,14 @@ class ProjectMember extends DatabaseObject
 
     public static function findProjectMemberByProjectNameAndUsername($db, $projectName, $username)
     {
-        $sql = "SELECT projectmembers.id as id, userID, projectID, isAdmin, username ";
-        $sql .= "FROM projectmembers INNER JOIN users ON userID = users.id ";
-        $sql .= "INNER JOIN projects ON projectID = projects.id ";
-        $sql .= "WHERE projectName = ? AND username = ? LIMIT 1";
+        $sql = 'SELECT projectmembers.id as id, userID, projectID, isAdmin, username ';
+        $sql .= 'FROM projectmembers INNER JOIN users ON userID = users.id ';
+        $sql .= 'INNER JOIN projects ON projectID = projects.id ';
+        $sql .= 'WHERE projectName = ? AND username = ? LIMIT 1';
         $paramArray = array($projectName, $username);
 
         $result = self::findBySQL($db, $sql, $paramArray);
-        if($result) {
+        if ($result) {
             return $result[0];
         } else {
             return false;

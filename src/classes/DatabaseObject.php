@@ -26,19 +26,18 @@ class DatabaseObject
     /**
      * Queries the database and returns all entries in the table.
      */
-    public static function findAll($db, $sortColumn="id", $order="DESC")
+    public static function findAll($db, $sortColumn = 'id', $order = 'DESC')
     {
         $sql = 'SELECT * FROM '.static::$tableName;
         // Validate sort column and order
-        if(in_array($sortColumn, static::$dbFields) 
-            && (strtoupper($order) === "DESC" || strtoupper($order) === "ASC" )) {
-
-                $sql .= " ORDER BY {$sortColumn} {$order}"; 
+        if (in_array($sortColumn, static::$dbFields)
+            && (strtoupper($order) === 'DESC' || strtoupper($order) === 'ASC')) {
+            $sql .= " ORDER BY {$sortColumn} {$order}";
         }
 
         $results = static::findBySQL($db, $sql);
 
-        if($results) {
+        if ($results) {
             return $results;
         } else {
             return false;
@@ -55,7 +54,7 @@ class DatabaseObject
             $sql = 'SELECT * FROM '.static::$tableName." WHERE id={$id} LIMIT 1";
             $results = static::findBySQL($db, $sql);
 
-            if($results) {
+            if ($results) {
                 return $results[0];
             } else {
                 return false;

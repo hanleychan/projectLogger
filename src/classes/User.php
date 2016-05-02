@@ -8,7 +8,7 @@ class User extends DatabaseObject
     public $joinDate;
 
     const USERNAME_MIN_LENGTH = 6;
-    const USERNAME_MAX_LENGTH = 12;
+    const USERNAME_MAX_LENGTH = 20;
     const PASSWORD_MIN_LENGTH = 6;
     const PASSWORD_MAX_LENGTH = 160;
 
@@ -27,19 +27,18 @@ class User extends DatabaseObject
     public static function isValidFormatUsername($username)
     {
         $username = strtolower(trim($username));
-        
+
         // does username contain only letters and numbers and is between a specified range of characters
-        if(preg_match("/^[a-zA-Z0-9]{" . self::USERNAME_MIN_LENGTH . "," . self::USERNAME_MAX_LENGTH . "}$/", $username)) {
+        if (preg_match('/^[a-zA-Z0-9]{'.self::USERNAME_MIN_LENGTH.','.self::USERNAME_MAX_LENGTH.'}$/', $username)) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
 
     public static function fetchUser($db, $username)
     {
-        $sql = 'SELECT * FROM '. self::$tableName.' WHERE username = ? LIMIT 1';
+        $sql = 'SELECT * FROM '.self::$tableName.' WHERE username = ? LIMIT 1';
         $paramArray = array($username);
         $result = self::findBySql($db, $sql, $paramArray);
 
@@ -52,10 +51,9 @@ class User extends DatabaseObject
 
     public static function isValidPassword($password)
     {
-        if(strlen($password) >= self::PASSWORD_MIN_LENGTH && strlen($password) <= self::PASSWORD_MAX_LENGTH) {
+        if (strlen($password) >= self::PASSWORD_MIN_LENGTH && strlen($password) <= self::PASSWORD_MAX_LENGTH) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }

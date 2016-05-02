@@ -17,12 +17,12 @@ class ProjectLog extends DatabaseObject
 
     public static function isValidTime($hours, $minutes)
     {
-        $hours = (int)$hours;
-        $minutes = (int)$minutes;
+        $hours = (int) $hours;
+        $minutes = (int) $minutes;
 
         if ($hours === 24 && $minutes > 0) {
             return false;
-        } elseif($hours < 0 || $minutes < 0) {
+        } elseif ($hours < 0 || $minutes < 0) {
             return false;
         } elseif ($hours === 0 && $minutes === 0) {
             return false;
@@ -32,7 +32,7 @@ class ProjectLog extends DatabaseObject
     }
 
     /**
-     * Formats date from mm/dd/yyyy format to yyyy-mm-dd format
+     * Formats date from mm/dd/yyyy format to yyyy-mm-dd format.
      */
     public static function formatDateToSQL($date)
     {
@@ -42,7 +42,7 @@ class ProjectLog extends DatabaseObject
         $year = substr($date, 6, 4);
 
         // check if date is valid
-        if(strlen($date) != 10) {
+        if (strlen($date) != 10) {
             return false;
         } elseif ($date[2] !== '/' || $date[5] !== '/') {
             return false;
@@ -50,13 +50,13 @@ class ProjectLog extends DatabaseObject
             return false;
         } else {
             $formattedDate = date('Y-m-d', strtotime($date));
+
             return $formattedDate;
         }
     }
 
-
     /**
-     * Formats date from yyyy-mm-dd format to mm/dd/yyyy format
+     * Formats date from yyyy-mm-dd format to mm/dd/yyyy format.
      */
     public static function formatDateFromSQL($date)
     {
@@ -66,7 +66,7 @@ class ProjectLog extends DatabaseObject
         $day = substr($date, 8, 2);
 
         // check if date is valid
-        if(strlen($date) != 10) {
+        if (strlen($date) != 10) {
             return false;
         } elseif ($date[4] !== '-' || $date[7] !== '-') {
             return false;
@@ -74,10 +74,11 @@ class ProjectLog extends DatabaseObject
             return false;
         } else {
             $formattedDate = date('m/d/Y', strtotime($date));
+
             return $formattedDate;
         }
     }
-    
+
     public static function calculateTotalMinutes($hours, $minutes)
     {
         return $minutes + ($hours * 60);
@@ -85,30 +86,29 @@ class ProjectLog extends DatabaseObject
 
     public static function formatTimeOutput($minutes)
     {
-        $output = "";
+        $output = '';
 
         $hours = floor($minutes / 60);
         $output .= $hours;
-        $output .= ($hours > 1) ? " hrs " : " hr ";
+        $output .= ($hours > 1) ? ' hrs ' : ' hr ';
 
         $minutes = $minutes % 60;
         $output .= $minutes;
-        $output .= ($minutes > 1) ? " mins" : " min";
+        $output .= ($minutes > 1) ? ' mins' : ' min';
 
         return $output;
     }
 
-    
     public static function getTotalTimeByProjectName($db, $projectName)
     {
-        $sql = "SELECT SUM(minutes) as totalMinutes FROM projectlogs ";
-        $sql .= "INNER JOIN projects ON projectlogs.projectID = projects.id ";
-        $sql .= "WHERE projectName = ? LIMIT 1";
+        $sql = 'SELECT SUM(minutes) as totalMinutes FROM projectlogs ';
+        $sql .= 'INNER JOIN projects ON projectlogs.projectID = projects.id ';
+        $sql .= 'WHERE projectName = ? LIMIT 1';
         $paramArray = array($projectName);
 
         $result = self::findBySQL($db, $sql, $paramArray);
-        if($result) {
-            return (int)$result[0]->totalMinutes;
+        if ($result) {
+            return (int) $result[0]->totalMinutes;
         } else {
             return false;
         }
@@ -116,73 +116,73 @@ class ProjectLog extends DatabaseObject
 
     public static function getTotalTimeByProjectNameAndUser($db, $projectName, $userID)
     {
-        $sql = "SELECT SUM(minutes) as totalMinutes FROM projectlogs ";
-        $sql .= "INNER JOIN projects ON projectlogs.projectID = projects.id ";
-        $sql .= "WHERE projectName = ? AND userID = " . (int)$userID . " ";
-        $sql .= "LIMIT 1";
+        $sql = 'SELECT SUM(minutes) as totalMinutes FROM projectlogs ';
+        $sql .= 'INNER JOIN projects ON projectlogs.projectID = projects.id ';
+        $sql .= 'WHERE projectName = ? AND userID = '.(int) $userID.' ';
+        $sql .= 'LIMIT 1';
         $paramArray = array($projectName);
 
         $result = self::findBySQL($db, $sql, $paramArray);
-        if($result) {
-            return (int)$result[0]->totalMinutes;
+        if ($result) {
+            return (int) $result[0]->totalMinutes;
         } else {
             return false;
         }
     }
 
-    public static function findLogsByProjectName($db, $projectName, $username = "", $limit="", $offset=0)
+    public static function findLogsByProjectName($db, $projectName, $username = '', $limit = '', $offset = 0)
     {
-        $sql = "SELECT projectlogs.id as id, username, date, comment, minutes, userID ";
-        $sql .= "FROM projectlogs INNER JOIN users ON userID = users.id ";
-        $sql .= "INNER JOIN projects ON projectID = projects.id ";
-        $sql .= "WHERE projectName = ? ";
-        
-        if(!empty($username)) {
-            $sql .= "AND username = ? ";
+        $sql = 'SELECT projectlogs.id as id, username, date, comment, minutes, userID ';
+        $sql .= 'FROM projectlogs INNER JOIN users ON userID = users.id ';
+        $sql .= 'INNER JOIN projects ON projectID = projects.id ';
+        $sql .= 'WHERE projectName = ? ';
+
+        if (!empty($username)) {
+            $sql .= 'AND username = ? ';
         }
 
-        $sql .= "ORDER BY date DESC, id DESC";
+        $sql .= 'ORDER BY date DESC, id DESC';
 
-        if(!empty($limit)) {
-            $sql .= " LIMIT " . (int)$offset . ", " . (int)$limit;
+        if (!empty($limit)) {
+            $sql .= ' LIMIT '.(int) $offset.', '.(int) $limit;
         }
 
         $paramArray = array($projectName);
 
-        if(!empty($username)) {
+        if (!empty($username)) {
             array_push($paramArray, $username);
         }
 
         $results = self::findBySQL($db, $sql, $paramArray);
-        if($results) {
+        if ($results) {
             return $results;
         } else {
             return false;
         }
     }
 
-    public static function getNumLogsByProjectName($db, $projectName, $username = "")
+    public static function getNumLogsByProjectName($db, $projectName, $username = '')
     {
-        $sql = "SELECT COUNT(*) as numLogs ";
-        $sql .= "FROM projectlogs INNER JOIN users ON userID = users.id ";
-        $sql .= "INNER JOIN projects ON projectID = projects.id ";
-        $sql .= "WHERE projectName = ? ";
-        
-        if(!empty($username)) {
-            $sql .= "AND username = ? ";
+        $sql = 'SELECT COUNT(*) as numLogs ';
+        $sql .= 'FROM projectlogs INNER JOIN users ON userID = users.id ';
+        $sql .= 'INNER JOIN projects ON projectID = projects.id ';
+        $sql .= 'WHERE projectName = ? ';
+
+        if (!empty($username)) {
+            $sql .= 'AND username = ? ';
         }
 
-        $sql .= "LIMIT 1";
+        $sql .= 'LIMIT 1';
 
         $paramArray = array($projectName);
 
-        if(!empty($username)) {
+        if (!empty($username)) {
             array_push($paramArray, $username);
         }
 
         $results = self::findBySQL($db, $sql, $paramArray);
-        if($results) {
-            return (int)$results[0]->numLogs;
+        if ($results) {
+            return (int) $results[0]->numLogs;
         } else {
             return 0;
         }

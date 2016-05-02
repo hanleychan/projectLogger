@@ -1,6 +1,6 @@
 <h2>Confirm Remove Member:</h2>
 <form action="{{ path_for('processRemoveMember', {'name': project.projectName, 'username': projectMember.username}) }}" method="post">
 <p>Are you sure you want to remove {{ projectMember.username }} from project {{ project.projectName  }}?</p>
-<input type="submit" name="action" value="Yes">
-<input type="submit" name="action" value="No">
+<button type="submit" name="action" value="yes">Yes</button>
+<button type="submit" name="action" value="no">No</button>
 </form>

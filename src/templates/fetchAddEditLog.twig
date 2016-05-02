@@ -10,6 +10,10 @@
 {% else %}
 <form id="editLogForm" action="{{ path_for("editLog", {'name': project.projectName, 'logID':projectLog.id}) }}" method="post">
 {% endif %}
+    <p id="info">
+        * Date must be in the format mm/dd/yyyy<br>
+        * Project time must be between 1 min - 24 hrs 
+    </p>
     <fieldset>
     <label for="datePicker">Date:</label>
     <input type="text" id="datePicker" name="datePicker" placeholder="mm/dd/yyyy"
@@ -30,7 +34,7 @@
 
 {% if page == "editLog" %}
 <h3>Delete Log Entry:</h3>
-<p>Warning: This cannot be recovered</p>
+<p id="warning">WARNING: This cannot be recovered</p>
 <form id="deleteLogForm" action="{{ path_for('deleteLog', {'name': project.projectName, 'logID':projectLog.id}) }}" method="post">
     <div id="submitButtons">
         <button type="submit" name="action" value="delete">Delete</button>

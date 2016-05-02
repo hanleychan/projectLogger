@@ -6,8 +6,8 @@ require_once '../config.php';
 
 // autoload classes
 require_once '../vendor/autoload.php';
-spl_autoload_register(function($classname) {
-    require_once("../classes/" . $classname . ".php");
+spl_autoload_register(function ($classname) {
+    require_once '../classes/'.$classname.'.php';
 });
 
 $config['displayErrorDetails'] = true;
@@ -50,10 +50,9 @@ $container['flash'] = function ($c) {
 };
 
 // load middleware
-require_once("../middleware.php");
+require_once '../middleware.php';
 
 // load routes
-require_once("../routes.php");
+require_once '../routes.php';
 
 $app->run();
-

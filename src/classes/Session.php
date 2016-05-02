@@ -4,7 +4,7 @@ class Session
     private $loggedIn = false;
     private $previousPage;
     public $userID;
-    const PROJECT_TITLE = "";
+    const PROJECT_TITLE = '';
 
     /**
      * Sets up session and loads previousPage.
@@ -68,7 +68,7 @@ class Session
     }
 
     /**
-     * Logs which page you were on 
+     * Logs which page you were on.
      */
     public function updatePage($page = 'home')
     {
@@ -76,7 +76,7 @@ class Session
     }
 
     /**
-     * Fetch the page you were on 
+     * Fetch the page you were on.
      */
     public function getPage()
     {
