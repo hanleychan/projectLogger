@@ -1077,7 +1077,11 @@ $app->post('/project/{name}/request', function ($request, $response, $args) {
 
     $this->flash->addMessage('success', 'Request to join project has been sent');
 
-    return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
+    if (isset($_SERVER['HTTP_REFERER'])) {
+        return $response->withRedirect($_SERVER['HTTP_REFERER']);
+    } else {
+        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
+    }
 })->add($redirectToLoginMW)->setName('requestJoin');
 
 // Process cancellation of a request to join a project
@@ -1106,7 +1110,11 @@ $app->post('/project/{name}/request/cancel', function ($request, $response, $arg
 
     $this->flash->addMessage('success', 'Request to join this project has been cancelled');
 
-    return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
+    if (isset($_SERVER['HTTP_REFERER'])) {
+        return $response->withRedirect($_SERVER['HTTP_REFERER']);
+    } else {
+        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
+    }
 })->add($redirectToLoginMW)->setName('cancelRequestJoin');
 
 // Project actions page
