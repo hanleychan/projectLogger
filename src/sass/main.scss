@@ -365,12 +365,21 @@ section#projectsPage {
     ul {
         list-style-type: none;
     }
+
+    div#paginationDiv {
+        form#pageSelectForm {
+            font-size: 1.2em;
+        }
+        text-align: center;
+        margin-top: 5%;
+    }
 }
 
 /**
  * All Projects Page Styles
  */
 section#allProjectsSection {
+    @extend #projectsPage;
     form#searchProjectsForm {
         label {
             display: inline-block;
@@ -382,22 +391,6 @@ section#allProjectsSection {
         div#searchButtonsDiv {
             margin: 2%;
         }
-    }
-    
-    a {
-        text-decoration: none;
-    }
-
-    ul {
-        list-style-type: none;
-    }
-
-    div#paginationDiv {
-        form#pageSelectForm {
-            font-size: 1.2em;
-        }
-        text-align: center;
-        margin-top: 5%;
     }
 }
 

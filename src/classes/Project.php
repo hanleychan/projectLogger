@@ -48,14 +48,34 @@ class Project extends DatabaseObject
     }
 
     /**
+     * Returns the total number of projects for a specified userID
+     */
+    public static function getTotalProjectsForUser($db, $userID) {
+        $sql = 'SELECT COUNT(*) FROM projects ';
+        $sql .= 'INNER JOIN projectmembers ON projects.id = projectmembers.projectID ';
+        $sql .= 'WHERE userID = ' . (int)$userID . ' ';
+        $sql .= 'LIMIT 1';
+
+        $result = $db->prepare($sql);
+        $result->execute();
+
+        return (int) $result->fetch(PDO::FETCH_NUM)[0];
+    }
+
+    /**
      * Returns all projects for a specified userID.
      */
-    public static function findProjectsByUser($db, $userID)
+    public static function findProjectsByUser($db, $userID, $limit = '', $offset = 0)
     {
         $sql = 'SELECT projects.id as id, projectName, ownerID, userID, isAdmin ';
         $sql .= 'FROM projects INNER JOIN projectmembers ON projects.id = projectmembers.projectID ';
         $sql .= 'WHERE userID = '.(int) $userID.' ';
         $sql .= 'ORDER BY projectName ASC';
+
+        if(!empty($limit)) {
+            $sql .= ' LIMIT '.(int) $offset.', '.(int) $limit;
+        }
+
         $result = self::findBySQL($db, $sql);
 
         if ($result) {

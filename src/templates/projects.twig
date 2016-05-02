@@ -10,7 +10,32 @@
     <h3>My Projects</h3>
     <p id="addProject"><a href="{{ path_for("addProject") }}">+ Add New Project</a></p>
     {% if projects %}
-    <p>You are a member of the below projects:</p>
+        <p>You are a member of the below projects:</p>
+
+        {% if pagination.getNumPages() > 1 %}
+        <div id="paginationDiv">
+            {% set url = path_for('projects') ~ '?' %}
+
+            <form id="pageSelectForm" action="{{ path_for('projects') }}" method="get">
+                {% if pagination.hasPrevPage() %}
+                    <a href="{{ url ~ "page=" ~ (pagination.currentPage - 1) }}">prev</a>
+                {% endif %}
+                <select id="pageSelect" name="page">
+                    {% for page in 1..pagination.getNumPages() %}
+                    <option value="{{ page }}"{% if pagination.currentPage == page %} selected{% endif %}>{{ page }} of {{ pagination.getNumPages() }}</option> 
+                    {% endfor %}
+                </select>
+                <noscript>
+                    <input type="submit" value="Go">
+                </noscript>
+                {% if pagination.hasNextPage() %}
+                    <a href="{{ url ~ "page=" ~ (pagination.currentPage + 1) }}">next</a> 
+                {% endif %}
+            </form>
+        </div>
+        {% endif %}
+
+
         <ul>
         {% for project in projects %}
             <li><a href="{{ path_for('project', {'name': project.projectName}) }}">{{ project.projectName }}</a></li>
@@ -20,4 +45,13 @@
     <p>You are not a member of any project groups</p>
     {% endif %}
 </section>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $(document).on("change", "#pageSelect", function() {
+            var pageURL = "?page=" + $("#pageSelect").val();
+            window.location = pageURL;
+        });
+    </script>
 {% endblock %}

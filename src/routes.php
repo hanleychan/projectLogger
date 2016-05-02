@@ -280,9 +280,16 @@ $app->get('/logout', function ($request, $response) {
 // User projects page
 $app->get('/projects', function ($request, $response) {
     $user = User::findById($this->db, $this->session->userID);
-    $projects = Project::findProjectsByUser($this->db, $user->id);
 
-    return $this->view->render($response, 'projects.twig', compact('user', 'projects'));
+    $numProjects = Project::getTotalProjectsForUser($this->db, $user->id);
+    $pageNum = (int) $request->getParam('page');
+    $numItemsPerPage = 20;
+    $pagination = new Pagination($numProjects, $pageNum, $numItemsPerPage);
+    $offset = $pagination->calculateOffset();
+
+    $projects = Project::findProjectsByUser($this->db, $user->id, $numItemsPerPage, $offset);
+
+    return $this->view->render($response, 'projects.twig', compact('user', 'projects', 'pagination'));
 })->add($redirectToLoginMW)->setName('projects');
 
 // All projects page

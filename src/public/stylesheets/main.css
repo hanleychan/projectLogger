@@ -214,15 +214,20 @@ form#updateProfileForm button:focus, form#changePasswordForm button:focus, form#
 /**
  * Projects Page Styles
  */
-section#projectsPage a {
+section#projectsPage a, section#allProjectsSection a {
   text-decoration: none;
   font-weight: bold; }
-section#projectsPage p#addProject {
+section#projectsPage p#addProject, section#allProjectsSection p#addProject {
   text-decoration: underline; }
-section#projectsPage p, section#projectsPage ul {
+section#projectsPage p, section#allProjectsSection p, section#projectsPage ul, section#allProjectsSection ul {
   margin: 2.5%; }
-section#projectsPage ul {
+section#projectsPage ul, section#allProjectsSection ul {
   list-style-type: none; }
+section#projectsPage div#paginationDiv, section#allProjectsSection div#paginationDiv {
+  text-align: center;
+  margin-top: 5%; }
+  section#projectsPage div#paginationDiv form#pageSelectForm, section#allProjectsSection div#paginationDiv form#pageSelectForm {
+    font-size: 1.2em; }
 
 /**
  * All Projects Page Styles
@@ -234,15 +239,6 @@ section#allProjectsSection form#searchProjectsForm input {
   width: 50%; }
 section#allProjectsSection form#searchProjectsForm div#searchButtonsDiv {
   margin: 2%; }
-section#allProjectsSection a {
-  text-decoration: none; }
-section#allProjectsSection ul {
-  list-style-type: none; }
-section#allProjectsSection div#paginationDiv {
-  text-align: center;
-  margin-top: 5%; }
-  section#allProjectsSection div#paginationDiv form#pageSelectForm {
-    font-size: 1.2em; }
 
 /**
  * Add Project Page Styles
