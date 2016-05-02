@@ -1,6 +1,11 @@
 <section id="renameProjectSection">
     <h2>Rename project</h2>
     <form id="renameProjectForm" action="{{ path_for('processRenameProject', {'name':project.projectName})  }}" method="post">
+        <p id="info">
+            * Project name must be between 6 and 20 characters<br>
+            * Project name must contain only letters and numbers
+        </p>
+
         <fieldset>
             <label for="projectName">Project Name:</label>
             <input type="text" id="projectName" name="projectName"{% if postData %} value="{{ postData.projectName }}"{% endif %} maxlength="20" required><br>

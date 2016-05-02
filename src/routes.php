@@ -1357,6 +1357,7 @@ $app->get('/project/{name}/rename', function ($request, $response, $args) {
 
     // Get form session data if available
     $postData = $this->session->getPostData();
+
     $project->dateAdded = ProjectLog::formatDateFromSQL($project->dateAdded);
 
     // Get combined minutes of all users for this project
@@ -1403,11 +1404,9 @@ $app->post('/project/{name}/rename', function ($request, $response, $args) {
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
-    // Validate new project name
+    $inputError = false;
     if (!Project::isValidProjectName($newName)) {
         $this->flash->addMessage('fail', 'New project name was entered in an invalid format');
-
-        // Store form data in session
         $this->session->setPostData($_POST);
 
         return $response->withRedirect($router->pathFor('renameProject', compact('name')));
@@ -1416,6 +1415,7 @@ $app->post('/project/{name}/rename', function ($request, $response, $args) {
     // Check if new name is the same as the existing name
     if ($name === $newName) {
         $this->flash->addMessage('fail', 'New project name is the same as the existing one');
+        $this->session->setPostData($_POST);
 
         return $response->withRedirect($router->pathFor('renameProject', compact('name')));
     }
@@ -1423,6 +1423,7 @@ $app->post('/project/{name}/rename', function ($request, $response, $args) {
     // Check if project already exists
     if (Project::doesProjectExist($this->db, $newName) && strtolower($name) !== strtolower($newName)) {
         $this->flash->addMessage('fail', "Project {$newName} already exists");
+        $this->session->setPostData($_POST);
 
         return $response->withRedirect($router->pathFor('renameProject', compact('name')));
     }
