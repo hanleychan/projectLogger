@@ -107,6 +107,12 @@
       display: inline; }
 
   /**
+   * Confirm Remove Member Page Styles
+   */
+  form#confirmRemoveMember p {
+    text-align: center; }
+
+  /**
    * Add/Edit Log Entry Page Styles
    */
   /**

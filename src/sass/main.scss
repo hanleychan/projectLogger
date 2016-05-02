@@ -556,6 +556,13 @@ section#viewProjectMembersSection {
 }
 
 /**
+ * Confirm Remove Member Page Styles
+ */
+form#confirmRemoveMember {
+    @extend #updateProfileForm;
+}
+
+/**
  * Add/Edit Log Entry Page Styles
  */
 section#addEditLogSection {
