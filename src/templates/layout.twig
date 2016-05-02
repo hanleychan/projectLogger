@@ -24,7 +24,7 @@
                     <li><a href="{{ path_for('account') }}">Account</a></li>
                     <li><a href="{{ path_for('logout') }}">Logout</a></li>
                 </ul>
-            {% else %}
+            {% elseif not noMenu %}
                 <ul>
                     <li><a href="{{ path_for("login") }}">Login</a></li>
                     <li><a href="{{ path_for("register") }}">Register</a></li>
