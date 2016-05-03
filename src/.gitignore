@@ -2,3 +2,4 @@
 .sass-cache/*
 vendor/*
 public/uploads/*
+logs/app.log

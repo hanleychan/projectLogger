@@ -231,8 +231,11 @@ $app->post('/register', function ($request, $response) {
 
     $profile->userID = $user->id;
     $profile->save();
-    $this->flash->addMessage('success', 'You have successfully registered');
 
+    // Log registration record
+    $this->logger->addInfo('User Registration', ['username' => $user->username]);
+
+    $this->flash->addMessage('success', 'You have successfully registered');
     return $response->withRedirect($router->pathFor('login'));
 })->add($redirectToMainPageMW)->setName('processRegister');
 
@@ -256,6 +259,9 @@ $app->post('/login', function ($request, $response) {
             // login user and redirect to main page
             $this->session->login($user);
 
+            // Log login record
+            $this->logger->addInfo('User Logged In', compact('username'));
+
             return $response->withRedirect($router->pathFor('home'));
         }
     } else {
@@ -267,10 +273,13 @@ $app->post('/login', function ($request, $response) {
 
 // Process loggin out user 
 $app->get('/logout', function ($request, $response) {
+    $user = User::findById($this->db, $this->session->userID);
     $this->session->logout();
 
-    $router = $this->router;
+    // Log logout record
+    $this->logger->addInfo('User Logged Out',['username' => $user->username]); 
 
+    $router = $this->router;
     return $response->withRedirect($router->pathFor('login'));
 })->add($redirectToLoginMW)->setName('logout');
 
