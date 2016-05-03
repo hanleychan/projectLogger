@@ -30,6 +30,15 @@ $container['view'] = function ($c) {
     return $view;
 };
 
+// Register monolog component on container
+$container['logger'] = function ($c) {
+    // Create a log channel
+    $log = new Monolog\Logger('myLogger');
+    $log->pushHandler(new Monolog\Handler\StreamHandler('../logs/app.log'));
+
+    return $log;
+};
+
 // Register db component on container
 $container['db'] = function ($c) {
     $db = new MySQLDatabase(DB_HOST, DB_NAME, DB_PORT, DB_USER, DB_PASS);
