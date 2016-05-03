@@ -223,9 +223,17 @@
 
 
     /**
-     * Rename Project Styles
+     * Rename Project Page Styles
      */
     form#renameProjectForm {
+        @extend #registerForm;
+    }
+
+
+    /**
+     * Add User To Project Page Styles
+     */
+    form#addUserForm {
         @extend #registerForm;
     }
 }

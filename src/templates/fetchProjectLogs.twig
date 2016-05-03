@@ -24,7 +24,7 @@
 </form>
 
 {% if not projectLogs %}
-<p>No logs found</p>
+<p id="noLogs">No logs found</p>
 {% else %}
 {% if pagination.getNumPages() > 1 %}
     {% set url = path_for('fetchProjectLogs', {'name':project.projectName}) %}

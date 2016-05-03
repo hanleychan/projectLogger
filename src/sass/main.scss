@@ -383,13 +383,12 @@ section#allProjectsSection {
     form#searchProjectsForm {
         label {
             display: inline-block;
-            width: 100px;
         }
         input {
-            width: 50%;
+            width: 70%;
         }
         div#searchButtonsDiv {
-            margin: 2%;
+            margin: 2% 0 2% 15%;
         }
     }
 }
@@ -453,6 +452,11 @@ section#projectSection {
  * View Log Entries Page Styles
  */
 section#viewLogsSection {
+    p#noLogs {
+        text-align: center;
+        font-size: 1.2em;
+    }
+    
     form#filterResultsForm, form#paginationForm {
         text-align: center;
         font-size: 1.2em;
@@ -624,10 +628,10 @@ section#projectActionsSection {
  * Rename Project Styles
  */
 section#renameProjectSection {
-    form#renameProjectForm {
-        @extend #updateProfileForm;
-    }
     margin: 0;
+}
+form#renameProjectForm {
+    @extend #updateProfileForm;
 }
 
 
@@ -635,17 +639,17 @@ section#renameProjectSection {
  * Transfer Project Ownership Page Styles
  */
 section#transferOwnershipSection {
-    form#transferOwnershipForm {
-        @extend #updateProfileForm;
-        label {
-            display: initial;
-            font-weight: normal;
-        }
-    }
     p#noMembersWarning {
         margin-left: 20px;
     }
     margin: 0;
+}
+form#transferOwnershipForm {
+    @extend #updateProfileForm;
+    label {
+        display: initial;
+        font-weight: normal;
+    }
 }
 
 /**
@@ -691,10 +695,9 @@ section#addUserToProjectSection {
     h2 {
         margin-top: 10px;
     }
-
-    form#addUserForm {
-        @extend #updateProfileForm;
-    }
-
     margin: 0;
 }
+form#addUserForm {
+    @extend #updateProfileForm;
+}
+

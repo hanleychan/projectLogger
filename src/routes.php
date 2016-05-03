@@ -125,12 +125,13 @@ $app->post('/register', function ($request, $response) {
 
     $inputError = false;
 
-    // Check if username is valid 
+    // Check if username already exists
     if (User::fetchUser($this->db, $username)) {
         $inputError = true;
         $this->flash->addMessage('fail', "Username {$username} already exists");
     }
 
+    // Check if username is valid 
     if (!User::isValidFormatUsername($username)) {
         $inputError = true;
         $this->flash->addMessage('fail',
@@ -1659,6 +1660,12 @@ $app->get('/project/{name}/addUser', function($request, $response, $args) {
     // Get form session data if available
     $postData = $this->session->getPostData();
 
+    if(isset($postData["prevPage"])) {
+        $prevPage = $postData["prevPage"];
+    } else {
+        $prevPage = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : false;
+    }
+
     $project->dateAdded = ProjectLog::formatDateFromSQL($project->dateAdded);
 
     // Get combined minutes of all users for this project
@@ -1671,8 +1678,86 @@ $app->get('/project/{name}/addUser', function($request, $response, $args) {
 
     return $this->view->render($response, 'project.twig', compact('user', 'project', 'projectMember', 'page',
                                                                   'projectMember', 'totalMinutes', 'totalMinutesByMe',
-                                                                  'postData', 'isAdmin'));
+                                                                  'postData', 'isAdmin', 'prevPage'));
 })->add($redirectToLoginMW)->setName('addUserToProject');
+
+// Process adding user to project
+$app->post('/project/{name}/addUser', function($request, $response, $args) {
+    $router = $this->router;
+
+    $user = User::findById($this->db, $this->session->userID);
+    $name = trim($args['name']);
+    $username = $this->request->getParam('username');
+    $action = $this->request->getParam('action');
+    $prevPage = $this->request->getParam('prevPage');
+
+    if($action === 'cancel' || $action !== 'add') {
+        if($action !== 'cancel') {
+            $this->flash->addMessage('fail', 'There was an error processing your request');
+        }
+        if(!empty($prevPage)) {
+            return $response->withRedirect($prevPage);
+        } else {
+            return $response->withRedirect($router->pathFor('project', compact('name')));
+        }
+    }
+
+    // Fetch project
+    if (!$project = Project::findProjectByName($this->db, $name)) {
+        $this->flash->addMessage('fail', 'Project does not exist');
+        return $response->withRedirect($router->pathFor('projects'));
+    }
+
+    // Check if user has permission
+    if (!ProjectMember::isProjectAdmin($this->db, $name, $user->id) || !$project->ownerID === $user->id) {
+        $this->flash->addMessage('fail', 'You do not have permission to view this page');
+        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
+    }
+
+    $inputError = false;
+    
+    if (!$newMember = User::fetchUser($this->db, $username)) {
+        $inputError = true;
+        $this->flash->addMessage('fail', "Could not find user {$username}");
+    } elseif ($user->username === $username) {
+        $inputError = true;
+        $this->flash->addMessage('fail', 'You cannot add yourself');
+    } elseif (ProjectMember::findProjectMemberByProjectNameAndUsername($this->db, $name, $username)) {
+        $inputError = true;
+        $this->flash->addMessage('fail', "{$username} is already a member of this project");
+    }
+
+    if($inputError) {
+        $this->session->setPostData($_POST);
+        return $response->withRedirect($router->pathFor('addUserToProject', compact('name')));
+    }
+
+    // Add user to project
+    $projectMember = new ProjectMember($this->db);
+    $projectMember->userID = $newMember->id;
+    $projectMember->projectID = $project->id;
+    $projectMember->isAdmin = false;
+    $projectMember->save();
+
+    // Send notification to new member
+    $message = 'You have been added to project ';
+    $message .= '<a href="' . $router->pathFor('project', compact('name')) . '">' . $name . '</a> ';
+    $message .= 'by ' . $user->username;
+
+    $notification = new Notification($this->db);
+    $notification->userID = $newMember->id;
+    $notification->date = date('Y-m-d');
+    $notification->notification =  $message;
+    $notification->save();
+
+    
+    $this->flash->addMessage('success', "You have added {$username} to this project");
+    if(!empty($prevPage)) {
+        return $response->withRedirect($prevPage);
+    } else {
+        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
+    }
+})->add($redirectToLoginMW)->setName('processAddUserToProject');
 
 /*
  * Profile Routes

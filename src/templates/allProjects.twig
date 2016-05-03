@@ -7,7 +7,7 @@
     {{ macros.displayFlashMessages(flash.message("fail"), flash.message("success")) }}
 
     <form id="searchProjectsForm" action="{{ path_for('allProjects') }}" method="get">
-        <label for="search">Search Projects:</label>
+        <label for="search">Search:</label>
         <input type="text" id="search" name="search"{% if search %} value="{{ search }}"{% endif %}>
 
         <div id="searchButtonsDiv">

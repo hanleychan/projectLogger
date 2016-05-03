@@ -12,7 +12,7 @@
         </p>
         <fieldset>
             <label for="projectName">Project Name:</label>
-            <input type="text" id="projectName" name="projectName" maxlength="20"{% if postData.projectName %} value="{{postData.projectName }}"{% endif %}required><br>
+            <input type="text" id="projectName" name="projectName" maxlength="20"{% if postData.projectName %} value="{{postData.projectName }}"{% endif %} required><br>
         </fieldset>
         <div id="submitButtons">
             <button type="submit" name="action" value="create">Create</button>

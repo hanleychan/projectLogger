@@ -16,18 +16,6 @@ class User extends DatabaseObject
     protected static $dbFields = array('id', 'username', 'password', 'joinDate');
 
     /**
-     * Returns whether a specified username is a valid value
-     */
-    public static function isValidUsername($db, $username)
-    {
-        if (self::isValidFormatUsername && !self::doesUsernameExist($db, $username)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
      * Returns whether a specified username is in a valid format
      */
     public static function isValidFormatUsername($username)
