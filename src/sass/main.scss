@@ -577,6 +577,28 @@ section#addEditLogSection {
             @extend input[type="text"];
         }
 
+
+        input[type='range'] {
+            @extend input[type="text"];
+            width: 60%;
+            float: left;
+        }
+
+        input[type='number'] {
+            width: 30%;
+            float: right;
+        }
+
+        input[type='range']#hours:before, input[type='range']#minutes:before { 
+            content: "0"; 
+        }
+        input[type='range']#hours:after { 
+            content: "24";
+        }
+        input[type='range']#minutes:after {
+            content: "59";
+        }
+
     }
     margin: 0;
 }

@@ -194,8 +194,15 @@
         form#addLogForm, form#editLogForm, form#deleteLogForm {
             @extend #registerForm;
 
+            input[type="range"] {
+                width: 35%;
+                float: none;
+            }
             input[type="number"] {
-                @extend input[type="text"];
+                width: 15%;
+                float: none;
+                margin-left: 2.5%;
+                vertical-align: top;
             }
 
         }

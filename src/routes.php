@@ -316,7 +316,7 @@ $app->get('/projects/all', function ($request, $response) {
     $projects = Project::findProjectsBySearch($this->db, $search, $numItemsPerPage, $offset);
 
     if ($isAJAX) {
-        return $this->view->render($response, 'fetchProjectsListByFilter.twig', compact('projects', 'pagination', 'search'));
+        return $this->view->render($response, 'fetchAllProjectsListByFilter.twig', compact('projects', 'pagination', 'search'));
     } else {
         return $this->view->render($response, 'allProjects.twig', compact('user', 'projects', 'search', 'pagination'));
     }

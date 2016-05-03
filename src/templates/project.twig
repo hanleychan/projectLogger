@@ -110,6 +110,36 @@
             $(document).ready(function () {
                 $("#datePicker").datepicker();
             });
+
+            $("#hours").on("input", function() {
+                $("#hoursValue").val($(this).val());
+            });
+
+            $("#minutes").on("input", function() {
+                $("#minutesValue").val($(this).val());
+            });
+
+            $("#hoursValue").on("input", function() {
+                if($("#hoursValue").val() != 0) {
+                    if($("#hoursValue").val() > 24) {
+                        $("#hoursValue").val(24)
+                    }
+                    $("#hours").val($(this).val());
+                } else {
+                    $("#hours").val(0);
+                }
+            });
+            $("#minutesValue").on("input", function() {
+                if($("#minutesValue").val() != 0) {
+                    if($("#minutesValue").val() > 59) {
+                        $("#minutesValue").val(59); 
+                    }
+                    $("#minutes").val($(this).val());
+                } else {
+                    $("#minutes").val(0);
+                }
+            });
+
         {% endif %}
 
         {% if page == "viewLogs" and pagination.getNumPages() > 1 %}

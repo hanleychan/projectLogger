@@ -17,7 +17,7 @@
     display: inline-block;
     width: 200px;
     text-align: right; }
-  form#loginForm input[type="text"], form#registerForm input[type="text"], form#updateProfileForm input[type="text"], form#changePasswordForm input[type="text"], section#addEditLogSection form#addLogForm input[type="text"], section#addEditLogSection form#editLogForm input[type="text"], section#addEditLogSection form#deleteLogForm input[type="text"], form#renameProjectForm input[type="text"], form#addProjectForm input[type="text"], form#registerForm textarea, form#updateProfileForm textarea, form#changePasswordForm textarea, section#addEditLogSection form#addLogForm textarea, section#addEditLogSection form#editLogForm textarea, section#addEditLogSection form#deleteLogForm textarea, form#renameProjectForm textarea, section#addEditLogSection form#addLogForm input[type="number"], section#addEditLogSection form#editLogForm input[type="number"], section#addEditLogSection form#deleteLogForm input[type="number"], form#loginForm input[type="password"], form#registerForm input[type="password"], form#updateProfileForm input[type="password"], form#changePasswordForm input[type="password"], section#addEditLogSection form#addLogForm input[type="password"], section#addEditLogSection form#editLogForm input[type="password"], section#addEditLogSection form#deleteLogForm input[type="password"], form#renameProjectForm input[type="password"], form#addProjectForm input[type="password"] {
+  form#loginForm input[type="text"], form#registerForm input[type="text"], form#updateProfileForm input[type="text"], form#changePasswordForm input[type="text"], section#addEditLogSection form#addLogForm input[type="text"], section#addEditLogSection form#editLogForm input[type="text"], section#addEditLogSection form#deleteLogForm input[type="text"], form#renameProjectForm input[type="text"], form#addProjectForm input[type="text"], form#registerForm textarea, form#updateProfileForm textarea, form#changePasswordForm textarea, section#addEditLogSection form#addLogForm textarea, section#addEditLogSection form#editLogForm textarea, section#addEditLogSection form#deleteLogForm textarea, form#renameProjectForm textarea, form#loginForm input[type="password"], form#registerForm input[type="password"], form#updateProfileForm input[type="password"], form#changePasswordForm input[type="password"], section#addEditLogSection form#addLogForm input[type="password"], section#addEditLogSection form#editLogForm input[type="password"], section#addEditLogSection form#deleteLogForm input[type="password"], form#renameProjectForm input[type="password"], form#addProjectForm input[type="password"] {
     width: 55%; }
 
   /**
@@ -115,6 +115,15 @@
   /**
    * Add/Edit Log Entry Page Styles
    */
+  section#addEditLogSection form#addLogForm input[type="range"], section#addEditLogSection form#editLogForm input[type="range"], section#addEditLogSection form#deleteLogForm input[type="range"] {
+    width: 35%;
+    float: none; }
+  section#addEditLogSection form#addLogForm input[type="number"], section#addEditLogSection form#editLogForm input[type="number"], section#addEditLogSection form#deleteLogForm input[type="number"] {
+    width: 15%;
+    float: none;
+    margin-left: 2.5%;
+    vertical-align: top; }
+
   /**
    * Project Actions Page Styles
    */
