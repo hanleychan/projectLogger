@@ -1,9 +1,6 @@
 <section id="viewLogsSection">
 <h3>Logs</h3>
 
-{% if not projectLogs %}
-<p>No logs found</p>
-{% else %}
 <form id="filterResultsForm" action="{{ path_for('fetchProjectLogs', {'name':project.projectName}) }}" method="get">
     <label for="show">Display:</label> 
     <select id="show" name="show">
@@ -26,6 +23,9 @@
     </noscript>
 </form>
 
+{% if not projectLogs %}
+<p>No logs found</p>
+{% else %}
 {% if pagination.getNumPages() > 1 %}
     {% set url = path_for('fetchProjectLogs', {'name':project.projectName}) %}
     {% if displayLogsUsername %}
