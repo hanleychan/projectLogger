@@ -36,7 +36,7 @@
     <input type="text" id="comment" name="comment"{% if postData or projectLog %} value="{% if postData %}{{ postData.comment }}{% else %}{{ projectLog.comment }}{% endif %}"{% endif %}><br>
     </fieldset>
 
-    <div id="submitButtons">
+    <div class="submitButtons">
         <button type="submit" name="action" value="save">Save</button>
         <button type="submit" name="action" value="cancel">Cancel</button>
     </div>
@@ -46,7 +46,7 @@
 <h3>Delete Log Entry:</h3>
 <p id="warning">WARNING: This cannot be recovered</p>
 <form id="deleteLogForm" action="{{ path_for('deleteLog', {'name': project.projectName, 'logID':projectLog.id}) }}" method="post">
-    <div id="submitButtons">
+    <div class="submitButtons">
         <button type="submit" name="action" value="delete">Delete</button>
         <button type="submit" name="action" value="cancel">Cancel</button>
     </div>

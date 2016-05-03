@@ -15,7 +15,7 @@
 
     {% if projectMember %}
         <p id="projectActionsParagraph">
-            <a id="projectActionsLink"href="{{ path_for('projectActions', {'name': project.projectName}) }}">Project Actions</a>
+            <a id="projectActionsLink" href="{{ path_for('projectActions', {'name': project.projectName}) }}">Project Actions</a>
         </p>
     {% endif %}
 
@@ -105,64 +105,64 @@
     <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
     <script src="{{ path_for('home') ~ "js/dismissMessages.js"  }}"></script>
 
+    {% if page == "addNewLog" or page == "editLog" %}
     <script>
-        {% if page == "addNewLog" or page == "editLog" %}
-            $(document).ready(function () {
-                $("#datePicker").datepicker();
-            });
+        $(document).ready(function () {
+            $("#datePicker").datepicker();
+        });
 
-            $("#hours").on("input", function() {
-                $("#hoursValue").val($(this).val());
-            });
+        $("#hours").on("input", function() {
+            $("#hoursValue").val($(this).val());
+        });
 
-            $("#minutes").on("input", function() {
-                $("#minutesValue").val($(this).val());
-            });
+        $("#minutes").on("input", function() {
+            $("#minutesValue").val($(this).val());
+        });
 
-            $("#hoursValue").on("input", function() {
-                if($("#hoursValue").val() != 0) {
-                    if($("#hoursValue").val() > 24) {
-                        $("#hoursValue").val(24)
-                    }
-                    $("#hours").val($(this).val());
-                } else {
-                    $("#hours").val(0);
+        $("#hoursValue").on("input", function() {
+            if($("#hoursValue").val() != 0) {
+                if($("#hoursValue").val() > 24) {
+                    $("#hoursValue").val(24)
                 }
-            });
-            $("#minutesValue").on("input", function() {
-                if($("#minutesValue").val() != 0) {
-                    if($("#minutesValue").val() > 59) {
-                        $("#minutesValue").val(59); 
-                    }
-                    $("#minutes").val($(this).val());
-                } else {
-                    $("#minutes").val(0);
+                $("#hours").val($(this).val());
+            } else {
+                $("#hours").val(0);
+            }
+        });
+        $("#minutesValue").on("input", function() {
+            if($("#minutesValue").val() != 0) {
+                if($("#minutesValue").val() > 59) {
+                    $("#minutesValue").val(59); 
                 }
-            });
-
-        {% endif %}
-
-        {% if page == "viewLogs" and pagination.getNumPages() > 1 %}
-
-            $("#pageSelect").change(function() {
-                {% if displayLogsUsername %}
-                    var pageURL = "?show={{ displayLogsUsername }}" + "&page=" + $("#pageSelect").val();
-                {% else %}
-                    var pageURL = "?page=" + $("#pageSelect").val();
-                {% endif %}
-
-                window.location = pageURL;
-            });
-        {% endif %}
-
-        {% if page == "viewLogs" %}
-            $("#show").change(function() {
-                var pageURL = "?show=" + $("#show").val();
-
-                window.location = pageURL;
-            });
-        {% endif %}
+                $("#minutes").val($(this).val());
+            } else {
+                $("#minutes").val(0);
+            }
+        });
     </script>
-<script>
-</script>
+    {% endif %}
+
+    {% if page == "viewLogs" and pagination.getNumPages() > 1 %}
+    <script>
+        $("#pageSelect").change(function() {
+            {% if displayLogsUsername %}
+                var pageURL = "?show={{ displayLogsUsername }}" + "&page=" + $("#pageSelect").val();
+            {% else %}
+                var pageURL = "?page=" + $("#pageSelect").val();
+            {% endif %}
+
+            window.location = pageURL;
+        });
+    </script>
+    {% endif %}
+
+    {% if page == "viewLogs" %}
+    <script>
+        $("#show").change(function() {
+            var pageURL = "?show=" + $("#show").val();
+
+            window.location = pageURL;
+        });
+    </script>
+    {% endif %}
 {% endblock %}

@@ -97,9 +97,7 @@
             <th class="time">Time</th>
             <th class="comment">Comment</th>
             <th class="username">User</th>
-            {% if isAdmin or projectLog.canEdit %}
             <th class="edit"></th>
-            {% endif %}
         </tr>
     {% for projectLog in projectLogs %}
         <tr>
@@ -109,13 +107,13 @@
             </td>
             <td class="comment">{{ projectLog.comment }}</td>
             <td class="username"><a href="{{ path_for('userProfile', {'username':projectLog.username}) }}">{{ projectLog.username }}</a></td>
-            {% if isAdmin or projectLog.canEdit %}
             <td class="edit">
+            {% if isAdmin or projectLog.canEdit %}
                 <form action="{{ path_for('editLog', {'name':project.projectName, 'logID':projectLog.id}) }}" method="get">
                     <button type="submit">Edit</button>
                 </form>
-            </td>
             {% endif %}
+            </td>
         </tr>
     {% endfor %}
     </table>

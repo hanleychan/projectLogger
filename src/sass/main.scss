@@ -566,12 +566,14 @@ section#addEditLogSection {
         margin-bottom: 20px;
     }
 
-    div#submitButtons {
-        margin-bottom: 20px;
-    }
     
     form#addLogForm, form#editLogForm, form#deleteLogForm {
         @extend #updateProfileForm;
+
+        div.submitButtons {
+            @extend #submitButtons;
+            margin-bottom: 20px;
+        }
 
         input[type="number"] {
             @extend input[type="text"];
