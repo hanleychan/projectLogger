@@ -29,6 +29,8 @@
                     <button type="submit">Request to join this project</button>
                 </form>
             {% endif %}
+    {% elseif isAdmin or project.ownerID == user.id %}
+        <p id="addUserToProject"><a href="{{ path_for('addUserToProject', {'name': project.projectName}) }}">+ Add User to Project</a></p>
     {% endif %}
 
     <ul id="projectSummaryList">
@@ -87,12 +89,14 @@
                 {% include "fetchTransferOwnership.twig" %}
             {% elseif page == "confirmTransferOwnership" %}
                 {% include "fetchConfirmTransferOwnership.twig" %}
+            {% elseif page == "addUser" %}
+                {% include "fetchAddUserToProject.twig" %}
             {% endif %}
     </div>
     {% if page == "viewLogs" or page == "members" or page == "addNewLog" or
           page == "removeMember" or not page %}
         <p><a href="{{ path_for('projects') }}">Return to projects</a></p>
-    {% elseif page == "projectActions" or page == "editLog" %}
+    {% elseif page == "projectActions" or page == "editLog" or page == "addUser" %}
         <p><a href="{{ path_for('project', {'name':project.projectName}) }}">Return to project</a></p>
     {% elseif page == "transferOwnership" or page == "confirmTransferOwnership" or page == "leaveProject" or page == "deleteProject" or page == "renameProject" %}
         <p><a href="{{ path_for('projectActions', {'name':project.projectName}) }}">Return to project actions</a></p>

@@ -676,10 +676,25 @@ section#deleteProjectSection {
 /**
  * Confirm Leave Project Page Styles
  */
-section #leaveProjectSection {
+section#leaveProjectSection {
     form#leaveProjectForm {
         @extend #updateProfileForm;
         text-align: center;
     }
+    margin: 0;
+}
+
+/**
+ * Add User to Project Page Styles
+ */
+section#addUserToProjectSection {
+    h2 {
+        margin-top: 10px;
+    }
+
+    form#addUserForm {
+        @extend #updateProfileForm;
+    }
+
     margin: 0;
 }
