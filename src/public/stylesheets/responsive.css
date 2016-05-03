@@ -102,7 +102,8 @@
     margin: 0; }
     section#viewProjectMembersSection span.memberUsername {
       display: inline-block;
-      width: 200px; }
+      width: 200px;
+      margin-bottom: 10px; }
     section#viewProjectMembersSection div.adminButtons {
       display: inline; }
 

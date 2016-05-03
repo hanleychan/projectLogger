@@ -34,7 +34,7 @@
         </header>
         
         {% if user %}
-            <p id="greeting">Hello, {{ user.username }}</p>
+            <p id="greeting">Hello, <a href="{{ path_for('userProfile', {'username':user.username}) }}">{{ user.username }}</a></p>
         {% endif %}
 
        {% block content %}
