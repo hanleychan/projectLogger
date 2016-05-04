@@ -23,7 +23,6 @@
         <button type="button" id="updateTime">Update</button><br>
         <label id="timeElapsedLabel">Time Elapsed: <span id="timeElapsedValue">0</span></label><br>
     </div>
-    
 
     <label for="datePicker">Date:</label>
     <input type="text" id="datePicker" name="datePicker" placeholder="mm/dd/yyyy"
@@ -47,6 +46,9 @@
     </fieldset>
 
     <div class="submitButtons">
+        {% if prevPage %}
+        <input type="hidden" name="prevPage" value="{{ prevPage }}">
+        {% endif %}
         <button type="submit" name="action" value="save">Save</button>
         <button type="submit" name="action" value="cancel">Cancel</button>
     </div>
@@ -57,6 +59,9 @@
 <p id="warning">WARNING: This cannot be recovered</p>
 <form id="deleteLogForm" action="{{ path_for('deleteLog', {'name': project.projectName, 'logID':projectLog.id}) }}" method="post">
     <div class="submitButtons">
+        {% if prevPage %}
+        <input type="hidden" name="prevPage" value="{{ prevPage }}">
+        {% endif %}
         <button type="submit" name="action" value="delete">Delete</button>
         <button type="submit" name="action" value="cancel">Cancel</button>
     </div>

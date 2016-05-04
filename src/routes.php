@@ -893,7 +893,7 @@ $app->post('/project/{name}/newLog', function ($request, $response, $args) {
 // Edit existing log page
 $app->get('/project/{name}/edit/{logID}', function ($request, $response, $args) {
     $router = $this->router;
-
+    
     $page = 'editLog';
     $name = trim($args['name']);
     $logID = (int) $args['logID'];
@@ -902,28 +902,24 @@ $app->get('/project/{name}/edit/{logID}', function ($request, $response, $args) 
     // Check if project exists
     if (!Project::doesProjectExist($this->db, $name)) {
         $this->flash->addMessage('fail', 'Project does not exist');
-
         return $response->withRedirect($router->pathFor('projects'));
     }
 
     // fetch project log entry
     if (!$projectLog = ProjectLog::findById($this->db, $logID)) {
         $this->flash->addMessage('fail', 'Log does not exist');
-
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
     // check if user is admin or log entry belongs to user 
     if (!(ProjectMember::isProjectAdmin($this->db, $name, $user->id) || $user->id === $projectLog->userID)) {
         $this->flash->addMessage('fail', 'You do not have permission to edit this log entry');
-
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
     // fetch project
     if (!$project = Project::findProjectByNameAndUser($this->db, $name, $this->session->userID)) {
         $this->flash->addMessage('fail', 'Could not fetch project');
-
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
@@ -932,6 +928,12 @@ $app->get('/project/{name}/edit/{logID}', function ($request, $response, $args) 
 
     // Fetch post data
     $postData = $this->session->getPostData();
+
+    if(isset($postData["prevPage"]) && filter_var($postData["prevPage"], FILTER_VALIDATE_URL)) {
+        $prevPage = $postData["prevPage"];
+    } else {
+        $prevPage = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : false;
+    }
 
     // Reformat date and time formats
     $projectLog->date = ProjectLog::formatDateFromSQL($projectLog->date);
@@ -949,7 +951,7 @@ $app->get('/project/{name}/edit/{logID}', function ($request, $response, $args) 
 
     return $this->view->render($response, 'project.twig', compact('user', 'project', 'projectLog', 'page',
                                                                   'projectMember', 'totalMinutes', 'totalMinutesByMe',
-                                                                  'postData', 'isAdmin'));
+                                                                  'postData', 'isAdmin', 'prevPage'));
 })->add($redirectToLoginMW)->setName('fetchEditLog');
 
 // Process delete log entry form
@@ -960,13 +962,19 @@ $app->post('/project{name}/deleteLog/{logID}', function ($request, $response, $a
     $logID = (int) ($args['logID']);
     $action = $request->getParam('action');
     $user = User::findById($this->db, $this->session->userID);
-
+    $prevPage = $request->getParam('prevPage');
+    
     if ($action === 'cancel' || $action !== 'delete') {
         if ($action !== 'cancel') {
             $this->flash->addMessage('fail', 'There was an error processing your request');
         }
 
-        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
+        if(!empty($prevPage) && filter_var($prevPage, FILTER_VALIDATE_URL)
+                && (parse_url($prevPage)['host'] === $_SERVER['HTTP_HOST'])) {
+            return $response->withRedirect($prevPage);
+        } else {
+            return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
+        }
     }
 
     // Check if project exists
@@ -994,8 +1002,12 @@ $app->post('/project{name}/deleteLog/{logID}', function ($request, $response, $a
     $projectLog->delete();
 
     $this->flash->addMessage('success', 'Log entry successfully deleted');
-
-    return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
+    if(!empty($prevPage) && filter_var($prevPage, FILTER_VALIDATE_URL)
+            && (parse_url($prevPage)['host'] === $_SERVER['HTTP_HOST'])) {
+        return $response->withRedirect($prevPage);
+    } else {
+        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
+    }
 })->add($redirectToLoginMW)->setName('deleteLog');
 
 // Process edit log entry form
@@ -1006,13 +1018,19 @@ $app->post('/project/{name}/edit/{logID}', function ($request, $response, $args)
     $logID = (int) ($args['logID']);
     $action = $request->getParam('action');
     $user = User::findById($this->db, $this->session->userID);
+    $prevPage = $request->getParam('prevPage');
 
     if ($action === 'cancel' || $action !== 'save') {
         if ($action !== 'cancel') {
             $this->flash->addMessage('fail', 'There was a problem processing your request');
         }
 
-        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
+        if(!empty($prevPage) && filter_var($prevPage, FILTER_VALIDATE_URL)
+                && (parse_url($prevPage)['host'] === $_SERVER['HTTP_HOST'])) {
+            return $response->withRedirect($prevPage);
+        } else {
+            return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
+        }
     }
 
     // Check if project exists
@@ -1065,7 +1083,12 @@ $app->post('/project/{name}/edit/{logID}', function ($request, $response, $args)
     $projectLog->save();
     $this->flash->addMessage('success', 'Log entry successfully updated');
 
-    return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
+    if(!empty($prevPage) && filter_var($prevPage, FILTER_VALIDATE_URL)
+            && (parse_url($prevPage)['host'] === $_SERVER['HTTP_HOST'])) {
+        return $response->withRedirect($prevPage);
+    } else {
+        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
+    }
 })->add($redirectToLoginMW)->setName('editLog');
 
 // Process request to join a project form
@@ -1669,7 +1692,7 @@ $app->get('/project/{name}/addUser', function($request, $response, $args) {
     // Get form session data if available
     $postData = $this->session->getPostData();
 
-    if(isset($postData["prevPage"])) {
+    if(isset($postData["prevPage"]) && filter_var($prevPage, FILTER_VALIDATE_URL)) {
         $prevPage = $postData["prevPage"];
     } else {
         $prevPage = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : false;
@@ -1704,10 +1727,11 @@ $app->post('/project/{name}/addUser', function($request, $response, $args) {
         if($action !== 'cancel') {
             $this->flash->addMessage('fail', 'There was an error processing your request');
         }
-        if(!empty($prevPage)) {
+        if(!empty($prevPage) && filter_var($prevPage, FILTER_VALIDATE_URL)
+                && (parse_url($prevPage)['host'] === $_SERVER['HTTP_HOST'])) {
             return $response->withRedirect($prevPage);
         } else {
-            return $response->withRedirect($router->pathFor('project', compact('name')));
+            return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
         }
     }
 
@@ -1759,9 +1783,9 @@ $app->post('/project/{name}/addUser', function($request, $response, $args) {
     $notification->notification =  $message;
     $notification->save();
 
-    
     $this->flash->addMessage('success', "You have added {$username} to this project");
-    if(!empty($prevPage)) {
+    if(!empty($prevPage) && filter_var($prevPage, FILTER_VALIDATE_URL)
+            && (parse_url($prevPage)['host'] === $_SERVER['HTTP_HOST'])) {
         return $response->withRedirect($prevPage);
     } else {
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
