@@ -15,6 +15,16 @@
         * Project time must be between 1 min - 24 hrs 
     </p>
     <fieldset>
+    <div id="stopWatch">
+        <label id="stopWatchLabel">Stopwatch:</label><br>
+        <button type="button" id="startTimer">Start</button>
+        <button type="button" id="stopTimer">Stop</button>
+        <button type="button" id="resetTimer">Reset</button>
+        <button type="button" id="updateTime">Update</button><br>
+        <label id="timeElapsedLabel">Time Elapsed: <span id="timeElapsedValue">0</span></label><br>
+    </div>
+    
+
     <label for="datePicker">Date:</label>
     <input type="text" id="datePicker" name="datePicker" placeholder="mm/dd/yyyy"
            value="{% if postData %}{{ postData.datePicker }}{% elseif projectLog %}{{ projectLog.date }}{% else %}{{ "now" | date("m/d/Y") }}{% endif %}"><br>

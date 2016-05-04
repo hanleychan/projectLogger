@@ -111,19 +111,23 @@
 
     {% if page == "addNewLog" or page == "editLog" %}
     <script>
+        // Display calendar input
         $(document).ready(function () {
             $("#datePicker").datepicker();
         });
 
-        $("#hours").on("input", function() {
+        // Update hours number input when hours slider input is changed
+        $("#hours").on("input change", function() {
             $("#hoursValue").val($(this).val());
         });
 
-        $("#minutes").on("input", function() {
+        // Update minutes number input when minutes slider input is changed
+        $("#minutes").on("input change", function() {
             $("#minutesValue").val($(this).val());
         });
 
-        $("#hoursValue").on("input", function() {
+        // Update hours slider input when hours number input is changed
+        $("#hoursValue").on("input change", function() {
             if($("#hoursValue").val() != 0) {
                 if($("#hoursValue").val() > 24) {
                     $("#hoursValue").val(24)
@@ -133,7 +137,9 @@
                 $("#hours").val(0);
             }
         });
-        $("#minutesValue").on("input", function() {
+
+        // Update minutes slider input when minutes number input is changed
+        $("#minutesValue").on("input change", function() {
             if($("#minutesValue").val() != 0) {
                 if($("#minutesValue").val() > 59) {
                     $("#minutesValue").val(59); 
@@ -142,6 +148,95 @@
             } else {
                 $("#minutes").val(0);
             }
+        });
+
+        var timer;
+        var timerOn = false;
+        var secondsElapsed = 0; 
+        const MAX_SECONDS = 86400; // 24 hrs
+
+        function secondsToHours(totalSeconds) {
+            return Math.floor(totalSeconds / 3600);
+        }
+
+        function secondsToMinutes(totalSeconds) {
+            return Math.floor((totalSeconds % 3600)  / 60);
+        }
+
+        function remainingSeconds(totalSeconds) {
+            return ((totalSeconds % 3600 ) % 60);
+        }
+        
+        function formatTime(totalSeconds) {
+            var hours, minutes, seconds;
+            var output = "";
+
+            hours = secondsToHours(totalSeconds);
+            minutes = secondsToMinutes(totalSeconds);
+            seconds = remainingSeconds(totalSeconds);
+
+            if(hours > 0) {
+                output += hours;
+                output += (hours > 1) ? " hrs " : " hr ";
+            }
+            if(minutes > 0) {
+                output += minutes;
+                output += (minutes > 1) ? " mins " : " min ";
+            }
+            if(seconds > 0) {
+                output += seconds;
+                output += (seconds > 1) ? " secs" : " sec";
+            }
+
+            return output;
+        }
+
+        function startClock() {
+            if(timerOn === false && secondsElapsed < MAX_SECONDS) {
+                timerOn = true;
+                $("#startTimer").addClass("selected");
+
+                timer = setInterval(function() {
+                    secondsElapsed++;
+                    $("#timeElapsedValue").html(formatTime(secondsElapsed));
+
+                    // Stop timer if timer reaches 24 hours
+                    if(secondsElapsed >= MAX_SECONDS) {
+                        $("#timeElapsedValue").addClass("maxedTime");
+                        stopClock();
+                    }
+                }, 1000);
+            }
+        }
+
+        function stopClock() {
+            if(timerOn === true) {
+                timerOn = false;
+                $("#startTimer").removeClass("selected");
+                clearInterval(timer);
+            }
+        }
+
+        $("#startTimer").click(function() {
+            startClock();
+        });
+
+        $("#stopTimer").click(function() {
+            stopClock();
+        });
+
+        $("#resetTimer").click(function() {
+            stopClock();
+            secondsElapsed = 0;
+            $("#timeElapsedValue").html(secondsElapsed);
+            $("#timeElapsedValue").removeClass("maxedTime");
+        });
+
+        $("#updateTime").click(function () {
+            $("#hours").val(secondsToHours(secondsElapsed));
+            $("#hours").trigger("change");
+            $("#minutes").val(secondsToMinutes(secondsElapsed));
+            $("#minutes").trigger("change");
         });
     </script>
     {% endif %}

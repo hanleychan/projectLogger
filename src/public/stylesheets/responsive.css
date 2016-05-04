@@ -116,6 +116,12 @@
   /**
    * Add/Edit Log Entry Page Styles
    */
+  section#addEditLogSection form#addLogForm label#stopWatchLabel, section#addEditLogSection form#editLogForm label#stopWatchLabel, section#addEditLogSection form#deleteLogForm label#stopWatchLabel {
+    margin-bottom: 10px; }
+  section#addEditLogSection form#addLogForm label#timeElapsedLabel, section#addEditLogSection form#editLogForm label#timeElapsedLabel, section#addEditLogSection form#deleteLogForm label#timeElapsedLabel {
+    display: block;
+    text-align: center;
+    width: 100%; }
   section#addEditLogSection form#addLogForm input[type="range"], section#addEditLogSection form#editLogForm input[type="range"], section#addEditLogSection form#deleteLogForm input[type="range"] {
     width: 35%;
     float: none; }

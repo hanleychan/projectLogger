@@ -346,6 +346,31 @@ section#addEditLogSection {
     color: #ff0000; }
   section#addEditLogSection h3 {
     margin-bottom: 20px; }
+  section#addEditLogSection form#addLogForm div#stopWatch, section#addEditLogSection form#editLogForm div#stopWatch, section#addEditLogSection form#deleteLogForm div#stopWatch {
+    text-align: center; }
+  section#addEditLogSection form#addLogForm button[type="button"], section#addEditLogSection form#editLogForm button[type="button"], section#addEditLogSection form#deleteLogForm button[type="button"] {
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    padding: 0;
+    margin: 0 0 10px 0;
+    background-color: #ff0000; }
+  section#addEditLogSection form#addLogForm button[type="button"]:focus, section#addEditLogSection form#editLogForm button[type="button"]:focus, section#addEditLogSection form#deleteLogForm button[type="button"]:focus {
+    border: none; }
+  section#addEditLogSection form#addLogForm button[type="button"].selected, section#addEditLogSection form#editLogForm button[type="button"].selected, section#addEditLogSection form#deleteLogForm button[type="button"].selected {
+    background-color: #660000; }
+  section#addEditLogSection form#addLogForm label#stopWatchLabel, section#addEditLogSection form#editLogForm label#stopWatchLabel, section#addEditLogSection form#deleteLogForm label#stopWatchLabel {
+    text-align: center; }
+  section#addEditLogSection form#addLogForm label#timeElapsedLabel, section#addEditLogSection form#editLogForm label#timeElapsedLabel, section#addEditLogSection form#deleteLogForm label#timeElapsedLabel {
+    display: inline-block;
+    margin-bottom: 10px; }
+    section#addEditLogSection form#addLogForm label#timeElapsedLabel span#timeElapsedValue, section#addEditLogSection form#editLogForm label#timeElapsedLabel span#timeElapsedValue, section#addEditLogSection form#deleteLogForm label#timeElapsedLabel span#timeElapsedValue {
+      font-weight: normal; }
+    section#addEditLogSection form#addLogForm label#timeElapsedLabel span.maxedTime, section#addEditLogSection form#editLogForm label#timeElapsedLabel span.maxedTime, section#addEditLogSection form#deleteLogForm label#timeElapsedLabel span.maxedTime {
+      color: #ff0000; }
+  section#addEditLogSection form#addLogForm input[type="text"]#time, section#addEditLogSection form#addLogForm textarea#time, section#addEditLogSection form#addLogForm input#time[type="file"], section#addEditLogSection form#addLogForm input#time[type="number"], section#addEditLogSection form#addLogForm input#time[type='range'], section#addEditLogSection form#editLogForm input[type="text"]#time, section#addEditLogSection form#editLogForm textarea#time, section#addEditLogSection form#editLogForm input#time[type="file"], section#addEditLogSection form#editLogForm input#time[type="number"], section#addEditLogSection form#editLogForm input#time[type='range'], section#addEditLogSection form#deleteLogForm input[type="text"]#time, section#addEditLogSection form#deleteLogForm textarea#time, section#addEditLogSection form#deleteLogForm input#time[type="file"], section#addEditLogSection form#deleteLogForm input#time[type="number"], section#addEditLogSection form#deleteLogForm input#time[type='range'] {
+    display: inline-block;
+    width: 60%; }
   section#addEditLogSection form#addLogForm div.submitButtons, section#addEditLogSection form#editLogForm div.submitButtons, section#addEditLogSection form#deleteLogForm div.submitButtons {
     margin-bottom: 20px; }
   section#addEditLogSection form#addLogForm input[type='range'], section#addEditLogSection form#editLogForm input[type='range'], section#addEditLogSection form#deleteLogForm input[type='range'] {

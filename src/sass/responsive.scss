@@ -195,6 +195,15 @@
         form#addLogForm, form#editLogForm, form#deleteLogForm {
             @extend #registerForm;
 
+            label#stopWatchLabel {
+                margin-bottom: 10px;
+            }
+            label#timeElapsedLabel {
+                display: block;
+                text-align: center;
+                width: 100%;
+            }
+
             input[type="range"] {
                 width: 35%;
                 float: none;
