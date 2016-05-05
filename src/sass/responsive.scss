@@ -136,19 +136,20 @@
      * Project Page Styles
      */
     section#projectSection {
-
        h3#viewHeading {
            display: inline-block;
            margin-top: 10px;
        }
 
-       ul#selectViewList {
+       ul#selectViewList, ul#selectProjectActionList {
            li {
                display: inline-block;
                width: 150px;
+               vertical-align: top;
            }
            margin-top: 10px;
        }
+
 
        p#projectActionsParagraph {
            display: none;
@@ -218,19 +219,7 @@
         }
     }
 
-
-    /**
-     * Project Actions Page Styles
-     */
-    ul#selectProjectActionList {
-        li {
-            display: inline-block;
-            vertical-align: top;
-            width: 150px;
-        }
-    }
-
-
+    
     /**
      * Rename Project Page Styles
      */
@@ -325,6 +314,32 @@
             -webkit-column-count: 3;
             -moz-column-count: 3;
             column-count: 3;
+        }
+    }
+
+    /**
+     * Project Page Styles
+     */
+    section#projectSection {
+        ul#projectSummaryList {
+            display: inline-block;
+            float: right;
+            width: 40%;
+            margin: 0; padding: 0;
+        }
+
+        div#viewSelect{ 
+            li {
+                width: 140px;
+            }
+            float: left;
+            width: 60%;
+            margin: 0; padding: 0;
+        }
+
+        div#displayContent {
+            clear: both;
+            margin-top: 2%;
         }
     }
 

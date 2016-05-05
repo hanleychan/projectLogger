@@ -54,17 +54,36 @@
         {% endif %}
     </ul>
 
+    <div id="viewSelect">
     {% if page == "viewLogs" or page == "members" or page == "addNewLog" or
           page == "editLog" or not page %}
-        <h3 id="viewHeading">Select View:</h3>
-        <ul id="selectViewList">
-            <li id="log"><a href="{{ path_for('fetchProjectLogs', {'name': project.projectName}) }}">View Log Entries</a></li>
-            <li id="members"><a href="{{ path_for('fetchProjectMembers', {'name': project.projectName}) }}">View Members</a></li>
-            {% if projectMember %}
-                <li id="newLog"><a href="{{ path_for('fetchAddNewLog', {'name':project.projectName}) }}">Add Log Entry</a></li>
+            <h3 id="viewHeading">Select View:</h3>
+            <ul id="selectViewList">
+                <li id="log"><a href="{{ path_for('fetchProjectLogs', {'name': project.projectName}) }}">View Log Entries</a></li>
+                <li id="members"><a href="{{ path_for('fetchProjectMembers', {'name': project.projectName}) }}">View Members</a></li>
+                {% if projectMember %}
+                    <li id="newLog"><a href="{{ path_for('fetchAddNewLog', {'name':project.projectName}) }}">Add Log Entry</a></li>
+                {% endif %}
+            </ul>
+    {% elseif page == "projectActions" or page == "renameProject" or page == "transferOwnership" or
+              page == "deleteProject" or page == "leaveProject" or page == "confirmTransferOwnership" %}
+            <h3 id="viewHeading">Project Actions</h3>
+            <ul id="selectProjectActionList">
+            {%if isOwner or isAdmin %}
+                <li><a href="{{ path_for('renameProject', {'name': project.projectName}) }}">Rename Project</a></li>
             {% endif %}
-    </ul>
+
+            {% if isOwner %}
+                <li><a href="{{ path_for('transferOwnership', {'name': project.projectName}) }}">Transfer Project Ownership</a></li>
+                <li><a href="{{ path_for('confirmDeleteProject', {'name':project.projectName}) }}">Delete Project</a></li>
+            {% endif %}
+
+            {% if not isOwner %}
+                <li><a href="{{ path_for('confirmLeaveProject', {'name':project.projectName, 'username':user.username }) }}">Leave Project</a></li>
+            {% endif %}
+            </ul>
     {% endif %}
+    </div>
 
     <div id="displayContent">
             {% if page == "viewLogs" or not page %}
@@ -77,8 +96,6 @@
                 {% include "fetchAddEditLog.twig" %}
             {% elseif page == "removeMember" %}
                 {% include "fetchConfirmRemoveMember.twig" %}
-            {% elseif page == "projectActions" %}
-                {% include "fetchProjectActions.twig" %}
             {% elseif page == "leaveProject" %}
                 {% include "fetchConfirmLeaveProject.twig" %}
             {% elseif page == "deleteProject" %}

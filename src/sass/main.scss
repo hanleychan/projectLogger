@@ -435,6 +435,10 @@ section#projectSection {
         margin-top: 0;
     }
 
+    ul#selectProjectActionList {
+        @extend #selectViewList;
+    }
+
     span#projectActionsHeading {
         display: none;
     }
@@ -646,20 +650,6 @@ section#addEditLogSection {
 
     }
     margin: 0;
-}
-
-
-/**
- * Project Actions Page Styles
- */
-section#projectActionsSection {
-    h3 {
-        margin-bottom: 10px;
-    }
-    ul#selectProjectActionList {
-        @extend #selectViewList;
-    }
-    margin-left: 0;
 }
 
 
