@@ -153,6 +153,9 @@ section#homePageSection section#notifications form.deleteNotificationForm button
   border: none;
   color: red;
   background-color: #f2f2f2; }
+section#homePageSection ul#notificationsList {
+  max-height: 300px;
+  overflow: auto; }
 
 /**
  * Account Page Styles

@@ -29,6 +29,12 @@
     vertical-align: top; }
 
   /**
+   * Main Page Styles
+   */
+  section#homePageSection ul#notificationsList li {
+    margin-left: 20px; }
+
+  /**
    * Profile Page Styles
    */
   section#profileSection span.profileHeading {

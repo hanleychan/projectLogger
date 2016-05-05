@@ -242,6 +242,11 @@ section#homePageSection {
             }
         }
     }
+
+    ul#notificationsList {
+        max-height: 300px;
+        overflow: auto;
+    }
 }
 
 
