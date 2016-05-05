@@ -2050,3 +2050,14 @@ $app->post('/account/password', function ($request, $response) {
 
     return $response->withRedirect($router->pathFor('account'));
 })->add($redirectToLoginMW)->setName('processChangePassword');
+
+// Refresh session to prevent timeout
+$app->get('/refreshSession', function($request, $response) {
+    // Check if AJAX request
+    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])
+        && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        session_start();
+    } else {
+        return $this->view->render($response, '404.twig', ['noMenu'=>true]);
+    }
+})->setName('refreshSession');

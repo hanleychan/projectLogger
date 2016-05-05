@@ -168,6 +168,7 @@
         });
 
         var timer;
+        var refreshSession;
         var timerOn = false;
         var secondsElapsed = 0; 
         const MAX_SECONDS = 86400; // 24 hrs
@@ -223,6 +224,17 @@
                         stopClock();
                     }
                 }, 1000);
+
+                // Refresh session to prevent session timeout (10 minutes)
+                refreshSession = setInterval( function() {
+                    $.ajax({
+                        cache: false,
+                        type: "GET",
+                        url: "{{ path_for('refreshSession') }}",
+                        success: function(data) {
+                        }
+                    });
+                }, 600000);
             }
         }
 
@@ -231,6 +243,7 @@
                 timerOn = false;
                 $("#startTimer").removeClass("selected");
                 clearInterval(timer);
+                clearInterval(refreshSession);
             }
         }
 
