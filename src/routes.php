@@ -489,7 +489,7 @@ $app->get('/project/{name}/projectLogs', function ($request, $response, $args) {
                                                                   'displayLogsUsername', 'pagination'));
 })->add($redirectToLoginMW)->setName('fetchProjectLogs');
 
-// List project members page
+// View project members page
 $app->get('/project/{name}/members', function ($request, $response, $args) {
     $router = $this->router;
 
@@ -504,7 +504,6 @@ $app->get('/project/{name}/members', function ($request, $response, $args) {
         // Can't fetch project (Project doesn't exist)
         if (!$project) {
             $this->flash->addMessage('fail', 'Project does not exist');
-
             return $reponse->withRedirect($router->pathFor('projects'));
         }
 
@@ -1734,12 +1733,6 @@ $app->get('/project/{name}/addUser', function ($request, $response, $args) {
     // Get form session data if available
     $postData = $this->session->getPostData();
 
-    if (isset($postData['prevPage']) && filter_var($postData['prevPage'], FILTER_VALIDATE_URL)) {
-        $prevPage = $postData['prevPage'];
-    } else {
-        $prevPage = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : false;
-    }
-
     $project->dateAdded = ProjectLog::formatDateFromSQL($project->dateAdded);
 
     // Get combined minutes of all users for this project
@@ -1752,7 +1745,7 @@ $app->get('/project/{name}/addUser', function ($request, $response, $args) {
 
     return $this->view->render($response, 'project.twig', compact('user', 'project', 'projectMember', 'page',
                                                                   'projectMember', 'totalMinutes', 'totalMinutesByMe',
-                                                                  'postData', 'isAdmin', 'prevPage'));
+                                                                  'postData', 'isAdmin'));
 })->add($redirectToLoginMW)->setName('addUserToProject');
 
 // Process adding user to project
@@ -1763,18 +1756,13 @@ $app->post('/project/{name}/addUser', function ($request, $response, $args) {
     $name = trim($args['name']);
     $username = $this->request->getParam('username');
     $action = $this->request->getParam('action');
-    $prevPage = $this->request->getParam('prevPage');
 
     if ($action === 'cancel' || $action !== 'add') {
         if ($action !== 'cancel') {
             $this->flash->addMessage('fail', 'There was an error processing your request');
         }
-        if (!empty($prevPage) && filter_var($prevPage, FILTER_VALIDATE_URL)
-                && (parse_url($prevPage)['host'] === $_SERVER['HTTP_HOST'])) {
-            return $response->withRedirect($prevPage);
-        } else {
-            return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
-        }
+
+        return $response->withRedirect($router->pathFor('fetchProjectMembers', compact('name')));
     }
 
     // Fetch project
@@ -1829,12 +1817,7 @@ $app->post('/project/{name}/addUser', function ($request, $response, $args) {
     $notification->save();
 
     $this->flash->addMessage('success', "You have added {$username} to this project");
-    if (!empty($prevPage) && filter_var($prevPage, FILTER_VALIDATE_URL)
-            && (parse_url($prevPage)['host'] === $_SERVER['HTTP_HOST'])) {
-        return $response->withRedirect($prevPage);
-    } else {
-        return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
-    }
+    return $response->withRedirect($router->pathFor('fetchProjectMembers', compact('name')));
 })->add($redirectToLoginMW)->setName('processAddUserToProject');
 
 /*

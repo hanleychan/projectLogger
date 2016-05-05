@@ -3,12 +3,9 @@
     <form id="addUserForm" action="{{ path_for('processAddUserToProject', {'name':project.projectName}) }}" method="post">
         <fieldset>
             <label for="username">Username:</label>
-            <input type="text" id="username" name="username"{% if postData.username %}value="{{ postData.username }}"{% endif %} required>
+            <input type="text" id="username" name="username"{% if postData.username %}value="{{ postData.username }}"{% endif %} maxlength="20" required>
         </fieldset>
         <div id="submitButtons">
-            {% if prevPage %}
-            <input type="hidden" name="prevPage" value="{{ prevPage }}">
-            {% endif %}
             <button type="submit" name="action" value="add">Add</button>
             <button type="submit" name="action" value="cancel" formnovalidate>Cancel</button>
         </div>

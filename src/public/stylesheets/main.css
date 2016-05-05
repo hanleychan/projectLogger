@@ -251,6 +251,9 @@ section#projectSection h2 {
 section#projectSection h3 {
   padding: 0;
   margin: 0; }
+section#projectSection p#addUser a {
+  text-decoration: underline;
+  font-weight: bold; }
 section#projectSection a {
   text-decoration: none; }
 section#projectSection a#projectActionsLink {

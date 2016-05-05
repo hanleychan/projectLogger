@@ -1,5 +1,10 @@
 <section id="viewProjectMembersSection"> 
 <h3>Members</h3>
+{% if isAdmin or isOwner %}
+<p id="addUser">
+    <a href="{{ path_for('addUserToProject', {'name': project.projectName}) }}">+ Add User to Project</a>
+</p>
+{% endif %}
 <ul>
     <li>
         <a href="{{ path_for('userProfile', {'username':project.ownerName}) }}">

@@ -29,8 +29,6 @@
                     <button type="submit">Request to join this project</button>
                 </form>
             {% endif %}
-    {% elseif isAdmin or project.ownerID == user.id %}
-        <p id="addUserToProject"><a href="{{ path_for('addUserToProject', {'name': project.projectName}) }}">+ Add User to Project</a></p>
     {% endif %}
 
     <ul id="projectSummaryList">
@@ -56,7 +54,7 @@
 
     <div id="viewSelect">
     {% if page == "viewLogs" or page == "members" or page == "addNewLog" or
-          page == "editLog" or not page %}
+          page == "editLog" or page == "addUser" or not page %}
             <h3 id="viewHeading">Select View:</h3>
             <ul id="selectViewList">
                 <li id="log"><a href="{{ path_for('fetchProjectLogs', {'name': project.projectName}) }}">View Log Entries</a></li>
