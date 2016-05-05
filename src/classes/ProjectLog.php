@@ -12,8 +12,21 @@ class ProjectLog extends DatabaseObject
     public $totalMinutes;
     public $numLogs;
 
+    const COMMENT_MAX_LENGTH = 100;
+
     protected static $tableName = 'projectlogs';
     protected static $dbFields = array('id', 'minutes', 'userID', 'projectID', 'comment', 'date');
+
+    /**
+     * Returns whether the specified comment is valid
+     */
+    public static function isValidComment($comment) {
+        if(strlen($comment) > self::COMMENT_MAX_LENGTH) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 
     /**
      * Returns whether the specified hours and minutes is in the range from 1min to 24hrs 

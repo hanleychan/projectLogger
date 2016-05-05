@@ -164,7 +164,7 @@ $app->post('/register', function ($request, $response) {
 
     if ($photo->getError() !== 0 && $photo->getError() !== 4) {
         $inputError = true;
-        if($photo->getError() === 1 || $photo->getError() === 2) {
+        if ($photo->getError() === 1 || $photo->getError() === 2) {
             $this->flash->addMessage('fail', 'Image file is too large');
         } else {
             $this->flash->addMessage('fail', 'There was a problem processing the uploaded file');
@@ -236,6 +236,7 @@ $app->post('/register', function ($request, $response) {
     $this->logger->addInfo('User Registration', ['username' => $user->username]);
 
     $this->flash->addMessage('success', 'You have successfully registered');
+
     return $response->withRedirect($router->pathFor('login'));
 })->add($redirectToMainPageMW)->setName('processRegister');
 
@@ -277,9 +278,10 @@ $app->get('/logout', function ($request, $response) {
     $this->session->logout();
 
     // Log logout record
-    $this->logger->addInfo('User Logged Out',['username' => $user->username]); 
+    $this->logger->addInfo('User Logged Out', ['username' => $user->username]);
 
     $router = $this->router;
+
     return $response->withRedirect($router->pathFor('login'));
 })->add($redirectToLoginMW)->setName('logout');
 
@@ -400,6 +402,7 @@ $app->get('/project/{name}', function ($request, $response, $args) {
     $name = trim($args['name']);
 
     $router = $this->router;
+
     return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
 })->add($redirectToLoginMW)->setName('project');
 
@@ -713,6 +716,7 @@ $app->post('/project/{name}/remove/{username}', function ($request, $response, $
     $notification->save();
 
     $this->flash->addMessage('success', "{$projectMember->username} has been removed");
+
     return $response->withRedirect($router->pathFor('fetchProjectMembers', compact('name')));
 })->add($redirectToLoginMW)->setName('processRemoveMember');
 
@@ -792,12 +796,14 @@ $app->get('/project/{name}/newLog', function ($request, $response, $args) {
     // Check if project exists
     if (!Project::doesProjectExist($this->db, $name)) {
         $this->flash->addMessage('fail', 'Project does not exist');
+
         return $response->withRedirect($router->pathFor('projects'));
     }
 
     // Check if user is a member of this project
     if (!$project = Project::findProjectByNameAndUser($this->db, $name, $user->id)) {
         $this->flash->addMessage('fail', 'You do not have permission to add a new log to this project');
+
         return $response->withRedirect($router->pathFor('projects'));
     }
 
@@ -836,6 +842,7 @@ $app->post('/project/{name}/newLog', function ($request, $response, $args) {
     // Check if user is a member of this project
     if (!ProjectMember::isProjectMemberByProjectName($this->db, $name, $this->session->userID)) {
         $this->flash->addMessage('fail', 'You do not have permission to add a new log to this project');
+
         return $response->withRedirect($router->pathFor('fetchAddNewLog', compact('name')));
     }
 
@@ -863,6 +870,11 @@ $app->post('/project/{name}/newLog', function ($request, $response, $args) {
         $this->flash->addMessage('fail', 'Time must be between 1 minute to 24 hours');
     }
 
+    if (!ProjectLog::isValidComment($comment)) {
+        $inputError = true;
+        $this->flash->addMessage('fail', 'Invalid comment');
+    }
+
     if ($inputError) {
         $this->session->setPostData($_POST);
         return $response->withRedirect($router->pathFor('fetchAddNewLog', compact('name')));
@@ -878,13 +890,14 @@ $app->post('/project/{name}/newLog', function ($request, $response, $args) {
     $projectLog->save();
 
     $this->flash->addMessage('success', 'Log successfully added to project');
+
     return $response->withRedirect($router->pathFor('fetchAddNewLog', compact('name')));
 })->add($redirectToLoginMW)->setName('addProjectLog');
 
 // Edit existing log page
 $app->get('/project/{name}/edit/{logID}', function ($request, $response, $args) {
     $router = $this->router;
-    
+
     $page = 'editLog';
     $name = trim($args['name']);
     $logID = (int) $args['logID'];
@@ -893,24 +906,28 @@ $app->get('/project/{name}/edit/{logID}', function ($request, $response, $args) 
     // Check if project exists
     if (!Project::doesProjectExist($this->db, $name)) {
         $this->flash->addMessage('fail', 'Project does not exist');
+
         return $response->withRedirect($router->pathFor('projects'));
     }
 
     // fetch project log entry
     if (!$projectLog = ProjectLog::findById($this->db, $logID)) {
         $this->flash->addMessage('fail', 'Log does not exist');
+
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
     // check if user is admin or log entry belongs to user 
     if (!(ProjectMember::isProjectAdmin($this->db, $name, $user->id) || $user->id === $projectLog->userID)) {
         $this->flash->addMessage('fail', 'You do not have permission to edit this log entry');
+
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
     // fetch project
     if (!$project = Project::findProjectByNameAndUser($this->db, $name, $this->session->userID)) {
         $this->flash->addMessage('fail', 'Could not fetch project');
+
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
@@ -920,8 +937,8 @@ $app->get('/project/{name}/edit/{logID}', function ($request, $response, $args) 
     // Fetch post data
     $postData = $this->session->getPostData();
 
-    if(isset($postData["prevPage"]) && filter_var($postData["prevPage"], FILTER_VALIDATE_URL)) {
-        $prevPage = $postData["prevPage"];
+    if (isset($postData['prevPage']) && filter_var($postData['prevPage'], FILTER_VALIDATE_URL)) {
+        $prevPage = $postData['prevPage'];
     } else {
         $prevPage = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : false;
     }
@@ -954,13 +971,13 @@ $app->post('/project{name}/deleteLog/{logID}', function ($request, $response, $a
     $action = $request->getParam('action');
     $user = User::findById($this->db, $this->session->userID);
     $prevPage = $request->getParam('prevPage');
-    
+
     if ($action === 'cancel' || $action !== 'delete') {
         if ($action !== 'cancel') {
             $this->flash->addMessage('fail', 'There was an error processing your request');
         }
 
-        if(!empty($prevPage) && filter_var($prevPage, FILTER_VALIDATE_URL)
+        if (!empty($prevPage) && filter_var($prevPage, FILTER_VALIDATE_URL)
                 && (parse_url($prevPage)['host'] === $_SERVER['HTTP_HOST'])) {
             return $response->withRedirect($prevPage);
         } else {
@@ -971,18 +988,21 @@ $app->post('/project{name}/deleteLog/{logID}', function ($request, $response, $a
     // Check if project exists
     if (!Project::doesProjectExist($this->db, $name)) {
         $this->flash->addMessage('fail', 'Project does not exist');
+
         return $response->withRedirect($router->pathFor('projects'));
     }
 
     // fetch project log entry
     if (!$projectLog = ProjectLog::findById($this->db, $logID)) {
         $this->flash->addMessage('fail', "Log doesn't exist");
+
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
     // check if is admin or log entry belongs to user 
     if (!(ProjectMember::isProjectAdmin($this->db, $name, $user->id) || $user->id === $projectLog->userID)) {
         $this->flash->addMessage('fail', 'You do not have permission to delete this log');
+
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
@@ -990,7 +1010,7 @@ $app->post('/project{name}/deleteLog/{logID}', function ($request, $response, $a
     $projectLog->delete();
 
     $this->flash->addMessage('success', 'Log entry successfully deleted');
-    if(!empty($prevPage) && filter_var($prevPage, FILTER_VALIDATE_URL)
+    if (!empty($prevPage) && filter_var($prevPage, FILTER_VALIDATE_URL)
             && (parse_url($prevPage)['host'] === $_SERVER['HTTP_HOST'])) {
         return $response->withRedirect($prevPage);
     } else {
@@ -1013,7 +1033,7 @@ $app->post('/project/{name}/edit/{logID}', function ($request, $response, $args)
             $this->flash->addMessage('fail', 'There was a problem processing your request');
         }
 
-        if(!empty($prevPage) && filter_var($prevPage, FILTER_VALIDATE_URL)
+        if (!empty($prevPage) && filter_var($prevPage, FILTER_VALIDATE_URL)
                 && (parse_url($prevPage)['host'] === $_SERVER['HTTP_HOST'])) {
             return $response->withRedirect($prevPage);
         } else {
@@ -1024,18 +1044,21 @@ $app->post('/project/{name}/edit/{logID}', function ($request, $response, $args)
     // Check if project exists
     if (!Project::doesProjectExist($this->db, $name)) {
         $this->flash->addMessage('fail', 'Project does not exist');
+
         return $response->withRedirect($router->pathFor('projects'));
     }
 
     // fetch project log entry
     if (!$projectLog = ProjectLog::findById($this->db, $logID)) {
         $this->flash->addMessage('fail', "Log doesn't exist");
+
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
     // check if is admin or log entry belongs to user 
     if (!(ProjectMember::isProjectAdmin($this->db, $name, $user->id) || $user->id === $projectLog->userID)) {
         $this->flash->addMessage('fail', 'You do not have permission to edit this log');
+
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
@@ -1055,6 +1078,11 @@ $app->post('/project/{name}/edit/{logID}', function ($request, $response, $args)
         $inputError = true;
     }
 
+    if (!ProjectLog::isValidComment($comment)) {
+        $inputError = true;
+        $this->flash->addMessage('fail', 'Invalid comment');
+    }
+
     if ($inputError) {
         $this->session->setPostData($_POST);
         return $response->withRedirect($router->pathFor('fetchEditLog', compact('name', 'logID')));
@@ -1067,7 +1095,7 @@ $app->post('/project/{name}/edit/{logID}', function ($request, $response, $args)
     $projectLog->save();
     $this->flash->addMessage('success', 'Log entry successfully updated');
 
-    if(!empty($prevPage) && filter_var($prevPage, FILTER_VALIDATE_URL)
+    if (!empty($prevPage) && filter_var($prevPage, FILTER_VALIDATE_URL)
             && (parse_url($prevPage)['host'] === $_SERVER['HTTP_HOST'])) {
         return $response->withRedirect($prevPage);
     } else {
@@ -1085,18 +1113,21 @@ $app->post('/project/{name}/request', function ($request, $response, $args) {
     // Check if project exists
     if (!$project = Project::findProjectByName($this->db, $name)) {
         $this->flash->addMessage('fail', 'Project does not exist');
+
         return $response->withRedirect($router->pathFor('projects'));
     }
 
     // Check if user is already a member of this project
     if (ProjectMember::isProjectMemberByProjectName($this->db, $name, $user->id)) {
         $this->flash->addMessage('fail', 'You are already a member of this project');
+
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
     // Check if request already exists
     if (RequestJoinProject::getRequestByProjectName($this->db, $name, $user->id)) {
         $this->flash->addMessage('fail', 'You have already requested to join this project');
+
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
@@ -1126,12 +1157,14 @@ $app->post('/project/{name}/request/cancel', function ($request, $response, $arg
     // Check if project exists
     if (!$project = Project::findProjectByName($this->db, $name)) {
         $this->flash->addMessage('fail', 'Project does not exist');
+
         return $response->withRedirect($router->pathFor('projects'));
     }
 
     // Fetch request 
     if (!$requestJoinProject = RequestJoinProject::getRequestByProjectName($this->db, $name, $user->id)) {
         $this->flash->addMessage('fail', 'You do not have a pending request to join this project');
+
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
@@ -1158,12 +1191,14 @@ $app->get('/project/{name}/actions', function ($request, $response, $args) {
     // Fetch project
     if (!$project = Project::findProjectByName($this->db, $name)) {
         $this->flash->addMessage('fail', 'Project does not exist');
+
         return $response->withRedirect($router->pathFor('projects'));
     }
 
     // Check if user is a project member of this project
     if (!ProjectMember::isProjectMemberByProjectName($this->db, $name, $user->id)) {
         $this->flash->addMessage('fail', 'You are not a member of this project');
+
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
@@ -1200,6 +1235,7 @@ $app->get('/project/{name}/leave/{username}', function ($request, $response, $ar
     // Fetch project
     if (!$project = Project::findProjectByName($this->db, $name)) {
         $this->flash->addMessage('fail', 'Project does not exist');
+
         return $response->withRedirect($router->pathFor('projects'));
     }
 
@@ -1209,13 +1245,15 @@ $app->get('/project/{name}/leave/{username}', function ($request, $response, $ar
     // Check if project member is the user
     if (!$projectMember || ($projectMember->userID !== $user->id)) {
         $this->flash->addMessage('fail', 'You do not have permission to view this page');
+
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
     // Cannot leave project if user is the owner
     $isOwner = $project->ownerID === $user->id;
-    if($isOwner) {
+    if ($isOwner) {
         $this->flash->addMessage('fail', 'Project owners cannot leave a project. Transfer ownership to another user first.');
+
         return $response->withRedirect($router->pathFor('projectActions', compact('name')));
     }
 
@@ -1252,12 +1290,14 @@ $app->post('/project/{name}/leave/{username}', function ($request, $response, $a
         if ($action !== 'no') {
             $this->flash->addMessage('fail', 'There was an error processing your request');
         }
+
         return $response->withRedirect($router->pathFor('projectActions', compact('name')));
     }
 
     // Check if project exists
     if (!Project::doesProjectExist($this->db, $name)) {
         $this->flash->addMessage('fail', 'Project does not exist');
+
         return $response->withRedirect($router->pathFor('projects'));
     }
 
@@ -1267,13 +1307,15 @@ $app->post('/project/{name}/leave/{username}', function ($request, $response, $a
     // Check if project member is the user
     if (!$projectMember || ($projectMember->userID !== $user->id)) {
         $this->flash->addMessage('fail', 'You do not have permission to view this page');
+
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
     // Cannot leave project if user is the owner
     $isOwner = $project->ownerID === $user->id;
-    if($isOwner) {
+    if ($isOwner) {
         $this->flash->addMessage('fail', 'Project owners cannot leave a project. Transfer ownership to another user first.');
+
         return $response->withRedirect($router->pathFor('projectActions', compact('name')));
     }
 
@@ -1296,6 +1338,7 @@ $app->get('/project/{name}/delete', function ($request, $response, $args) {
     // Fetch project
     if (!$project = Project::findProjectByName($this->db, $name)) {
         $this->flash->addMessage('fail', 'Project does not exist');
+
         return $response->withRedirect($router->pathFor('projects'));
     }
 
@@ -1303,6 +1346,7 @@ $app->get('/project/{name}/delete', function ($request, $response, $args) {
     $isOwner = $project->ownerID === $user->id;
     if (!$isOwner) {
         $this->flash->addMessage('fail', 'You do not have permission to view this page');
+
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
@@ -1338,18 +1382,21 @@ $app->post('/project/{name}/delete', function ($request, $response, $args) {
         if ($action !== 'no') {
             $this->flash->addMessage('fail', ' There was an error processing your request');
         }
+
         return $response->withRedirect($router->pathFor('projectActions', compact('name')));
     }
 
     // Fetch project
     if (!$project = Project::findProjectByName($this->db, $name)) {
         $this->flash->addMessage('fail', 'Project does not exist');
+
         return $response->withRedirect($router->pathFor('projects'));
     }
 
     // Check if user is the owner
     if ($project->ownerID !== $user->id) {
         $this->flash->addMessage('fail', 'You do not have permission to view this page');
+
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
@@ -1372,6 +1419,7 @@ $app->post('/project/{name}/delete', function ($request, $response, $args) {
     }
 
     $this->flash->addMessage('success', "Project {$project->projectName} has been deleted successfully");
+
     return $response->withRedirect($router->pathFor('projects'));
 })->add($redirectToLoginMW)->setName('processDeleteProject');
 
@@ -1386,6 +1434,7 @@ $app->get('/project/{name}/rename', function ($request, $response, $args) {
     // Fetch project
     if (!$project = Project::findProjectByName($this->db, $name)) {
         $this->flash->addMessage('fail', 'Project does not exist');
+
         return $response->withRedirect($router->pathFor('projects'));
     }
 
@@ -1394,6 +1443,7 @@ $app->get('/project/{name}/rename', function ($request, $response, $args) {
     $isAdmin = ProjectMember::isProjectAdmin($this->db, $name, $user->id);
     if (!($isAdmin || $isOwner)) {
         $this->flash->addMessage('fail', 'You do not have permission to view this page');
+
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
@@ -1430,18 +1480,21 @@ $app->post('/project/{name}/rename', function ($request, $response, $args) {
         if ($action !== 'cancel') {
             $this->flash->addMessage('fail', 'There was an error processing your request');
         }
+
         return $response->withRedirect($router->pathFor('projectActions', compact('name')));
     }
 
     // Fetch project
     if (!$project = Project::findProjectByName($this->db, $name)) {
         $this->flash->addMessage('fail', 'Project does not exist');
+
         return $response->withRedirect($router->pathFor('projects'));
     }
 
     // Check for permission
     if (!ProjectMember::isProjectAdmin($this->db, $name, $user->id) || !$project->ownerID === $user->id) {
         $this->flash->addMessage('fail', 'You do not have permission to view this page');
+
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
@@ -1449,6 +1502,7 @@ $app->post('/project/{name}/rename', function ($request, $response, $args) {
     if (!Project::isValidProjectName($newName)) {
         $this->flash->addMessage('fail', 'New project name was entered in an invalid format');
         $this->session->setPostData($_POST);
+
         return $response->withRedirect($router->pathFor('renameProject', compact('name')));
     }
 
@@ -1456,6 +1510,7 @@ $app->post('/project/{name}/rename', function ($request, $response, $args) {
     if ($name === $newName) {
         $this->flash->addMessage('fail', 'New project name is the same as the existing one');
         $this->session->setPostData($_POST);
+
         return $response->withRedirect($router->pathFor('renameProject', compact('name')));
     }
 
@@ -1463,6 +1518,7 @@ $app->post('/project/{name}/rename', function ($request, $response, $args) {
     if (Project::doesProjectExist($this->db, $newName) && strtolower($name) !== strtolower($newName)) {
         $this->flash->addMessage('fail', "Project {$newName} already exists");
         $this->session->setPostData($_POST);
+
         return $response->withRedirect($router->pathFor('renameProject', compact('name')));
     }
 
@@ -1485,6 +1541,7 @@ $app->post('/project/{name}/rename', function ($request, $response, $args) {
     }
 
     $this->flash->addMessage('success', "Project {$name} has been renamed to {$newName} ");
+
     return $response->withRedirect($router->pathFor('projectActions', ['name' => $newName]));
 })->add($redirectToLoginMW)->setName('processRenameProject');
 
@@ -1499,6 +1556,7 @@ $app->get('/project/{name}/transferOwnership', function ($request, $response, $a
     // Fetch project
     if (!$project = Project::findProjectByName($this->db, $name)) {
         $this->flash->addMessage('fail', 'Project does not exist');
+
         return $response->withRedirect($route->pathFor('projects'));
     }
 
@@ -1506,6 +1564,7 @@ $app->get('/project/{name}/transferOwnership', function ($request, $response, $a
     $isOwner = $project->ownerID === $user->id;
     if (!$isOwner) {
         $this->flash->addMessage('fail', 'You do not have permission to view this page');
+
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
     $isAdmin = ProjectMember::isProjectAdmin($this->db, $name, $user->id);
@@ -1543,12 +1602,14 @@ $app->post('/project/{name}/transferOwnership/confirm', function ($request, $res
         if ($action !== 'cancel') {
             $this->flash->addMessage('fail', 'There was an error processing your request');
         }
+
         return $response->withRedirect($router->pathFor('projectActions', compact('name')));
     }
 
     // Fetch project
     if (!$project = Project::findProjectByName($this->db, $name)) {
         $this->flash->addMessage('fail', 'Project does not exist');
+
         return $response->withRedirect($route->pathFor('projects'));
     }
 
@@ -1556,6 +1617,7 @@ $app->post('/project/{name}/transferOwnership/confirm', function ($request, $res
     $isOwner = $project->ownerID === $user->id;
     if (!$isOwner) {
         $this->flash->addMessage('fail', 'You do not have permission to view this page');
+
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
@@ -1564,6 +1626,7 @@ $app->post('/project/{name}/transferOwnership/confirm', function ($request, $res
     // Fetch new owner
     if (!$owner = ProjectMember::findProjectMemberByProjectNameAndUsername($this->db, $name, $newOwner)) {
         $this->flash->addMessage('fail', 'Invalid project member was selected');
+
         return $response->withRedirect($router->pathFor('transferOwnership', compact('name')));
     }
 
@@ -1595,24 +1658,28 @@ $app->post('/project/{name}/transferOwnership/{newOwner}', function ($request, $
         if ($action !== 'no') {
             $this->flash->addMessage('fail', 'There was an error processing your request');
         }
+
         return $response->withRedirect($router->pathFor('transferOwnership', compact('name')));
     }
 
     // Fetch project
     if (!$project = Project::findProjectByName($this->db, $name)) {
         $this->flash->addMessage('fail', 'Project does not exist');
+
         return $response->withRedirect($route->pathFor('projects'));
     }
 
     // Check if user is the owner
     if ($project->ownerID !== $user->id) {
         $this->flash->addMessage('fail', 'You do not have permission to view this page');
+
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
     // Fetch new owner
     if (!$projectMember = ProjectMember::findProjectMemberByProjectNameAndUsername($this->db, $name, $newOwner)) {
         $this->flash->addMessage('fail', 'There was an error fetching the project member');
+
         return $response->withRedirect($router->pathFor('transferOwnership', compact('name')));
     }
 
@@ -1635,11 +1702,12 @@ $app->post('/project/{name}/transferOwnership/{newOwner}', function ($request, $
     $notification->save();
 
     $this->flash->addMessage('success', "Project ownership has been transfered to {$projectMember->username}");
+
     return $response->withRedirect($router->pathFor('projectActions', compact('name')));
 })->add($redirectToLoginMW)->setName('processTransferOwnership');
 
 // Add user to project page
-$app->get('/project/{name}/addUser', function($request, $response, $args) {
+$app->get('/project/{name}/addUser', function ($request, $response, $args) {
     $router = $this->router;
 
     $page = 'addUser';
@@ -1649,12 +1717,14 @@ $app->get('/project/{name}/addUser', function($request, $response, $args) {
     // Fetch project
     if (!$project = Project::findProjectByName($this->db, $name)) {
         $this->flash->addMessage('fail', 'Project does not exist');
+
         return $response->withRedirect($router->pathFor('projects'));
     }
 
     // Check for permission
     if (!ProjectMember::isProjectAdmin($this->db, $name, $user->id) || !$project->ownerID === $user->id) {
         $this->flash->addMessage('fail', 'You do not have permission to view this page');
+
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
@@ -1664,7 +1734,7 @@ $app->get('/project/{name}/addUser', function($request, $response, $args) {
     // Get form session data if available
     $postData = $this->session->getPostData();
 
-    if(isset($postData['prevPage']) && filter_var($postData['prevPage'], FILTER_VALIDATE_URL)) {
+    if (isset($postData['prevPage']) && filter_var($postData['prevPage'], FILTER_VALIDATE_URL)) {
         $prevPage = $postData['prevPage'];
     } else {
         $prevPage = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : false;
@@ -1686,7 +1756,7 @@ $app->get('/project/{name}/addUser', function($request, $response, $args) {
 })->add($redirectToLoginMW)->setName('addUserToProject');
 
 // Process adding user to project
-$app->post('/project/{name}/addUser', function($request, $response, $args) {
+$app->post('/project/{name}/addUser', function ($request, $response, $args) {
     $router = $this->router;
 
     $user = User::findById($this->db, $this->session->userID);
@@ -1695,11 +1765,11 @@ $app->post('/project/{name}/addUser', function($request, $response, $args) {
     $action = $this->request->getParam('action');
     $prevPage = $this->request->getParam('prevPage');
 
-    if($action === 'cancel' || $action !== 'add') {
-        if($action !== 'cancel') {
+    if ($action === 'cancel' || $action !== 'add') {
+        if ($action !== 'cancel') {
             $this->flash->addMessage('fail', 'There was an error processing your request');
         }
-        if(!empty($prevPage) && filter_var($prevPage, FILTER_VALIDATE_URL)
+        if (!empty($prevPage) && filter_var($prevPage, FILTER_VALIDATE_URL)
                 && (parse_url($prevPage)['host'] === $_SERVER['HTTP_HOST'])) {
             return $response->withRedirect($prevPage);
         } else {
@@ -1710,17 +1780,19 @@ $app->post('/project/{name}/addUser', function($request, $response, $args) {
     // Fetch project
     if (!$project = Project::findProjectByName($this->db, $name)) {
         $this->flash->addMessage('fail', 'Project does not exist');
+
         return $response->withRedirect($router->pathFor('projects'));
     }
 
     // Check if user has permission
     if (!ProjectMember::isProjectAdmin($this->db, $name, $user->id) || !$project->ownerID === $user->id) {
         $this->flash->addMessage('fail', 'You do not have permission to view this page');
+
         return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
     }
 
     $inputError = false;
-    
+
     if (!$newMember = User::fetchUser($this->db, $username)) {
         $inputError = true;
         $this->flash->addMessage('fail', "Could not find user {$username}");
@@ -1732,8 +1804,9 @@ $app->post('/project/{name}/addUser', function($request, $response, $args) {
         $this->flash->addMessage('fail', "{$username} is already a member of this project");
     }
 
-    if($inputError) {
+    if ($inputError) {
         $this->session->setPostData($_POST);
+
         return $response->withRedirect($router->pathFor('addUserToProject', compact('name')));
     }
 
@@ -1746,17 +1819,17 @@ $app->post('/project/{name}/addUser', function($request, $response, $args) {
 
     // Send notification to new member
     $message = 'You have been added to project ';
-    $message .= '<a href="' . $router->pathFor('project', compact('name')) . '">' . $name . '</a> ';
-    $message .= 'by ' . $user->username;
+    $message .= '<a href="'.$router->pathFor('project', compact('name')).'">'.$name.'</a> ';
+    $message .= 'by '.$user->username;
 
     $notification = new Notification($this->db);
     $notification->userID = $newMember->id;
     $notification->date = date('Y-m-d');
-    $notification->notification =  $message;
+    $notification->notification = $message;
     $notification->save();
 
     $this->flash->addMessage('success', "You have added {$username} to this project");
-    if(!empty($prevPage) && filter_var($prevPage, FILTER_VALIDATE_URL)
+    if (!empty($prevPage) && filter_var($prevPage, FILTER_VALIDATE_URL)
             && (parse_url($prevPage)['host'] === $_SERVER['HTTP_HOST'])) {
         return $response->withRedirect($prevPage);
     } else {
@@ -1826,6 +1899,7 @@ $app->post('/account/profile/', function ($request, $response) {
         if ($action !== 'cancel') {
             $this->flash->addMessage('fail', 'There was an error processing your request');
         }
+
         return $response->withRedirect($router->pathFor('account'));
     }
 
@@ -1840,7 +1914,7 @@ $app->post('/account/profile/', function ($request, $response) {
     }
     if ($photo->getError() !== 0 && $photo->getError() !== 4) {
         $inputError = true;
-        if($photo->getError() === 1 || $photo->getError() === 3) {
+        if ($photo->getError() === 1 || $photo->getError() === 3) {
             $this->flash->addMessage('fail', 'Image file is too large');
         } else {
             $this->flash->addMessage('fail', 'There was a problem processing the uploaded file');
@@ -1860,6 +1934,7 @@ $app->post('/account/profile/', function ($request, $response) {
     if ($inputError) {
         // Store form data in session variable
         $this->session->setPostData($_POST);
+
         return $response->withRedirect($router->pathFor('modifyProfile'));
     }
 
@@ -1943,24 +2018,28 @@ $app->post('/account/password', function ($request, $response) {
         if ($action !== 'cancel') {
             $this->flash->addMessage('fail', 'There was an error processing your request');
         }
+
         return $response->withRedirect($router->pathFor('account'));
     }
 
     // Check if current password is correct
     if (!password_verify($password, $user->password)) {
         $this->flash->addMessage('fail', 'Current password was entered incorrectly');
+
         return $response->withRedirect($router->pathFor('changePassword'));
     }
 
     // Check if new password is valid
     if (!User::isValidPassword($newPassword)) {
         $this->flash->addMessage('fail', 'Invalid formatted password');
+
         return $response->withRedirect($router->pathFor('changePassword'));
     }
 
     // Check if new passwords match
     if (!User::doPasswordsMatch($newPassword, $newPassword2)) {
         $this->flash->addMessage('fail', 'Passwords do not match');
+
         return $response->withRedirect($router->pathFor('changePassword'));
     }
 

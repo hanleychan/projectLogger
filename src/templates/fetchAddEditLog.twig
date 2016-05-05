@@ -12,7 +12,8 @@
 {% endif %}
     <p id="info">
         * Date must be in the format mm/dd/yyyy<br>
-        * Project time must be between 1 min - 24 hrs 
+        * Project time must be between 1 min - 24 hrs<br>
+        * Comment must be under 100 characters
     </p>
     <fieldset>
     <div id="stopWatch">
@@ -26,7 +27,7 @@
 
     <label for="datePicker">Date:</label>
     <input type="text" id="datePicker" name="datePicker" placeholder="mm/dd/yyyy"
-           value="{% if postData %}{{ postData.datePicker }}{% elseif projectLog %}{{ projectLog.date }}{% else %}{{ "now" | date("m/d/Y") }}{% endif %}"><br>
+           value="{% if postData %}{{ postData.datePicker }}{% elseif projectLog %}{{ projectLog.date }}{% else %}{{ "now" | date("m/d/Y") }}{% endif %}" maxlength="10"><br>
 
     <label for="hours">Hours:</label>
     <input type="range" id="hours" name="hours" min="0" max="24" step="1" 
@@ -42,7 +43,8 @@
         value="{% if postData or projectLog %}{% if postData %}{{postData.minutes }}{% else %}{{ projectLog.minutes }}{% endif %}{% else %}0{% endif %}"><br>
 
     <label for="comment">Comment:</label>
-    <input type="text" id="comment" name="comment"{% if postData or projectLog %} value="{% if postData %}{{ postData.comment }}{% else %}{{ projectLog.comment }}{% endif %}"{% endif %}><br>
+    <input type="text" id="comment" name="comment"{% if postData or projectLog %} value="{% if postData %}{{ postData.comment }}{% else %}{{ projectLog.comment }}{% endif %}"{% endif %}
+            placeholder="e.g. Tasks completed, notes" maxlength="100"><br>
     </fieldset>
 
     <div class="submitButtons">
