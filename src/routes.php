@@ -1754,7 +1754,7 @@ $app->post('/project/{name}/addUser', function ($request, $response, $args) {
 
     $user = User::findById($this->db, $this->session->userID);
     $name = trim($args['name']);
-    $username = $this->request->getParam('username');
+    $username = trim(strtolower($this->request->getParam('username')));
     $action = $this->request->getParam('action');
 
     if ($action === 'cancel' || $action !== 'add') {
@@ -1794,7 +1794,6 @@ $app->post('/project/{name}/addUser', function ($request, $response, $args) {
 
     if ($inputError) {
         $this->session->setPostData($_POST);
-
         return $response->withRedirect($router->pathFor('addUserToProject', compact('name')));
     }
 
@@ -1804,6 +1803,11 @@ $app->post('/project/{name}/addUser', function ($request, $response, $args) {
     $projectMember->projectID = $project->id;
     $projectMember->isAdmin = false;
     $projectMember->save();
+
+    // Remove any previous requests if there are any
+    if($request = RequestJoinProject::getRequestByProjectNameAndUsername($this->db, $name, $username)) {
+        $request->delete();
+    }
 
     // Send notification to new member
     $message = 'You have been added to project ';
