@@ -6,9 +6,11 @@
     <select id="show" name="show">
         <option value="all"{% if not displayLogsUsername %} selected {% endif %}>All</option>
 
-        <option value="{{ user.username }}"{% if displayLogsUsername == user.username %} selected{% endif %}>
-            Me only
-        </option>
+        {% if projectMember %}
+            <option value="{{ user.username }}"{% if displayLogsUsername == user.username %} selected{% endif %}>
+                Me only
+            </option>
+        {% endif %}
 
         {% for projectMember in projectMembers %}
             {% if projectMember.username != user.username %}

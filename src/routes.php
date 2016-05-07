@@ -1370,6 +1370,7 @@ $app->get('/project/{name}/delete', function ($request, $response, $args) {
                                                                   'totalMinutes', 'totalMinutesByMe', 'isAdmin', 'isOwner'));
 })->add($redirectToLoginMW)->setName('confirmDeleteProject');
 
+// Process deleting a project
 $app->post('/project/{name}/delete', function ($request, $response, $args) {
     $router = $this->router;
 
