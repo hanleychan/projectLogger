@@ -24,7 +24,18 @@ class Project extends DatabaseObject
      */
     public static function isValidProjectName($projectName)
     {
-        if (preg_match('/^[a-zA-Z0-9]{'.self::NAME_MIN_LENGTH.','.self::NAME_MAX_LENGTH.'}$/', $projectName)) {
+        // Rules:
+        //  Must begin and end begin with a letter or number
+        //  Allow letters, numbers, dashes, underscores, spaces 
+        //  No consecutive spaces, underscores or dashes
+        
+        $pattern = '/^';
+        $pattern .= '(?=.*?[A-Z0-9]$)'; // must end with a letter or number.  Allow single character
+        $pattern .= '(?!.*[ _-]{2})'; // do not allow consecutive spaces, underscores or dashes
+        $pattern .= '[A-Z0-9][\w- ]{' . (self::NAME_MIN_LENGTH - 1) . ',' . (self::NAME_MAX_LENGTH - 1) . '}'; // begins with a letter or number followed by up to 19 word or dash characters
+        $pattern .= '/i';
+
+        if (preg_match($pattern, $projectName)) {
             return true;
         } else {
             return false;

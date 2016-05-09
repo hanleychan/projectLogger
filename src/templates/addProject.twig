@@ -3,12 +3,14 @@
 
 {% block content %}
 <section id="addProjectSection">
-    <h2>Add project</h2>
+    <h2>Add Project</h2>
     {{ macros.displayFlashMessages(flash.message("fail"), flash.message("success")) }}
     <form id="addProjectForm" action="{{ path_for('processAddProject') }}" method="post">
         <p id="info">
+            * Allowed characters: letters, numbers, spaces, underscores and dashes<br>
             * Project name must be between 6 and 20 characters<br>
-            * Project name must contain only letters and numbers
+            * Project name must begin and end with a letter or number<br>
+            * Project name cannot have consecutive spaces, underscores, or dashes
         </p>
         <fieldset>
             <label for="projectName">Project Name:</label>
