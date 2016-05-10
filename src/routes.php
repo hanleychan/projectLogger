@@ -388,6 +388,7 @@ $app->post('/projects/add', function ($request, $response) {
     $projectMember->isAdmin = true;
     $projectMember->save();
 
+    $this->logger->addInfo('Project Added', ['projectName' => $projectName, 'addedBy' => $user->username]);
     $this->flash->addMessage('success', 'Project successfully added');
 
     return $response->withRedirect($router->pathFor('projects'));
@@ -599,6 +600,7 @@ $app->post('/project/{name}/members/request/{username}', function ($request, $re
         $notification->notification .= "has been approved by {$user->username}";
         $notification->save();
 
+        $this->logger->addInfo('User Join Request Accepted', ['username' => $username, 'acceptedBy' => $user->username]);
         $this->flash->addMessage('success', "You have added {$username} to this project");
     } elseif ($action === 'decline') {
         // Add notification for declined user 
@@ -610,11 +612,12 @@ $app->post('/project/{name}/members/request/{username}', function ($request, $re
         $notification->notification .= "has been declined by {$user->username}";
         $notification->save();
 
+        $this->logger->addInfo('User Join Request Declined', ['username' => $username, 'declinedBy' => $user->username]);
         $this->flash->addMessage('success', "You have declined {$username} from joining this project");
     } else {
         $this->flash->addMessage('fail', 'There was a problem processing this request');
     }
-
+ 
     return $response->withRedirect($router->pathFor('fetchProjectMembers', compact('name')));
 })->add($redirectToLoginMW)->setName('processMemberRequest');
 
@@ -716,6 +719,8 @@ $app->post('/project/{name}/remove/{username}', function ($request, $response, $
 
     $this->flash->addMessage('success', "{$projectMember->username} has been removed");
 
+    $this->logger->addInfo('User Removed From Project', ['username' => $projectMember->username, 'removedBy' => $user->username]);
+
     return $response->withRedirect($router->pathFor('fetchProjectMembers', compact('name')));
 })->add($redirectToLoginMW)->setName('processRemoveMember');
 
@@ -756,6 +761,7 @@ $app->post('/project/{name}/rank/{username}', function ($request, $response, $ar
             $notification->notification .= "by {$user->username}";
             $notification->save();
 
+            $this->logger->addInfo('User Promoted', ['projectName'=>$name, 'username' => $username, 'changedBy' => $user->username]);
             $this->flash->addMessage('success', "{$username} is now an admin");
         } else {
             $this->flash->addMessage('fail', "{$username} is already an admin");
@@ -773,6 +779,7 @@ $app->post('/project/{name}/rank/{username}', function ($request, $response, $ar
             $notification->notification .= "<a href=\"{$router->pathFor('fetchProjectLogs', compact('name'))}\">{$name}</a> ";
             $notification->notification .= "by {$user->username}";
             $notification->save();
+            $this->logger->addInfo('User Demoted', ['projectName'=>$name, 'username' => $username, 'changedBy' => $user->username]);
             $this->flash->addMessage('success', "{$username} is no longer an admin");
         } else {
             $this->flash->addMessage('fail', "{$username} is already a regular member");
@@ -1136,6 +1143,7 @@ $app->post('/project/{name}/request', function ($request, $response, $args) {
     $requestJoinProject->projectID = $project->id;
     $requestJoinProject->save();
 
+    $this->logger->addInfo('User Join Project Request', ['projectName'=>$name, 'username'=>$user->username]); 
     $this->flash->addMessage('success', 'Request to join project has been sent');
 
     if (isset($_SERVER['HTTP_REFERER']) && filter_var($_SERVER['HTTP_REFERER'], FILTER_VALIDATE_URL)
@@ -1170,6 +1178,7 @@ $app->post('/project/{name}/request/cancel', function ($request, $response, $arg
     // Remove request from database
     $requestJoinProject->delete();
 
+    $this->logger->addInfo('Cancel Join Project Request', ['projectName'=>$name, 'username'=>$user->username]); 
     $this->flash->addMessage('success', 'Request to join this project has been cancelled');
 
     if (isset($_SERVER['HTTP_REFERER'])) {
@@ -1321,6 +1330,7 @@ $app->post('/project/{name}/leave/{username}', function ($request, $response, $a
     // Remove project member from database
     $projectMember->delete();
 
+    $this->logger->addInfo('User Left Project', ['projectName'=>$name, 'username'=>$user->username]);
     $this->flash->addMessage('success', 'You have left this project');
 
     return $response->withRedirect($router->pathFor('fetchProjectLogs', compact('name')));
@@ -1418,6 +1428,7 @@ $app->post('/project/{name}/delete', function ($request, $response, $args) {
         }
     }
 
+    $this->logger->addInfo('Project Deleted', ['projectName'=>$name, 'deletedBy'=>$user->username]);
     $this->flash->addMessage('success', "Project {$project->projectName} has been deleted successfully");
 
     return $response->withRedirect($router->pathFor('projects'));
@@ -1540,6 +1551,7 @@ $app->post('/project/{name}/rename', function ($request, $response, $args) {
         }
     }
 
+    $this->logger->addInfo('Project Renamed', ['oldName'=>$name, 'newName'=>$newName, 'renamedBy'=>$user->username]);
     $this->flash->addMessage('success', "Project {$name} has been renamed to {$newName} ");
 
     return $response->withRedirect($router->pathFor('projectActions', ['name' => $newName]));
@@ -1703,6 +1715,8 @@ $app->post('/project/{name}/transferOwnership/{newOwner}', function ($request, $
 
     $this->flash->addMessage('success', "Project ownership has been transfered to {$projectMember->username}");
 
+    $this->logger->addInfo('Project Ownership Transfered', ['projectName'=>$name, 'newOwner'=>$newOwner, 'oldOwner'=>$user->username]);
+
     return $response->withRedirect($router->pathFor('projectActions', compact('name')));
 })->add($redirectToLoginMW)->setName('processTransferOwnership');
 
@@ -1822,6 +1836,7 @@ $app->post('/project/{name}/addUser', function ($request, $response, $args) {
     $notification->save();
 
     $this->flash->addMessage('success', "You have added {$username} to this project");
+    $this->logger->addInfo('User Added To Project', ['projectName'=>$name, 'username'=>$username, 'addedBy'=>$user->username]);
     return $response->withRedirect($router->pathFor('fetchProjectMembers', compact('name')));
 })->add($redirectToLoginMW)->setName('processAddUserToProject');
 
