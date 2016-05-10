@@ -154,7 +154,11 @@ class DatabaseObject
             $results = $this->db->prepare($sql);
             for ($ii = 1;$ii <= count($attributes);++$ii) {
                 $attribute = $attributes[$ii - 1];
-                $results->bindParam($ii, $this->$attribute);
+                if (is_bool($this->$attribute)) {
+                    $results->bindParam($ii, $this->$attribute, PDO::PARAM_BOOL);
+                } else {
+                    $results->bindParam($ii, $this->$attribute);
+                }
             }
             $results->bindParam((count($attributes) + 1), $this->id);
 
@@ -187,7 +191,11 @@ class DatabaseObject
 
             for ($ii = 1;$ii <= count($attributes);++$ii) {
                 $attribute = $attributes[$ii - 1];
-                $results->bindParam($ii, $this->$attribute);
+                if(is_bool($this->$attribute)) {
+                    $results->bindParam($ii, $this->$attribute, PDO::PARAM_BOOL);
+                } else {
+                    $results->bindParam($ii, $this->$attribute);
+                }
             }
             $results->execute();
 

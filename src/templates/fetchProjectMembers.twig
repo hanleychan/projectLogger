@@ -7,10 +7,12 @@
 {% endif %}
 <ul>
     <li>
+        <span class="memberUsername">
         <a href="{{ path_for('userProfile', {'username':project.ownerName}) }}">
         {{ project.ownerName }}
         </a>
         (Project Owner)
+        </span>
     </li>
 {% for projectMember in projectMembers %}
     {% if projectMember.userID != projectMember.ownerID %}
