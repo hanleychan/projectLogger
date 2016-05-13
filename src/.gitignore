@@ -3,3 +3,4 @@
 vendor/*
 public/uploads/*
 logs/app.log
+*.css.map

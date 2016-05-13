@@ -253,12 +253,32 @@ $app->get('/login', function ($request, $response) {
 $app->post('/login', function ($request, $response) {
     $username = strtolower(trim($request->getParam('username')));
     $password = $request->getParam('password');
+    $rememberMe = $request->getParam('rememberMe');
+
     $router = $this->router;
 
     if ($user = User::fetchUser($this->db, $username)) {
         if (password_verify($password, $user->password)) {
             // login user and redirect to main page
             $this->session->login($user);
+
+            if($rememberMe) {
+                // Create rememberMe hash
+                $randomString = bin2hex(random_bytes(20)); // generate random string
+                $rememberMeHash = hash('sha256', $randomString);
+                $expires = new DateTime('+1 year'); // expire in 1 year
+
+                $user->rememberHash = $rememberMeHash;
+                $user->expires = $expires->format('Y-m-d H:i:s');
+                $user->save();
+
+                // Set cookie
+                setcookie("projectLoggerRememberLogin", "username={$username}&hash={$randomString}", strtotime($expires->format('Y-m-d H:i:s')));
+            } else {
+                $user->rememberHash = null;
+                $user->expires = null;
+                $user->save();
+            }
 
             // Log login record
             $this->logger->addInfo('User Logged In', compact('username'));
@@ -276,11 +296,20 @@ $app->post('/login', function ($request, $response) {
 $app->get('/logout', function ($request, $response) {
     $user = User::findById($this->db, $this->session->userID);
     $this->session->logout();
+    $router = $this->router;
+
+    // Remove remember me cookie if set
+    if(isset($_COOKIE['projectLoggerRememberLogin'])) {
+        setcookie('projectLoggerRememberLogin', '', time() - 3600);
+    }
+
+    // Remove remember me details from database
+    $user->rememberHash = null;
+    $user->expires = null;
+    $user->save();
 
     // Log logout record
     $this->logger->addInfo('User Logged Out', ['username' => $user->username]);
-
-    $router = $this->router;
 
     return $response->withRedirect($router->pathFor('login'));
 })->add($redirectToLoginMW)->setName('logout');

@@ -142,6 +142,10 @@ form#loginForm {
         font-weight: bold;
     }
 
+    label#rememberMeLabel {
+        display: inline-block;
+    }
+
     input[type="text"], input[type="password"] {
         padding: 0 1%;
         width: 97%;

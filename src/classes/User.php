@@ -6,6 +6,8 @@ class User extends DatabaseObject
     public $username;
     public $password;
     public $joinDate;
+    public $rememberHash;
+    public $expires;
 
     const USERNAME_MIN_LENGTH = 6;
     const USERNAME_MAX_LENGTH = 20;
@@ -13,7 +15,7 @@ class User extends DatabaseObject
     const PASSWORD_MAX_LENGTH = 160;
 
     protected static $tableName = 'users';
-    protected static $dbFields = array('id', 'username', 'password', 'joinDate');
+    protected static $dbFields = array('id', 'username', 'password', 'joinDate', 'rememberHash', 'expires');
 
     /**
      * Returns whether a specified username is in a valid format
