@@ -41,7 +41,10 @@ $redirectToMainPageMW = function ($request, $response, $next) {
             $hash = hash('sha256',trim($hash));
 
             // fetch user from database
-            $user = User::fetchUser($this->db, $username);
+            if(!$user = User::fetchUser($this->db, $username)) {
+                // Error could not find user
+                return $response->withRedirect($router->pathFor('login'));
+            }
 
             $expired = (strtotime($user->expires) > time()) ? false : true;
 
@@ -64,7 +67,7 @@ $redirectToMainPageMW = function ($request, $response, $next) {
                     $this->session->login($user);
                 } else {
                     // Hash value for user is different.  Remove hash from database
-                    $user->hash = null;
+                    $user->rememberHash = null;
                     $user->expires = null;
                     $user->save();
                 }
