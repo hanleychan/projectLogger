@@ -51,7 +51,7 @@ $redirectToMainPageMW = function ($request, $response, $next) {
                 if(hash_equals($user->rememberHash, $hash)) {//$hash === $user->rememberHash) {
                     // generate a new hash and expire
                     $randomString = bin2hex(random_bytes(20)); // generate random string
-                    $rememberMeHash = hash(sha256, $randomString);
+                    $rememberMeHash = hash('sha256', $randomString);
                     $expires = new DateTime('+1 year'); // expire in 1 year
                     $user->rememberHash = $rememberMeHash;
                     $user->expires = $expires->format('Y-m-d H:i:s'); 

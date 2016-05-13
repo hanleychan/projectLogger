@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.5.5
+-- version 4.5.4.1deb2ubuntu1
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: May 02, 2016 at 12:18 AM
--- Server version: 5.6.28-0ubuntu0.14.04.1
--- PHP Version: 7.0.5-3+donate.sury.org~trusty+1
+-- Generation Time: May 12, 2016 at 05:42 PM
+-- Server version: 5.7.12-0ubuntu1
+-- PHP Version: 7.0.4-7ubuntu2
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -111,7 +111,9 @@ CREATE TABLE `users` (
   `id` int(11) NOT NULL,
   `username` varchar(100) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `joinDate` date NOT NULL
+  `joinDate` date NOT NULL,
+  `rememberHash` varchar(255) DEFAULT NULL,
+  `expires` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -179,37 +181,37 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 --
 -- AUTO_INCREMENT for table `profiles`
 --
 ALTER TABLE `profiles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 --
 -- AUTO_INCREMENT for table `projectlogs`
 --
 ALTER TABLE `projectlogs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `projectmembers`
 --
 ALTER TABLE `projectmembers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=104;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 --
 -- AUTO_INCREMENT for table `projects`
 --
 ALTER TABLE `projects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 --
 -- AUTO_INCREMENT for table `requestjoinproject`
 --
 ALTER TABLE `requestjoinproject`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 --
 -- Constraints for dumped tables
 --
