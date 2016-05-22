@@ -1,4 +1,5 @@
 # projectLogger
-A multi-user web application for logging times spent on various projects written in PHP.
+
+A multi-user time tracking application for projects written in PHP.
 
 Application Link: http://projectlogger.hanleyc.com
